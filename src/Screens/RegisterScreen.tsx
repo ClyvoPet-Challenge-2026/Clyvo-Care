@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { View, Text, TouchableOpacity, TextInput } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { Eye, EyeOff } from "lucide-react-native/icons";
 
 interface FormData {
   email: string;
@@ -94,6 +95,12 @@ export function RegisterScreen() {
             }
             secureTextEntry={!showPassword}
           />
+          <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              className="absolute right-4 mt-10 flex items-center justify-center"
+            >
+              {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+            </TouchableOpacity>
           {errors.senha ? (
             <Text className="text-red-500 text-xs mt-1">{errors.senha}</Text>
           ) : null}
@@ -113,6 +120,12 @@ export function RegisterScreen() {
             }
             secureTextEntry={!showConfirmPassword}
           />
+          <TouchableOpacity
+              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-4 mt-10 flex items-center justify-center"
+            >
+              {showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+            </TouchableOpacity>
           {errors.confirmarSenha ? (
             <Text className="text-red-500 text-xs mt-1">
               {errors.confirmarSenha}

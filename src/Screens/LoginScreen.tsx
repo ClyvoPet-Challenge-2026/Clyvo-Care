@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { View, Text, TouchableOpacity, TextInput } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { Eye, EyeOff } from "lucide-react-native"
+
 
 interface FormData {
   email: string;
@@ -70,16 +71,24 @@ export function LoginScreen() {
           <Text className="text-neutral-700 text-sm font-semibold mb-2">
             Senha
           </Text>
-          <TextInput
-            placeholder="••••••"
-            placeholderTextColor="#9ca3af"
-            className="w-full h-12 bg-neutral-50 border border-neutral-300 rounded-lg px-4 text-neutral-900"
-            value={formData.senha}
-            onChangeText={(text) =>
-              setFormData({ ...formData, senha: text })
-            }
-            secureTextEntry={!showPassword}
-          />
+          <View className="relative">
+            <TextInput
+              placeholder="••••••"
+              placeholderTextColor="#9ca3af"
+              className="w-full h-12 bg-neutral-50 border border-neutral-300 rounded-lg px-4 pr-12 text-neutral-900"
+              value={formData.senha}
+              onChangeText={(text) =>
+                setFormData({ ...formData, senha: text })
+              }
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-0 h-12 justify-center"
+            >
+              {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+            </TouchableOpacity>
+          </View>
           {errors.senha ? (
             <Text className="text-red-500 text-xs mt-1">{errors.senha}</Text>
           ) : null}
