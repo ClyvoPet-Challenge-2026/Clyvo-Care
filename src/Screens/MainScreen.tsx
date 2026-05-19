@@ -1,9 +1,8 @@
 import {View, Text, TouchableOpacity} from "react-native"
-import { useNavigation } from '@react-navigation/native';
+import { useAuth } from "../Context/AuthContext";
 
 export function MainScreen() {
-  
-  const navigation = useNavigation();
+  const { logout } = useAuth();
 
   return (
     <View className="flex-1 items-center justify-center h-screen bg-white">
@@ -15,10 +14,10 @@ export function MainScreen() {
           Você foi redirecionado com sucesso
         </Text>
         <TouchableOpacity 
-          onPress={() => navigation.navigate("LoginScreen")}
-          className="bg-blue-500 rounded-lg p-3 px-8"
+          onPress={logout}
+          className="bg-red-500 rounded-lg p-3 px-8"
         >
-          <Text className="text-white text-lg font-semibold">Voltar ao Login</Text>
+          <Text className="text-white text-lg font-semibold">Fazer Logout</Text>
         </TouchableOpacity>
       </View>
     </View>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { View, Text, TouchableOpacity, TextInput } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Eye, EyeOff } from "lucide-react-native/icons";
+import { useAuth } from "../Context/AuthContext";
 
 interface FormData {
   email: string;
@@ -11,6 +12,7 @@ interface FormData {
 
 export function RegisterScreen() {
   const navigation = useNavigation();
+  const { login } = useAuth();
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const [formData, setFormData] = useState<FormData>({
     email: "",
@@ -48,9 +50,9 @@ export function RegisterScreen() {
     return isValid;
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (validateForm()) {
-      navigation.navigate("MainScreen");
+      await login();
     }
   };
 
