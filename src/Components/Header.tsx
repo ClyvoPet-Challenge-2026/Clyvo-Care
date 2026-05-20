@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { User, LogOut } from "lucide-react-native";
 import { useState } from "react";
 import { useAuth } from "../Context/AuthContext";
@@ -7,6 +7,9 @@ import { useAuth } from "../Context/AuthContext";
 export default function Header() {
     const [menuOpen, setMenuOpen] = useState(false);
     const { logout } = useAuth();
+    const insets = useSafeAreaInsets();
+    const iconTop = insets.top + 8;
+    const dropdownTop = iconTop + 48;
 
     const handleLogout = () => {
         setMenuOpen(false);
@@ -14,13 +17,13 @@ export default function Header() {
     };
 
     return (
-        <SafeAreaView className="relative top-0 bg-mainBackground z-50">
+        <SafeAreaView className="relative bg-mainBackground z-50">
             <View className="flex-row m-auto p-3 mb-3 items-center">
                 <Text className="text-black font-semibold text-2xl ml-2 mt-1">Clyvo</Text>
                 <Text className="text-blue font-semibold text-2xl mt-1">Care</Text>
             </View>
             
-            <View className="absolute right-5 top-5">
+            <View className="absolute right-5" style={{ top: iconTop }}>
                 <TouchableOpacity 
                     onPress={() => setMenuOpen(!menuOpen)}
                     className="p-2 rounded-full bg-gray-200"
@@ -30,7 +33,7 @@ export default function Header() {
             </View>
 
             {menuOpen && (
-                <View className="absolute top-16 right-5 bg-white rounded-lg shadow-lg p-2 w-40">
+                <View className="absolute right-5 bg-white rounded-lg shadow-lg p-2 w-40" style={{ top: dropdownTop }}>
                     <TouchableOpacity
                         onPress={handleLogout}
                         className="flex-row items-center p-3 rounded-md"
