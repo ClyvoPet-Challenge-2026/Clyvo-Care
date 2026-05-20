@@ -137,7 +137,7 @@ export function RegisterScreen() {
 
         <TouchableOpacity
           onPress={handleRegister}
-          className="bg-blue-500 rounded-lg p-4 w-full items-center active:bg-blue-600"
+          className="bg-blue-500 rounded-lg p-4 w-full items-center bg-blue"
         >
           <Text className="text-white text-lg font-semibold">Registrar</Text>
         </TouchableOpacity>
@@ -149,7 +149,7 @@ export function RegisterScreen() {
           <TouchableOpacity
             onPress={() => navigation.navigate("LoginScreen")}
           >
-            <Text className="text-blue-500 text-sm font-semibold">
+            <Text className="text-blue text-sm font-semibold">
               Faça login
             </Text>
           </TouchableOpacity>
