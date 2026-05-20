@@ -1,21 +1,49 @@
-import {View, Text} from "react-native"
+import { View, ScrollView, Text, TouchableOpacity} from "react-native"
 import Header from "../Components/Header";
 import Footer from "../Components/Footer";
+import { LocationCarrousel } from "../Components/LocationCarrousel";
+import { useNavigation } from "@react-navigation/native";
+
 
 export function MainScreen() {
+  const navigation = useNavigation();
   return (
     <View className="flex-1 bg-mainBackground">
       <Header />
-      <View className="flex-1 items-center justify-center h-screen">
-        <View className="items-center justify-center">
-          <Text className="text-neutral-900 text-3xl font-bold mb-4">
-            Bem-vindo!
+      <ScrollView
+        className="flex-1 h-screen"
+        contentContainerStyle={{ alignItems: "center", paddingTop: 32, paddingBottom: 24 }}
+      >
+        <View className="items-center w-11/12">
+          <Text className="text-neutral-900 text-3xl font-bold text-center mb-4">
+            Cuidado completo para o seu pet, do jeitinho que ele merece
           </Text>
           <Text className="text-neutral-600 text-base text-center mb-8">
-            Você foi redirecionado com sucesso
+            Agende consultas, acompanhe o histórico e encontre a unidade mais próxima com facilidade.
           </Text>
+
+          <View className="flex-row space-x-4 mb-8 gap-3">
+            <TouchableOpacity
+              onPress={() => navigation.navigate("RegisterPet")}
+              className="w-40 items-center justify-center bg-blue rounded-lg py-3 ml-4"
+            >
+              <Text className="text-white text-sm font-semibold">Registrar Pet</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("MyPet")}
+              className="w-40 items-center justify-center bg-white border border-blue rounded-lg py-3"
+            >
+              <Text className="text-blue text-sm font-semibold">Ver Pets</Text>
+            </TouchableOpacity>
+          </View>
+
+
+          <View className="w-screen items-center bg-white mt-4 mb-4 p-4 rounded-lg">
+            <Text className="text-lg font-bold mb-4 text-blue">Nossas Unidades</Text>
+            <LocationCarrousel />
+          </View>
         </View>
-      </View>
+      </ScrollView>
       <Footer />
     </View>
   );
