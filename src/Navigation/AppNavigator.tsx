@@ -9,7 +9,7 @@ import { RegisterPet } from "../Screens/RegisterPet";
 import { MyPet } from "../Screens/MyPet";
 import { MakeAppointment } from "../Screens/MakeAppointment";
 import { MyInformations } from "../Screens/MyInformations";
- 
+
 const Stack = createNativeStackNavigator();
 
 export function RootNavigator() {
@@ -18,7 +18,7 @@ export function RootNavigator() {
     if (loading) return <LoaderCircle />; // Aguarde carregar
 
     return (
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Navigator screenOptions={{ headerShown: true }}>
             {loggedIn ? (
                 // Stack para usuário autenticado
                 <>

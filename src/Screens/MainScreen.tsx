@@ -1,6 +1,5 @@
 import { View, ScrollView, Text, TouchableOpacity} from "react-native"
 import Header from "../Components/Header";
-import Footer from "../Components/Footer";
 import { LocationCarrousel } from "../Components/LocationCarrousel";
 import { useNavigation } from "@react-navigation/native";
 
@@ -11,7 +10,7 @@ export function MainScreen() {
     <View className="flex-1 bg-mainBackground">
       <Header />
       <ScrollView
-        className="flex-1 h-screen"
+        className="flex-1 h-screen overflow-y-scroll "
         contentContainerStyle={{ alignItems: "center", paddingTop: 32, paddingBottom: 24 }}
       >
         <View className="items-center w-11/12">
@@ -22,7 +21,7 @@ export function MainScreen() {
             Agende consultas, acompanhe o histórico e encontre a unidade mais próxima com facilidade.
           </Text>
 
-          <View className="flex-row space-x-4 mb-8 gap-3">
+          <View className="flex-row gap-4 mb-8">
             <TouchableOpacity
               onPress={() => navigation.navigate("RegisterPet")}
               className="w-40 items-center justify-center bg-blue rounded-lg py-3 ml-4"
@@ -44,7 +43,6 @@ export function MainScreen() {
           </View>
         </View>
       </ScrollView>
-      <Footer />
     </View>
   );
 }
