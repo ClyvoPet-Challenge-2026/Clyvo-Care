@@ -3,6 +3,9 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { User, LogOut } from "lucide-react-native";
 import { useState } from "react";
 import { useAuth } from "../Context/AuthContext";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../Types/types";
 
 export default function Header() {
     const [menuOpen, setMenuOpen] = useState(false);
@@ -10,18 +13,18 @@ export default function Header() {
     const insets = useSafeAreaInsets();
     const iconTop = insets.top + 8;
     const dropdownTop = iconTop + 48;
-
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const handleLogout = () => {
         setMenuOpen(false);
         logout();
     };
 
     return (
-        <SafeAreaView className="relative bg-mainBackground z-50">
-            <View className="flex-row m-auto p-3 mb-3 items-center">
+        <SafeAreaView className="bg-mainBackground w-screen h-25">
+            <TouchableOpacity onPress={() => navigation.navigate("MainScreen")} className="flex-row m-auto p-3 items-center">
                 <Text className="text-black font-semibold text-2xl ml-2 mt-1">Clyvo</Text>
                 <Text className="text-blue font-semibold text-2xl mt-1">Care</Text>
-            </View>
+            </TouchableOpacity>
             
             <View className="absolute right-5" style={{ top: iconTop }}>
                 <TouchableOpacity 
