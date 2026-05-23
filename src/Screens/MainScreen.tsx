@@ -1,18 +1,17 @@
 import { View, ScrollView, Text, TouchableOpacity} from "react-native"
-import Header from "../Components/Header";
 import { LocationCarrousel } from "../Components/LocationCarrousel";
-import { useNavigation } from "@react-navigation/native";
+import { MainScreenProps } from "../Types/types";
 
 
-export function MainScreen() {
-  const navigation = useNavigation();
+export function MainScreen({ navigation }: MainScreenProps) {
   return (
     <View className="flex-1 bg-mainBackground">
-      <Header />
       <ScrollView
         className="flex-1 h-screen overflow-y-scroll "
         contentContainerStyle={{ alignItems: "center", paddingTop: 32, paddingBottom: 24 }}
       >
+
+        {/* Secção de Introdução */}
         <View className="items-center w-11/12">
           <Text className="text-neutral-900 text-3xl font-bold text-center mb-4">
             Cuidado completo para o seu pet, do jeitinho que ele merece
@@ -36,7 +35,7 @@ export function MainScreen() {
             </TouchableOpacity>
           </View>
 
-
+          {/* Secção de Nossas Unidades */}
           <View className="w-screen items-center bg-white mt-4 mb-4 p-4 rounded-lg">
             <Text className="text-lg font-bold mb-4 text-blue">Nossas Unidades</Text>
             <LocationCarrousel />
