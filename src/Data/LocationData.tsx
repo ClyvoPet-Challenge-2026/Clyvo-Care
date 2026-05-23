@@ -25,7 +25,7 @@ export const locations: Location[] = [
     id: 'Ficticio1', 
     name: 'Clinica 1', 
     img: ClyvoSJCampos, 
-    linkMaps: '',
+    linkMaps: 'https://maps.app.goo.gl/UUYKJi6ByGNdPTk46',
     location: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua'
   },
     { 
@@ -33,7 +33,7 @@ export const locations: Location[] = [
     id: 'Ficticio2', 
     name: 'Clinica 2', 
     img: ClyvoSJCampos, 
-    linkMaps: '',
+    linkMaps: 'https://maps.app.goo.gl/UUYKJi6ByGNdPTk46',
     location: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
   },
     { 
@@ -41,7 +41,7 @@ export const locations: Location[] = [
     id: 'Ficticio3', 
     name: 'Clinica 3', 
     img: ClyvoSJCampos, 
-    linkMaps: '',
+    linkMaps: 'https://maps.app.goo.gl/UUYKJi6ByGNdPTk46',
     location: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
   },
 ]
