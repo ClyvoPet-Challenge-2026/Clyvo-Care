@@ -1,16 +1,21 @@
-import { View, Text, Image, TouchableOpacity, Linking } from "react-native";
+import { View, Text, Image, TouchableOpacity, Linking, ScrollView } from "react-native";
 import { locations } from "../Data/LocationData";
 import { ChevronRight } from "lucide-react-native";
 
 export function LocationCarrousel() {
     return (
         <View className="mt-4">
-            <View className="flex-row items-center justify-start space-x-4 px-4">
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: 16 }}
+            >
                 {locations.map((item) => (
                     <TouchableOpacity
                         key={item.identifier}
                         activeOpacity={0.85}
                         onPress={() => Linking.openURL(item.linkMaps)}
+                        className="mr-4 last:mr-0"
                     >
                         <View className="w-44 h-56 bg-white rounded-2xl shadow-md overflow-hidden">
                             <Image source={item.img} className="w-full h-28" resizeMode="cover" />
@@ -31,7 +36,7 @@ export function LocationCarrousel() {
                         </View>
                     </TouchableOpacity>
                 ))}
-            </View>
+            </ScrollView>
         </View>
     );
 }
