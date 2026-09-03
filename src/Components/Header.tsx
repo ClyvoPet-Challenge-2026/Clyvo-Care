@@ -20,7 +20,7 @@ export default function Header() {
     };
 
     return (
-        <SafeAreaView className="bg-mainBackground w-screen h-25">
+        <SafeAreaView className="bg-mainBackground w-screen h-15 border-b border-gray-200">
             <TouchableOpacity onPress={() => navigation.navigate("MainScreen")} className="flex-row m-auto p-3 items-center">
                 <Text className="text-black font-semibold text-2xl ml-2 mt-1">Clyvo</Text>
                 <Text className="text-blue font-semibold text-2xl mt-1">Care</Text>
