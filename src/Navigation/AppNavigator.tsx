@@ -1,4 +1,3 @@
-import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { LoaderCircle } from "lucide-react-native"
 import { useAuth } from "../Context/AuthContext";
@@ -10,9 +9,10 @@ import { MyPet } from "../Screens/MyPetScreen";
 import { MakeAppointment } from "../Screens/MakeAppointment";
 import { MyInformations } from "../Screens/MyInformations";
 import Header from "../Components/Header";
-import { RootStackParamList } from "../Types/types";
+import { RootStackParamList, AuthStackParamList } from "./navigation";
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+const AuthStack = createNativeStackNavigator<AuthStackParamList>();
+const RootStack = createNativeStackNavigator<RootStackParamList>();
 
 export function RootNavigator() {
     const { loggedIn, loading } = useAuth();
@@ -20,24 +20,24 @@ export function RootNavigator() {
     if (loading) return <LoaderCircle />; // Aguarde carregar
 
     return (
-        <Stack.Navigator>
+        <RootStack.Navigator>
             {loggedIn ? (
                 // Stack para usuário autenticado
-                <Stack.Group screenOptions={{ header: () => <Header /> }}>
-                    <Stack.Screen name="MainScreen" component={MainScreen} />
-                    <Stack.Screen name="RegisterPet" component={RegisterPet} />
-                    <Stack.Screen name="MyPet" component={MyPet} />
-                    <Stack.Screen name="MakeAppointment" component={MakeAppointment} />
-                    <Stack.Screen name="MyInformations" component={MyInformations} />
-                </Stack.Group>
+                <RootStack.Group screenOptions={{ header: () => <Header /> }}>
+                    <RootStack.Screen name="MainScreen" component={MainScreen} />
+                    <RootStack.Screen name="RegisterPet" component={RegisterPet} />
+                    <RootStack.Screen name="MyPet" component={MyPet} />
+                    <RootStack.Screen name="MakeAppointment" component={MakeAppointment} />
+                    <RootStack.Screen name="MyInformations" component={MyInformations} />
+                </RootStack.Group>
             ) : (
                 // Stack para usuário NÃO autenticado
-                <Stack.Group screenOptions={{ headerShown: false }}>
-                    <Stack.Screen name="LoginScreen" component={LoginScreen} />
-                    <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
-                </Stack.Group>
+                <AuthStack.Group screenOptions={{ headerShown: false }}>
+                    <AuthStack.Screen name="LoginScreen" component={LoginScreen} />
+                    <AuthStack.Screen name="RegisterScreen" component={RegisterScreen} />
+                </AuthStack.Group>
             )}
-        </Stack.Navigator>
+        </RootStack.Navigator>
     );
 }
 
