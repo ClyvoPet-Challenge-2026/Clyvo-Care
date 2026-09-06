@@ -1,14 +1,5 @@
 import { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-} from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react-native";
 import { useAuth } from "../Context/AuthContext";
 import { RegisterScreenProps } from "../Types/types";
