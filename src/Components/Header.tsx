@@ -7,13 +7,17 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../Types/types";
 
-export default function Header() {
+interface HeaderProps {
+  navigation?: NativeStackNavigationProp<RootStackParamList>;
+}
+
+export default function Header({ navigation: propNavigation }: HeaderProps = {}) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [dropOpen, setDropOpen] = useState(false);
   const { logout } = useAuth();
   const insets = useSafeAreaInsets();
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const hookNavigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = propNavigation || hookNavigation;
 
   const handleLogout = () => {
     setDropOpen(false);
