@@ -2,18 +2,12 @@ import { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react-native";
 import { useAuth } from "../Context/AuthContext";
-import { RegisterScreenProps } from "../Types/types";
-
-interface FormData {
-  email: string;
-  senha: string;
-  confirmarSenha: string;
-}
+import { RegisterScreenProps, RegisterFormData } from "../Types/types";
 
 export function RegisterScreen({ navigation }: RegisterScreenProps) {
   const { login } = useAuth();
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<RegisterFormData>({
     email: "",
     senha: "",
     confirmarSenha: "",

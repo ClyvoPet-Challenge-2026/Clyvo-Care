@@ -6,6 +6,7 @@ import { useAuth } from "../Context/AuthContext";
 import { useTheme } from "../Context/ThemeContext";
 import { Footer } from "../Components/Footer";
 import { UserProfile } from "../Types/types";
+import { DEFAULT_USER_PROFILE } from "../Data/DefaultUserProfileData";
 
 const STORAGE_KEY = "@clyvo_user_profile";
 
@@ -13,13 +14,7 @@ export function MyInformations() {
   const { logout } = useAuth();
   const { theme, setTheme } = useTheme();
 
-  const [profile, setProfile] = useState<UserProfile>({
-    name: "Dr. Roberto Silva",
-    email: "roberto.silva@clyvo.com.br",
-    phone: "(11) 98765-4321",
-    address: "Av. Paulista, 1000 - São Paulo, SP",
-    photoUrl: "",
-  });
+  const [profile, setProfile] = useState<UserProfile>(DEFAULT_USER_PROFILE);
 
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<UserProfile>(profile);
