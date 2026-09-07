@@ -1,66 +1,80 @@
-import { View, Text, Image, TouchableOpacity, TextInput, ScrollView } from 'react-native';
+import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { MyPetData } from '../Data/MyPetData';
 import { PetSpecieBreedListData } from '../Data/PetSpecieBreedListData';
-import { Camera, Upload } from 'lucide-react-native';
+import { DropdownProps } from '../Types/types';
+import { Camera, Image as ImageIcon, Sparkles, ChevronDown, Check, User, Calendar, Tag, Dna } from 'lucide-react-native';
 import React, { useState } from 'react';
 
-interface DropdownProps {
-    label: string;
-    value: string;
-    placeholder?: string;
-    options: string[];
-    onSelect: (value: string) => void;
-}
-
-function Dropdown({
-    label,
-    value,
-    placeholder = "Selecione",
-    options,
-    onSelect,
+function Dropdown({ label, value, placeholder = "Selecione", options, onSelect, icon,
 }: DropdownProps) {
     const [open, setOpen] = useState(false);
 
     return (
         <View className="w-full mb-4">
-            <Text className="text-neutral-700 text-sm font-semibold mb-2">{label}</Text>
+            <Text className="text-xs font-medium text-mute mb-1.5">{label}</Text>
             <TouchableOpacity
+                activeOpacity={0.8}
                 onPress={() => setOpen(!open)}
-                className="w-full h-12 bg-neutral-50 border border-neutral-300 rounded-lg px-4 justify-center"
+                className={`w-full min-h-[46px] rounded-xl border px-3.5 py-2.5 flex-row items-center justify-between ${
+                    open ? "border-brand bg-paper" : "border-rule bg-ground/50"
+                }`}
             >
-                <Text className={value ? "text-neutral-900" : "text-neutral-400"}>
-                    {value || placeholder}
-                </Text>
+                <View className="flex-row items-center flex-1 mr-2">
+                    {icon && <View className="mr-2.5">{icon}</View>}
+                    <Text className={`text-sm ${value ? "text-ink font-medium" : "text-mute"}`}>
+                        {value || placeholder}
+                    </Text>
+                </View>
+                <ChevronDown
+                    size={16}
+                    color="#6c778c"
+                    style={{ transform: [{ rotate: open ? "180deg" : "0deg" }] }}
+                />
             </TouchableOpacity>
+
             {open && (
-                <View className="mt-2 bg-white border border-neutral-200 rounded-lg overflow-hidden">
-                    {options.map((option, index) => (
-                        <TouchableOpacity
-                            key={option}
-                            onPress={() => {
-                                onSelect(option);
-                                setOpen(false);
-                            }}
-                            className={`px-4 py-3 ${index < options.length - 1 ? "border-b border-neutral-100" : ""}`}
-                        >
-                            <Text className="text-neutral-900">{option}</Text>
-                        </TouchableOpacity>
-                    ))}
+                <View
+                    className="mt-1.5 bg-paper border border-rule-2 rounded-2xl overflow-hidden">
+                    <ScrollView nestedScrollEnabled className="max-h-52">
+                        {options.map((option, index) => {
+                            const isSelected = option === value;
+                            return (
+                                <TouchableOpacity
+                                    key={option}
+                                    activeOpacity={0.7}
+                                    onPress={() => {
+                                        onSelect(option);
+                                        setOpen(false);
+                                    }}
+                                    className={`px-4 py-3 flex-row items-center justify-between ${
+                                        isSelected ? "bg-soft/50" : "bg-paper"
+                                    } ${index < options.length - 1 ? "border-b border-rule-2/70" : ""}`}
+                                >
+                                    <Text
+                                        className={`text-sm ${
+                                            isSelected ? "text-brand font-semibold" : "text-body"
+                                        }`}
+                                    >
+                                        {option}
+                                    </Text>
+                                    {isSelected && <Check size={16} color="#1f6ae1" />}
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </ScrollView>
                 </View>
             )}
         </View>
     );
 }
 
-
 export function RegisterPet() {
     const specieOptions = PetSpecieBreedListData.map((item) => item.species);
     const initialSpecie = specieOptions[0] ?? "";
-    const initialBreeds =
-        PetSpecieBreedListData.find((item) => item.species === initialSpecie)?.breeds ?? [];
-
+    const initialBreeds = PetSpecieBreedListData.find((item) => item.species === initialSpecie)?.breeds ?? [];
     const [petName, setPetName] = useState("");
     const [petBirthDate, setPetBirthDate] = useState("");
+    const [unknownBirthDate, setUnknownBirthDate] = useState(false);
     const [petTutor, setPetTutor] = useState("");
     const [selectedSex, setSelectedSex] = useState("Macho");
     const [selectedSpecie, setSelectedSpecie] = useState(initialSpecie);
@@ -80,105 +94,221 @@ export function RegisterPet() {
     };
 
     return (
-        <View className="flex-1 bg-white">
-            <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 32 }}>
-                {/* Título */}
-                <View className="w-full items-start mt-6">
-                    <Text className="text-2xl font-bold">Novo Pet</Text>
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} className="flex-1 bg-mainBackground" >
+            <ScrollView
+                contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 24 }}
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+            >
+                {/* Card de Foto e Apresentação do Pet */}
+                <View className="bg-paper rounded-3xl p-5 mb-5 border border-rule items-center">
+                    <View className="relative">
+                        <View className="w-24 h-24 rounded-full bg-soft items-center justify-center overflow-hidden border-2 border-soft shadow-sm">
+                            {selectedPetImage ? (
+                                <Image
+                                    source={selectedPetImage}
+                                    className="w-full h-full"
+                                    resizeMode="cover"
+                                />
+                            ) : (
+                                <Sparkles size={32} color="#1f6ae1" />
+                            )}
+                        </View>
+                    </View>
+
+                    <View className="items-center mt-3">
+                        <Text className="text-sm font-semibold text-navy">
+                            {petName.trim() ? petName : "Nome do Pet"}
+                        </Text>
+                        <Text className="text-xs text-mute mt-0.5">
+                            Padrão: {selectedSpecie || "Geral"} • {selectedBreed || "Raça"}
+                        </Text>
+                    </View>
+
+                    {/* Botões de Ação de Foto */}
+                    <View className="flex-row gap-3 mt-4 w-full justify-center">
+                        <TouchableOpacity 
+                        activeOpacity={0.8} 
+                        className="flex-row items-center justify-center gap-2 bg-lightBlue rounded-xl py-2.5 px-4 flex-1 border border-brand/20" 
+                        >
+                            <Camera size={16} color="#1f6ae1" />
+                            <Text className="text-brand text-xs font-semibold">Tirar Foto</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            activeOpacity={0.8}
+                            className="flex-row items-center justify-center gap-2 bg-ground rounded-xl py-2.5 px-4 flex-1 border border-rule"
+                        >
+                            <ImageIcon size={16} color="#393f4b" />
+                            <Text className="text-body text-xs font-semibold">Galeria</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
 
-                {/* Foto do Pet */}
-                <View className="mt-4 items-center justify-center">
-                    {selectedPetImage ? (
-                        <Image source={selectedPetImage} className="w-24 h-24 rounded-full" resizeMode="cover" />
-                    ) : null}
-                
-                    <View className="flex-row mt-2">
-                        <Text className="text-gray-300">Sem Foto</Text>
-                        <Text className="text-gray-300"> ° </Text>
-                        <Text className="text-gray-300">Usando Padrão de {selectedSpecie || MyPetData[0]?.species}</Text>
+                {/* Card do Formulário de Informações */}
+                <View
+                    className="bg-paper rounded-3xl p-6 mb-6 border border-rule">
+                    <Text className="text-base font-bold text-navy mb-4">
+                        Informações do Pet
+                    </Text>
+
+                    {/* Input: Nome do Pet */}
+                    <View className="mb-4">
+                        <Text className="text-xs font-medium text-mute mb-1.5">Nome do Pet</Text>
+                        <View className="flex-row items-center rounded-xl border border-rule bg-ground/50 px-3 py-2.5">
+                            <Tag size={16} color="#6c778c" />
+                            <TextInput
+                                placeholder="Ex: Rex, Luna, Thor..."
+                                placeholderTextColor="#6c778c"
+                                className="flex-1 ml-2 text-sm text-ink p-0"
+                                value={petName}
+                                onChangeText={setPetName}
+                            />
+                        </View>
                     </View>
 
-                    {/* Campo de Botões */}
-                    <View className="flex-row gap-4 mt-4">
-                        {/* Botão de Tirar Foto*/}
-                        <TouchableOpacity className="flex-row items-center gap-2 bg-lightBlue rounded-full py-3 px-6">
-                            <Camera className="w-5 h-5" color="blue" />
-                            <Text className="text-blue">Tirar Foto</Text>
-                        </TouchableOpacity>
-                        {/* Botão de Upload de foto*/}
-                        <TouchableOpacity className="flex-row items-center gap-2 bg-lightBlue rounded-full py-3 px-6">
-                            <Upload className="w-5 h-5" color="blue" />
-                            <Text className="text-blue">Galeria</Text>
-                        </TouchableOpacity>
+                    {/* Input: Data de Nascimento */}
+                    <View className="mb-4">
+                        <Text className="text-xs font-medium text-mute mb-1.5">Data de Nascimento</Text>
+                        <View className="flex-row items-center gap-2.5">
+                            <View
+                                className={`flex-1 flex-row items-center rounded-xl border px-3 py-2.5 ${
+                                    unknownBirthDate
+                                        ? "border-rule bg-ground/30 opacity-60"
+                                        : "border-rule bg-ground/50"
+                                }`}
+                            >
+                                <Calendar size={16} color="#6c778c" />
+                                <TextInput
+                                    placeholder="DD/MM/AAAA"
+                                    placeholderTextColor="#6c778c"
+                                    className="flex-1 ml-2 text-sm text-ink p-0"
+                                    value={unknownBirthDate ? "Não informada" : petBirthDate}
+                                    onChangeText={setPetBirthDate}
+                                    editable={!unknownBirthDate}
+                                />
+                            </View>
+
+                            {/* Botão de "Não sei a data" */}
+                            <TouchableOpacity
+                                activeOpacity={0.8}
+                                onPress={() => {
+                                    setUnknownBirthDate((prev) => {
+                                        const next = !prev;
+                                        if (next) {
+                                            setPetBirthDate("");
+                                        }
+                                        return next;
+                                    });
+                                }}
+                                className={`h-[42px] px-3 rounded-xl border flex-row items-center justify-center gap-1.5 ${
+                                    unknownBirthDate
+                                        ? "bg-brand/10 border-brand"
+                                        : "bg-ground/50 border-rule"
+                                }`}
+                            >
+                                <View
+                                    className={`w-4 h-4 rounded-md border items-center justify-center ${
+                                        unknownBirthDate
+                                            ? "border-brand bg-brand"
+                                            : "border-mute bg-paper"
+                                    }`}
+                                >
+                                    {unknownBirthDate && <Check size={12} color="#ffffff" />}
+                                </View>
+                                <Text
+                                    className={`text-xs font-medium ${
+                                        unknownBirthDate ? "text-brand font-semibold" : "text-soft-ink"
+                                    }`}
+                                >
+                                    Não sei
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
 
-                    {/* Campos de Input */}
-                    <View className="w-full mt-6">
-                    {/* Input de Nome */}
-                    <View className="w-full mb-4">
-                        <Text className="text-neutral-700 text-sm font-semibold mb-2">Nome do Pet</Text>
-                        <TextInput
-                            placeholder="Nome do Pet"
-                            placeholderTextColor="#9ca3af"
-                            className="w-full h-12 bg-neutral-50 border border-neutral-300 rounded-lg px-4 text-neutral-900"
-                            value={petName}
-                            onChangeText={setPetName}
-                        />
-                    </View>
-                    {/* Input de data de nascimento */}
-                    <View className="w-full mb-4">
-                        <Text className="text-neutral-700 text-sm font-semibold mb-2">Data de Nascimento</Text>
-                        <TextInput
-                            placeholder="DD/MM/AAAA"
-                            placeholderTextColor="#9ca3af"
-                            className="w-full h-12 bg-neutral-50 border border-neutral-300 rounded-lg px-4 text-neutral-900"
-                            value={petBirthDate}
-                            onChangeText={setPetBirthDate}
-                        />
+                    {/* Dropdown / Selector: Sexo */}
+                    <View className="mb-4">
+                        <Text className="text-xs font-medium text-mute mb-1.5">Sexo</Text>
+                        <View className="flex-row gap-3">
+                            {["Macho", "Femea"].map((sex) => {
+                                const isSelected = selectedSex === sex;
+                                return (
+                                    <TouchableOpacity
+                                        key={sex}
+                                        activeOpacity={0.8}
+                                        onPress={() => setSelectedSex(sex)}
+                                        className={`flex-1 py-2.5 px-3 rounded-xl border items-center justify-center flex-row gap-2 ${
+                                            isSelected
+                                                ? "bg-brand/10 border-brand"
+                                                : "bg-ground/50 border-rule"
+                                        }`}
+                                    >
+                                        <View
+                                            className={`w-3.5 h-3.5 rounded-full border items-center justify-center ${
+                                                isSelected
+                                                    ? "border-brand bg-brand"
+                                                    : "border-mute bg-paper"
+                                            }`}
+                                        >
+                                            {isSelected && (
+                                                <View className="w-1.5 h-1.5 rounded-full bg-paper" />
+                                            )}
+                                        </View>
+                                        <Text
+                                            className={`text-xs font-semibold ${
+                                                isSelected ? "text-brand" : "text-body"
+                                            }`}
+                                        >
+                                            {sex}
+                                        </Text>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
                     </View>
 
+                    {/* Input: Tutor Responsável */}
+                    <View className="mb-4">
+                        <Text className="text-xs font-medium text-mute mb-1.5">Tutor Responsável</Text>
+                        <View className="flex-row items-center rounded-xl border border-rule bg-ground/50 px-3 py-2.5">
+                            <User size={16} color="#6c778c" />
+                            <TextInput
+                                placeholder="Nome do Responsável"
+                                placeholderTextColor="#6c778c"
+                                className="flex-1 ml-2 text-sm text-ink p-0"
+                                value={petTutor}
+                                onChangeText={setPetTutor}
+                            />
+                        </View>
+                    </View>
+
+                    {/* Dropdown: Espécie */}
                     <Dropdown
-                        label="Sexo"
-                        value={selectedSex}
-                        options={["Macho", "Femea"]}
-                        onSelect={setSelectedSex}
-                    />
-
-                    {/* Input de Responsável */}
-                    <View className="w-full mb-4">
-                        <Text className="text-neutral-700 text-sm font-semibold mb-2">Responsável</Text>
-                        <TextInput
-                            placeholder="Nome do Responsável"
-                            placeholderTextColor="#9ca3af"
-                            className="w-full h-12 bg-neutral-50 border border-neutral-300 rounded-lg px-4 text-neutral-900"
-                            value={petTutor}
-                            onChangeText={setPetTutor}
-                        />
-                    </View>
-
-                    <Dropdown
-                        label="Especie"
+                        label="Espécie"
                         value={selectedSpecie}
                         options={specieOptions}
                         onSelect={handleSpecieSelect}
+                        icon={<Sparkles size={16} color="#6c778c" />}
                     />
 
+                    {/* Dropdown: Raça */}
                     <Dropdown
-                        label="Raca"
+                        label="Raça"
                         value={selectedBreed}
                         options={breedOptions}
                         onSelect={setSelectedBreed}
+                        icon={<Dna size={16} color="#6c778c" />}
                     />
 
-                        {/* Botão de Cadastrar Pet */}
-                        <TouchableOpacity className="w-full items-center justify-center bg-blue rounded-lg py-3 mt-4">
-                            <Text className="text-white text-sm font-semibold">Cadastrar Pet</Text>
-                        </TouchableOpacity>
-
-                    </View>
+                    {/* Botão de Ação Principal: Cadastrar Pet */}
+                    <TouchableOpacity
+                        activeOpacity={0.8}
+                        className="w-full items-center justify-center bg-brand rounded-xl py-3.5 mt-4 shadow-sm">
+                        <Text className="text-paper text-sm font-semibold">Cadastrar Pet</Text>
+                    </TouchableOpacity>
                 </View>
             </ScrollView>
-        </View>
+        </KeyboardAvoidingView>
     );
 }
