@@ -6,6 +6,7 @@ const Bird = require("../Images/PetImage/bird.jpg");
 const Fish = require("../Images/PetImage/fish.jpg");
 const Rodent = require("../Images/PetImage/rodent.jpg");
 const Reptile = require("../Images/PetImage/reptile.jpg");
+const Mahoraga = require("../Images/PetImage/Mahoraga.png");
 
 export interface Pet {
   identifier: number;
@@ -85,5 +86,16 @@ export const MyPetData: Pet[] = [
     sex: "Femea",
     age: 5,
     tutor: "Ash Ketchum",
+  },
+    {
+    identifier: 7,
+    id: "Imoral",
+    img: Mahoraga,
+    name: "Divino General Imoral da Espada de Oito Cabos Mahoraga",
+    species: "nah i'd adapt",
+    breed: "Invocação das Sombras",
+    sex: "Sim",
+    age: 9999,
+    tutor: "Subuxa",
   },
 ];

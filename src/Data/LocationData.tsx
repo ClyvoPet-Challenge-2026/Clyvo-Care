@@ -28,20 +28,4 @@ export const locations: Location[] = [
     linkMaps: 'https://maps.app.goo.gl/UUYKJi6ByGNdPTk46',
     location: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua'
   },
-    { 
-    identifier: 3,
-    id: 'Ficticio2', 
-    name: 'Clinica 2', 
-    img: ClyvoSJCampos, 
-    linkMaps: 'https://maps.app.goo.gl/UUYKJi6ByGNdPTk46',
-    location: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
-  },
-    { 
-    identifier: 4,
-    id: 'Ficticio3', 
-    name: 'Clinica 3', 
-    img: ClyvoSJCampos, 
-    linkMaps: 'https://maps.app.goo.gl/UUYKJi6ByGNdPTk46',
-    location: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
-  },
 ]

@@ -87,9 +87,30 @@ export interface RegisterPetFormData {
   photoUrl?: string;
 }
 
+export interface DropdownProps {
+  label: string;
+  value: string;
+  placeholder?: string;
+  options: string[];
+  onSelect: (value: string) => void;
+  icon?: React.ReactNode;
+}
+
 // ==========================================
 // 4. Tipos de Agendamentos / Consultas
 // ==========================================
+
+export interface AppointmentReason {
+  id: string;
+  title: string;
+  description: string;
+  badge?: string;
+}
+
+export interface QuickDate {
+  label: string;
+  sublabel: string;
+}
 
 export type AppointmentStatus =
   | "Pendente"
@@ -122,3 +143,38 @@ export interface LocationUnit {
   img: ImageSourcePropType;
   phone?: string;
 }
+
+// ==========================================
+// 6. Navegação de Telas
+// ==========================================
+
+export type LoginScreenProps = NativeStackScreenProps<
+  AuthStackParamList,
+  'LoginScreen'
+>;
+
+export type RegisterScreenProps = NativeStackScreenProps<
+  AuthStackParamList,
+  'RegisterScreen'
+>;
+
+export type MainScreenProps = NativeStackScreenProps<
+  RootStackParamList,
+  'MainScreen'
+>;
+
+export type MyPet = NativeStackScreenProps<
+  RootStackParamList,
+  'MyPet'
+>;
+
+
+export type RegisterPet = NativeStackScreenProps<
+  RootStackParamList,
+  'RegisterPet'
+>;
+
+export type MakeAppointmentProps = NativeStackScreenProps<
+  RootStackParamList,
+  'MakeAppointment'
+>;
