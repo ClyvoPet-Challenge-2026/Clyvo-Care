@@ -1,31 +1,38 @@
 export interface PetSpecieBreed {
   species: string;
+  apiName?: string;
   breeds: string[];
 }
 
 export const PetSpecieBreedListData: PetSpecieBreed[] = [
   {
     species: "Canino",
-    breeds: ["Golden Retriever", "Labrador", "Poodle", "Vira-lata"],
+    apiName: "Dog",
+    breeds: ["Golden Retriever", "Labrador", "Bulldog", "Poodle", "Mixed"],
   },
   {
     species: "Felino",
-    breeds: ["Maine Coon", "Siamese", "Persa", "SRD"],
+    apiName: "Cat",
+    breeds: ["Maine Coon", "Siamese", "Persian"],
   },
   {
     species: "Ave",
-    breeds: ["Calopsita", "Arara", "Canario"],
-  },
-  {
-    species: "Peixe",
-    breeds: ["Peixe-palhaco", "Betta", "Guppy"],
+    apiName: "Bird",
+    breeds: ["Cockatiel"],
   },
   {
     species: "Roedor",
-    breeds: ["Hamster Sirio", "Porquinho-da-India"],
+    apiName: "Rabbit",
+    breeds: ["Mini Lop"],
+  },
+  {
+    species: "Peixe",
+    apiName: "Fish",
+    breeds: ["Peixe-palhaço", "Betta", "Guppy"],
   },
   {
     species: "Reptil",
+    apiName: "Reptile",
     breeds: ["Leopard Gecko", "Iguana"],
   },
 ];
