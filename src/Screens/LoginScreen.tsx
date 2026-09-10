@@ -1,15 +1,18 @@
 import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
-import { Mail, Lock, Eye, EyeOff } from "lucide-react-native";
+import { View, Text, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from "react-native";
+import { Mail, Lock, Eye, EyeOff, Sparkles } from "lucide-react-native";
 import { useAuth } from "../Context/AuthContext";
 import { LoginScreenProps, LoginFormData } from "../Types/types";
 
 export function LoginScreen({ navigation }: LoginScreenProps) {
-  const { login } = useAuth();
+  const { login, loginGuest } = useAuth();
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const [formData, setFormData] = useState<LoginFormData>({ email: "", senha: "" });
   const [errors, setErrors] = useState({ email: "", senha: "" });
   const [showPassword, setShowPassword] = useState(false);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [apiError, setApiError] = useState("");
 
   const validateForm = () => {
     const newErrors = { email: "", senha: "" };
@@ -30,8 +33,27 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
   };
 
   const handleLogin = async () => {
-    if (validateForm()) {
-      await login();
+    setApiError("");
+    if (!validateForm()) return;
+
+    try {
+      setIsSubmitting(true);
+      await login(formData);
+    } catch (err: any) {
+      setApiError(err.message || "Email ou senha incorretos.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleQuickAccess = async () => {
+    try {
+      setIsSubmitting(true);
+      await loginGuest();
+    } catch (err: any) {
+      setApiError("Não foi possível acessar no modo convidado.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -46,13 +68,13 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
         className="px-6 py-10"
       >
         <View className="w-full max-w-sm mx-auto">
-          {/* Header da Logo e Títulos no padrão paw-portal */}
+          {/* Header da Logo e Títulos */}
           <View className="items-center mb-8">
-              <Image
-                source={require("../../assets/Logo-ClyvoCare.png")}
-                className="w-40 h-40"
-                resizeMode="contain"
-              />
+            <Image
+              source={require("../../assets/Logo-ClyvoCare.png")}
+              className="w-40 h-40"
+              resizeMode="contain"
+            />
             <Text className="text-sm text-soft opacity-90 mt-1">
               Cuidando de quem cuida de você
             </Text>
@@ -70,6 +92,12 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
             }}
           >
             <Text className="text-xl font-semibold text-navy mb-4">Entrar</Text>
+
+            {apiError ? (
+              <View className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl">
+                <Text className="text-danger text-xs">{apiError}</Text>
+              </View>
+            ) : null}
 
             {/* Campo E-mail */}
             <View className="mb-4">
@@ -101,7 +129,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
               <View className="flex-row items-center rounded-xl border border-rule bg-ground/50 px-3 py-2.5">
                 <Lock size={16} color="#6c778c" />
                 <TextInput
-                  placeholder="••••••••"
+                  placeholder="Sua senha"
                   placeholderTextColor="#6c778c"
                   secureTextEntry={!showPassword}
                   value={formData.senha}
@@ -127,9 +155,10 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
               ) : null}
             </View>
 
-            {/* Botão de Entrar */}
+            {/* Botão de Entrar Normal */}
             <TouchableOpacity
               onPress={handleLogin}
+              disabled={isSubmitting}
               activeOpacity={0.85}
               className="w-full rounded-xl bg-brand py-3.5 items-center justify-center"
               style={{
@@ -140,7 +169,22 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
                 elevation: 4,
               }}
             >
-              <Text className="text-paper text-base font-semibold">Entrar</Text>
+              {isSubmitting ? (
+                <ActivityIndicator color="#ffffff" />
+              ) : (
+                <Text className="text-paper text-base font-semibold">Entrar</Text>
+              )}
+            </TouchableOpacity>
+
+            {/* Botão de Entrada Rápida / Modo Demonstração */}
+            <TouchableOpacity
+              onPress={handleQuickAccess}
+              disabled={isSubmitting}
+              activeOpacity={0.85}
+              className="w-full mt-3 rounded-xl border border-brand/30 bg-soft py-3 items-center justify-center flex-row gap-2"
+            >
+              <Sparkles size={16} color="#1f6ae1" />
+              <Text className="text-brand text-sm font-semibold">Entrar sem login (Acesso Rápido)</Text>
             </TouchableOpacity>
 
             {/* Link de Cadastro */}

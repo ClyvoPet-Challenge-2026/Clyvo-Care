@@ -7,14 +7,22 @@ import { useTheme } from "../Context/ThemeContext";
 import { Footer } from "../Components/Footer";
 import { UserProfile } from "../Types/types";
 import { DEFAULT_USER_PROFILE } from "../Data/DefaultUserProfileData";
+import { deleteAccount } from "../Services/auth";
 
 const STORAGE_KEY = "@clyvo_user_profile";
 
 export function MyInformations() {
-  const { logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const { theme, setTheme } = useTheme();
 
-  const [profile, setProfile] = useState<UserProfile>(DEFAULT_USER_PROFILE);
+  const [profile, setProfile] = useState<UserProfile>({
+    name: user?.name || DEFAULT_USER_PROFILE.name,
+    email: user?.email || DEFAULT_USER_PROFILE.email,
+    phone: user?.phone || DEFAULT_USER_PROFILE.phone,
+    address: user?.city ? `${user.city.name} - ${user.city.state?.uf || ""}` : DEFAULT_USER_PROFILE.address,
+    cpf: user?.cpf || "",
+    photoUrl: "",
+  });
 
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<UserProfile>(profile);
@@ -22,8 +30,21 @@ export function MyInformations() {
   const [confirmDeleteModal, setConfirmDeleteModal] = useState(false);
 
   useEffect(() => {
-    loadProfile();
-  }, []);
+    if (user) {
+      const userProfileData: UserProfile = {
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        address: user.city ? `${user.city.name} - ${user.city.state?.uf || ""}` : "",
+        cpf: user.cpf,
+        photoUrl: "",
+      };
+      setProfile(userProfileData);
+      setFormData(userProfileData);
+    } else {
+      loadProfile();
+    }
+  }, [user]);
 
   const loadProfile = async () => {
     try {
@@ -415,6 +436,13 @@ export function MyInformations() {
               <TouchableOpacity
                 onPress={async () => {
                   setConfirmDeleteModal(false);
+                  try {
+                    if (user?.id) {
+                      await deleteAccount(user.id);
+                    }
+                  } catch (e) {
+                    console.error("Erro ao deletar conta na API:", e);
+                  }
                   await AsyncStorage.removeItem(STORAGE_KEY);
                   await logout();
                 }}
