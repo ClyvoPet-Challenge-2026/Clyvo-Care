@@ -6,7 +6,7 @@ import { RootStackParamList, AuthStackParamList } from "../Navigation/navigation
 export type { RootStackParamList, AuthStackParamList };
 
 // ==========================================
-// 1. Tipos de Autenticação & Cadastro
+// Tipos de Autenticação & Cadastro
 // ==========================================
 
 export interface LoginFormData {
@@ -15,12 +15,17 @@ export interface LoginFormData {
 }
 
 export interface RegisterFormData {
+  name: string;
+  cpf: string;
   email: string;
   senha: string;
   confirmarSenha?: string;
-  name?: string;
-  username?: string; // Suporte para Username solicitado
-  phone?: string;
+  phone: string;
+  cityId: number;
+}
+
+export interface LoginResponseDTO {
+  token: string;
 }
 
 export interface AuthResponse {
@@ -29,7 +34,7 @@ export interface AuthResponse {
 }
 
 // ==========================================
-// 2. Perfil do Usuário / Tutor
+// Perfil do Usuário / Tutor
 // ==========================================
 
 export interface UserProfile {
@@ -46,7 +51,41 @@ export interface UserProfile {
 }
 
 // ==========================================
-// 3. Tipos de Pets
+// Usuário - API
+// ==========================================
+
+export interface OwnerApiDTO {
+  id: number;
+  name: string;
+  cpf: string;
+  email: string;
+  phone: string;
+  city?: {
+    id: number;
+    name: string;
+    state?: {
+      id: number;
+      name: string;
+      uf: string;
+    };
+  };
+  createdAt?: string;
+}
+
+export interface StateApiDTO {
+  id: number;
+  name: string;
+  uf: string;
+}
+
+export interface CityApiDTO {
+  id: number;
+  name: string;
+  state?: StateApiDTO;
+}
+
+// ==========================================
+// Tipos de Pets
 // ==========================================
 
 export type PetSpecies =
@@ -97,7 +136,7 @@ export interface DropdownProps {
 }
 
 // ==========================================
-// 4. Tipos de Agendamentos / Consultas
+// Tipos de Agendamentos / Consultas
 // ==========================================
 
 export interface AppointmentReason {
@@ -132,7 +171,7 @@ export interface Appointment {
 }
 
 // ==========================================
-// 5. Unidades / Clínicas
+// Unidades / Clínicas
 // ==========================================
 
 export interface LocationUnit {
@@ -145,7 +184,86 @@ export interface LocationUnit {
 }
 
 // ==========================================
-// 6. Navegação de Telas
+// "pets" para API Java Spring Boot
+// ==========================================
+
+export interface SpeciesApiDTO {
+  id: number;
+  name: string;
+}
+
+export interface BreedApiDTO {
+  id: number;
+  name: string;
+  species?: SpeciesApiDTO;
+}
+
+export interface PetApiDTO {
+  id: number;
+  name: string;
+  birthDate: string;
+  sex: "MALE" | "FEMALE";
+  owner?: {
+    id: number;
+    name: string;
+  };
+  species?: SpeciesApiDTO;
+  breed?: BreedApiDTO;
+  createdAt?: string;
+}
+
+export interface CreatePetDTO {
+  name: string;
+  birthDate: string; // YYYY-MM-DD
+  sex: "MALE" | "FEMALE";
+  ownerId: number;
+  speciesId: number;
+  breedId?: number;
+}
+
+// ==========================================
+// Planos de Assinatura / Subscrições - API
+// ==========================================
+
+export interface PlanApiDTO {
+  id: number;
+  name: string;
+  description: string;
+  monthlyValue: number;
+}
+
+export interface PaymentMethodApiDTO {
+  id: number;
+  name: string;
+}
+
+export interface SubStatusApiDTO {
+  id: number;
+  name: string;
+}
+
+export interface SubscriptionApiDTO {
+  id: number;
+  pet: {
+    id: number;
+    name: string;
+  };
+  plan: PlanApiDTO;
+  status: SubStatusApiDTO;
+  paymentMethod: PaymentMethodApiDTO;
+  contractedValue: number;
+  createdAt: string;
+}
+
+export interface CreateSubscriptionDTO {
+  petId: number;
+  planId: number;
+  statusId: number;
+  paymentMethodId: number;
+}
+
+// ==========================================
+// Navegação de Telas
 // ==========================================
 
 export type LoginScreenProps = NativeStackScreenProps<
