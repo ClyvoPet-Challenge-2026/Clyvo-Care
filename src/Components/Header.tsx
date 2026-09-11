@@ -3,6 +3,7 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { Menu, X, User, LogOut, Home, Heart, PlusCircle, Calendar, Settings } from "lucide-react-native";
 import { useState } from "react";
 import { useAuth } from "../Context/AuthContext";
+import { useOwnerProfile } from "../Hooks/useOwner";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../Types/types";
@@ -14,7 +15,8 @@ interface HeaderProps {
 export default function Header({ navigation: propNavigation }: HeaderProps = {}) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [dropOpen, setDropOpen] = useState(false);
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
+  const { data: ownerData } = useOwnerProfile(user?.id);
   const insets = useSafeAreaInsets();
   const hookNavigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const navigation = propNavigation || hookNavigation;
@@ -98,8 +100,8 @@ export default function Header({ navigation: propNavigation }: HeaderProps = {})
           >
             <View className="px-4 py-3 border-b border-rule bg-ground/50">
               <Text className="text-xs text-mute font-medium">Logado como</Text>
-              <Text className="text-sm font-semibold text-ink truncate mt-0.5">
-                Usuário Clyvo {/* aqui vai ser o nome do usuário */} 
+              <Text className="text-sm font-semibold text-ink truncate mt-0.5" numberOfLines={1}>
+                {ownerData?.name || user?.name || "Usuário Clyvo"}
               </Text>
             </View>
 
