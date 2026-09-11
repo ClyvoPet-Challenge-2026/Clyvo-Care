@@ -16,4 +16,7 @@ export const queryKeys = {
     states: ['locations', 'states'] as const,
     cities: ['locations', 'cities'] as const,
   },
+  owner: {
+    profile: (id?: number) => ['owner', 'profile', id] as const,
+  },
 };

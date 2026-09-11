@@ -26,6 +26,9 @@ export interface RegisterFormData {
 
 export interface LoginResponseDTO {
   token: string;
+  ownerId?: number;
+  name?: string;
+  email?: string;
 }
 
 export interface AuthResponse {
