@@ -60,20 +60,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const authRes = await loginUser(data);
     await AsyncStorage.setItem("authToken", authRes.token);
 
-    // Constrói o perfil com base nas credenciais autenticadas pelo JWT
-    const authenticatedUser: OwnerApiDTO = {
-      id: 1, // Identificador padrão da sessão autenticada
-      name: data.email.split("@")[0],
-      email: data.email,
+    const ownerId = authRes.ownerId || 1;
+    let authenticatedUser: OwnerApiDTO = {
+      id: ownerId,
+      name: authRes.name || data.email.split("@")[0],
+      email: authRes.email || data.email,
       cpf: "",
       phone: "",
     };
+
+    try {
+      const fullProfile = await getProfile(ownerId);
+      if (fullProfile) {
+        authenticatedUser = fullProfile;
+      }
+    } catch (e) {
+      console.warn("Não foi possível carregar o perfil completo após login:", e);
+    }
 
     await AsyncStorage.setItem(USER_KEY, JSON.stringify(authenticatedUser));
     setUser(authenticatedUser);
   };
 
   const loginGuest = async () => {
+    // Mantido por compatibilidade de tipo, mas não mais exposto na UI
     await AsyncStorage.setItem(USER_KEY, JSON.stringify(GUEST_USER));
     await AsyncStorage.setItem("authToken", "guest-token");
     setUser(GUEST_USER);

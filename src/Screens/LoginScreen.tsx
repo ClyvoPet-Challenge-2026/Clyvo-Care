@@ -176,17 +176,6 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
               )}
             </TouchableOpacity>
 
-            {/* Botão de Entrada Rápida / Modo Demonstração */}
-            <TouchableOpacity
-              onPress={handleQuickAccess}
-              disabled={isSubmitting}
-              activeOpacity={0.85}
-              className="w-full mt-3 rounded-xl border border-brand/30 bg-soft py-3 items-center justify-center flex-row gap-2"
-            >
-              <Sparkles size={16} color="#1f6ae1" />
-              <Text className="text-brand text-sm font-semibold">Entrar sem login (Acesso Rápido)</Text>
-            </TouchableOpacity>
-
             {/* Link de Cadastro */}
             <View className="flex-row items-center justify-center mt-5">
               <Text className="text-sm text-mute">Não tem cadastro? </Text>
