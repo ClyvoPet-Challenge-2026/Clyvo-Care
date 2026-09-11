@@ -1,15 +1,27 @@
-import { useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Image, Alert, AlertButton, KeyboardAvoidingView, Platform } from "react-native";
-import { Clock, Heart, MapPin, Stethoscope, ChevronDown, Check, FileText } from "lucide-react-native";
+import { useState, useEffect } from "react";
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Image, Alert, AlertButton, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
+import { Clock, Heart, MapPin, Stethoscope, ChevronDown, Check, FileText, Plus } from "lucide-react-native";
 import { MyPetData } from "../Data/MyPetData";
+import { PetSpecieBreedListData } from "../Data/PetSpecieBreedListData";
 import { locations } from "../Data/LocationData";
 import { APPOINTMENT_REASONS, AVAILABLE_TIMES, QUICK_DATES } from "../Data/AppointmentData";
 import { MakeAppointmentProps } from "../Types/types";
+import { useAuth } from "../Context/AuthContext";
+import { usePets } from "../Hooks/usePets";
 
 export function MakeAppointment({ navigation }: MakeAppointmentProps) {
-  // Seleções puramente visuais e locais
-  const [selectedPet, setSelectedPet] = useState<string>("dog-1");
+  const { user } = useAuth();
+  const { data: pets = [], isLoading: loadingPets } = usePets(user?.id);
+
+  // Seleções
+  const [selectedPet, setSelectedPet] = useState<number | string>("");
   const [selectedReason, setSelectedReason] = useState<string>("checkup");
+
+  useEffect(() => {
+    if (pets.length > 0 && !selectedPet) {
+      setSelectedPet(pets[0].id);
+    }
+  }, [pets]);
   const [selectedLocation, setSelectedLocation] = useState<string>(locations[0]?.name ?? "São José dos Campos");
   const [locationDropdownOpen, setLocationDropdownOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>("Hoje");
@@ -57,69 +69,95 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
             </View>
           </View>
 
-          {/* Carrossel Horizontal de Seleção de Pets */}
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            className="-mx-1 py-1"
-          >
-            {MyPetData.map((pet) => {
-              const isSelected = selectedPet === pet.id;
-              return (
-                <TouchableOpacity
-                  key={pet.id}
-                  activeOpacity={0.8}
-                  onPress={() => setSelectedPet(pet.id)}
-                  style={
-                    isSelected
-                      ? {
-                          shadowColor: "#000",
-                          shadowOffset: { width: 0, height: 1 },
-                          shadowOpacity: 0.08,
-                          shadowRadius: 2,
-                          elevation: 1,
-                        }
-                      : undefined
-                  }
-                  className={`mr-3 p-3 rounded-2xl border items-center w-28 ${
-                    isSelected
-                      ? "border-brand bg-soft"
-                      : "border-rule bg-ground"
-                  }`}
-                >
-                  <View className="relative mb-2">
-                    <View
-                      className={`w-14 h-14 rounded-full overflow-hidden border-2 ${
-                        isSelected ? "border-brand" : "border-rule"
-                      }`}
-                    >
-                      <Image
-                        source={pet.img}
-                        className="w-full h-full"
-                        resizeMode="cover"
-                      />
-                    </View>
-                    {isSelected && (
-                      <View className="absolute -bottom-1 -right-1 bg-brand rounded-full w-5 h-5 items-center justify-center border-2 border-paper">
-                        <Check size={11} color="#ffffff" />
-                      </View>
-                    )}
-                  </View>
-                  <Text
-                    className={`text-xs font-bold text-center ${
-                      isSelected ? "text-brand" : "text-navy"
+          {/* Carrossel Horizontal de Seleção de Pets da API */}
+          {loadingPets ? (
+            <ActivityIndicator size="small" color="#1f6ae1" className="py-4" />
+          ) : pets.length > 0 ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="-mx-1 py-1"
+            >
+              {pets.map((pet) => {
+                const isSelected = selectedPet === pet.id;
+                const currentSpeciesName = pet.species?.name?.toLowerCase() || "";
+                const matchedConfig = PetSpecieBreedListData.find(
+                  (item) =>
+                    item.species.toLowerCase() === currentSpeciesName ||
+                    item.apiName?.toLowerCase() === currentSpeciesName
+                );
+                const targetSpecies = matchedConfig?.species.toLowerCase() || currentSpeciesName;
+                const petImg =
+                  MyPetData.find((item) => item.species.toLowerCase() === targetSpecies)?.img ||
+                  MyPetData[0]?.img;
+
+                return (
+                  <TouchableOpacity
+                    key={pet.id}
+                    activeOpacity={0.8}
+                    onPress={() => setSelectedPet(pet.id)}
+                    style={
+                      isSelected
+                        ? {
+                            shadowColor: "#000",
+                            shadowOffset: { width: 0, height: 1 },
+                            shadowOpacity: 0.08,
+                            shadowRadius: 2,
+                            elevation: 1,
+                          }
+                        : undefined
+                    }
+                    className={`mr-3 p-3 rounded-2xl border items-center w-28 ${
+                      isSelected
+                        ? "border-brand bg-soft"
+                        : "border-rule bg-ground"
                     }`}
-                    numberOfLines={1}
                   >
-                    {pet.name}
-                  </Text>
-                  <Text className="text-[10px] text-mute text-center" numberOfLines={1}>
-                    {pet.species}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
+                    <View className="relative mb-2">
+                      <View
+                        className={`w-14 h-14 rounded-full overflow-hidden border-2 ${
+                          isSelected ? "border-brand" : "border-rule"
+                        }`}
+                      >
+                        <Image
+                          source={petImg}
+                          className="w-full h-full"
+                          resizeMode="cover"
+                        />
+                      </View>
+                      {isSelected && (
+                        <View className="absolute -bottom-1 -right-1 bg-brand rounded-full w-5 h-5 items-center justify-center border-2 border-paper">
+                          <Check size={11} color="#ffffff" />
+                        </View>
+                      )}
+                    </View>
+                    <Text
+                      className={`text-xs font-bold text-center ${
+                        isSelected ? "text-brand" : "text-navy"
+                      }`}
+                      numberOfLines={1}
+                    >
+                      {pet.name}
+                    </Text>
+                    <Text className="text-[10px] text-mute text-center" numberOfLines={1}>
+                      {pet.breed?.name || pet.species?.name || "Pet"}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          ) : (
+            <View className="items-center py-4">
+              <Text className="text-xs text-mute mb-2">Nenhum pet cadastrado para agendamento.</Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("RegisterPet")}
+                className="flex-row items-center gap-1.5 bg-brand px-3.5 py-2 rounded-xl"
+              >
+                <Plus size={14} color="#ffffff" />
+                <Text className="text-xs text-paper font-semibold">Cadastrar Pet</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
 
         {/* 2. SELEÇÃO DO MOTIVO DA CONSULTA */}
