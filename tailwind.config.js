@@ -1,9 +1,4 @@
 // ==========================================
-// TAILWIND.CONFIG.JS — CLYVO CARE
-// Configuração centralizada de cores e tema
-// ==========================================
-
-// ==========================================
 // 1. CONSTANTES DE CORES DO DESIGN SYSTEM
 // ==========================================
 
