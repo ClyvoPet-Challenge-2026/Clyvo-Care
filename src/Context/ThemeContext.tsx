@@ -1,12 +1,18 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useMemo } from "react";
 import { Appearance } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useColorScheme } from "nativewind";
+import type { ClyvoThemeColors, ThemeType } from "../Types/types";
 
-type Theme = "light" | "dark";
+const { clyvoLightColors, clyvoDarkColors } = require("../../tailwind.config");
+
+export type Theme = ThemeType;
+export type { ClyvoThemeColors };
 
 interface ThemeContextType {
   theme: Theme;
+  isDark: boolean;
+  colors: ClyvoThemeColors;
   setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
 }
@@ -54,8 +60,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setTheme(theme === "dark" ? "light" : "dark");
   };
 
+  const isDark = theme === "dark";
+  const colors = useMemo(() => (isDark ? clyvoDarkColors : clyvoLightColors), [isDark]);
+
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, isDark, colors, setTheme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );

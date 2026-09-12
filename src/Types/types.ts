@@ -6,6 +6,27 @@ import { RootStackParamList, AuthStackParamList } from "../Navigation/navigation
 export type { RootStackParamList, AuthStackParamList };
 
 // ==========================================
+// Tipos de Tema (Dark / Light Mode)
+// ==========================================
+
+export type ThemeType = "light" | "dark";
+
+export interface ClyvoThemeColors {
+  background: string;
+  card: string;
+  surface: string;
+  soft: string;
+  text: string;
+  textSecondary: string;
+  textMuted: string;
+  border: string;
+  borderSecondary: string;
+  brand: string;
+  icon: string;
+  iconSecondary: string;
+}
+
+// ==========================================
 // Tipos de Autenticação & Cadastro
 // ==========================================
 
