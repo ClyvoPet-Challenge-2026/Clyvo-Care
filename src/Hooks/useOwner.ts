@@ -11,6 +11,7 @@ export function useOwnerProfile(ownerId?: number) {
       return getProfile(ownerId);
     },
     enabled: !!ownerId,
+    retry: false,
   });
 }
 
