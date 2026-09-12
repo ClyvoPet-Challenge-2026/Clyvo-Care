@@ -20,7 +20,8 @@
 
 ## Vídeo de Demonstração
 
-> **Link do Vídeo no YouTube (máx. 5 minutos):** `[Link-do-video]`  
+> **Link do Vídeo no YouTube:** [Link do video no Youtube](https://youtu.be/vcfJ3j9KZHc)
+
 > *Demonstração completa da aplicação em execução contínua no celular físico, autenticação JWT, navegação protegida, operações de CRUD sincronizadas em tempo real com a API Java e tratamento de estados de carregamento.*
 
 
