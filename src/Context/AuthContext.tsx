@@ -1,6 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { loginUser, registerUser, getProfile } from "../Services/auth";
+import { setUnauthorizedHandler } from "../Services/http";
 import { LoginFormData, RegisterFormData, OwnerApiDTO } from "../Types/types";
 
 interface AuthContextType {
@@ -12,6 +14,7 @@ interface AuthContextType {
   register: (data: RegisterFormData) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  updateUser: (data: Partial<OwnerApiDTO>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,6 +40,7 @@ export const GUEST_USER: OwnerApiDTO = {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<OwnerApiDTO | null>(null);
   const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     loadStoredSession();
@@ -114,15 +118,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const logout = async () => {
+  const updateUser = async (data: Partial<OwnerApiDTO>) => {
+    if (!user) return;
+    const updated: OwnerApiDTO = { ...user, ...data };
+    await AsyncStorage.setItem(USER_KEY, JSON.stringify(updated));
+    setUser(updated);
+  };
+
+  const logout = useCallback(async () => {
     try {
       await AsyncStorage.removeItem(USER_KEY);
       await AsyncStorage.removeItem("authToken");
       setUser(null);
+      queryClient.clear();
     } catch (error) {
       console.error("Erro ao encerrar sessão:", error);
     }
-  };
+  }, [queryClient]);
+
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      logout();
+    });
+    return () => setUnauthorizedHandler(null);
+  }, [logout]);
 
   return (
     <AuthContext.Provider
@@ -135,6 +154,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         register,
         logout,
         refreshUser,
+        updateUser,
       }}
     >
       {children}

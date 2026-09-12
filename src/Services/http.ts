@@ -10,6 +10,12 @@ export const api = axios.create({
   },
 });
 
+let onUnauthorized: (() => void) | null = null;
+
+export function setUnauthorizedHandler(handler: (() => void) | null) {
+  onUnauthorized = handler;
+}
+
 // Interceptor para injetar o Token JWT automaticamente em todas as requisições autenticadas
 api.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
@@ -29,6 +35,13 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error: AxiosError<any>) => {
+    const status = error.response?.status ?? 0;
+
+    // Se o token expirou ou for inválido (401), dispara deslogar automático
+    if (status === 401) {
+      onUnauthorized?.();
+    }
+
     // Timeout
     if (error.code === "ECONNABORTED" || error.message?.includes("timeout")) {
       return Promise.reject(
