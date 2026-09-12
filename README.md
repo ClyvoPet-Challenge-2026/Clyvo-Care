@@ -230,8 +230,8 @@ Clyvo-Care/
 
 ## Integrantes da Equipe
 
-| Nome do Aluno | RM | |
-| :--- | :---: | :--- |
+| Nome do Aluno | RM | 
+| :--- | :---: |
 | *André Emygdio Ferreira*      | *RM565592* |
 | *Gabriel Lourenço Martins*    | *RM562194* |
 | *Giovane Amato dos Santos*    | *RM561336* |
