@@ -10,12 +10,13 @@ import { useAuth } from "../Context/AuthContext";
 import { usePets, useDeletePet } from "../Hooks/usePets";
 import { PetSpecieBreedListData } from "../Data/PetSpecieBreedListData";
 import { PetApiDTO } from "../Types/types";
+import { ErrorState } from "../Components/ErrorState";
 
 export function MyPet() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { user } = useAuth();
 
-  const { data: pets = [], isLoading: loading } = usePets(user?.id);
+  const { data: pets = [], isLoading: loading, isError, error, refetch } = usePets(user?.id);
   const deletePetMutation = useDeletePet();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -163,6 +164,16 @@ export function MyPet() {
         <View className="px-5 mt-2 gap-3">
           {loading ? (
             <ActivityIndicator size="large" color="#1f6ae1" className="py-10" />
+          ) : isError ? (
+            <ErrorState
+              title="Erro ao carregar pets"
+              message={
+                error instanceof Error
+                  ? error.message
+                  : "Não foi possível obter a lista de pets da API. Verifique sua conexão com o servidor."
+              }
+              onRetry={() => refetch()}
+            />
           ) : filteredPets.length > 0 ? (
             filteredPets.map((pet) => {
               const currentSpeciesName = pet.species?.name?.toLowerCase() || "";
