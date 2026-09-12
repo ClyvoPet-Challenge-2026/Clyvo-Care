@@ -1,8 +1,11 @@
 import { View, Text, Image, TouchableOpacity, Linking, ScrollView } from "react-native";
 import { locations } from "../Data/LocationData";
 import { ChevronRight } from "lucide-react-native";
+import { useTheme } from "../Context/ThemeContext";
 
 export function LocationCarrousel() {
+  const { isDark } = useTheme();
+
   return (
     <View className="mt-3 -mx-5">
       <ScrollView
@@ -25,7 +28,9 @@ export function LocationCarrousel() {
               style={{ marginRight: isLast ? 0 : 14 }}
             >
               <View
-                className="w-full bg-paper rounded-2xl border border-rule overflow-hidden"
+                className={`w-full rounded-2xl border overflow-hidden ${
+                  isDark ? "bg-navy border-white/10" : "bg-paper border-rule"
+                }`}
                 style={{
                   shadowColor: "#0c0d10",
                   shadowOffset: { width: 0, height: 3 },
@@ -42,19 +47,29 @@ export function LocationCarrousel() {
                 <View className="p-3.5 justify-between min-h-[134px]">
                   <View>
                     <Text
-                      className="text-navy text-sm font-bold mb-1"
+                      className={`text-sm font-bold mb-1 ${
+                        isDark ? "text-paper" : "text-navy"
+                      }`}
                       numberOfLines={1}
                     >
                       {item.name}
                     </Text>
                     <Text
-                      className="text-mute text-xs leading-4"
+                      className={`text-xs leading-4 ${
+                        isDark ? "text-soft-line" : "text-mute"
+                      }`}
                       numberOfLines={2}
                     >
                       {item.location}
                     </Text>
                   </View>
-                  <View className="mt-3 items-center justify-center bg-soft rounded-xl py-2 px-2 flex-row gap-1 border border-rule/50">
+                  <View
+                    className={`mt-3 items-center justify-center rounded-xl py-2 px-2 flex-row gap-1 border ${
+                      isDark
+                        ? "bg-navy-2 border-white/10"
+                        : "bg-soft border-rule/50"
+                    }`}
+                  >
                     <Text className="text-brand text-xs font-semibold">
                       Ver no Mapa
                     </Text>

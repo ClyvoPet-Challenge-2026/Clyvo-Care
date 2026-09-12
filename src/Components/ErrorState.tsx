@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import { AlertCircle, RotateCcw } from "lucide-react-native";
+import { useTheme } from "../Context/ThemeContext";
 
 interface ErrorStateProps {
   title?: string;
@@ -12,13 +13,19 @@ export function ErrorState({
   message,
   onRetry,
 }: ErrorStateProps) {
+  const { isDark } = useTheme();
+
   return (
-    <View className="bg-paper rounded-3xl p-6 border border-rule items-center justify-center my-4 mx-5">
-      <View className="w-14 h-14 rounded-full bg-red-50 items-center justify-center mb-3">
+    <View className={`rounded-3xl p-6 border items-center justify-center my-4 mx-5 ${
+      isDark ? "bg-navy border-white/10" : "bg-paper border-rule"
+    }`}>
+      <View className={`w-14 h-14 rounded-full items-center justify-center mb-3 ${
+        isDark ? "bg-danger/20" : "bg-red-50"
+      }`}>
         <AlertCircle size={26} color="#ef4444" />
       </View>
-      <Text className="text-base font-bold text-navy text-center">{title}</Text>
-      <Text className="text-xs text-mute text-center mt-1.5 leading-5 px-3">
+      <Text className={`text-base font-bold text-center ${isDark ? "text-paper" : "text-navy"}`}>{title}</Text>
+      <Text className={`text-xs text-center mt-1.5 leading-5 px-3 ${isDark ? "text-soft-line" : "text-mute"}`}>
         {message}
       </Text>
 

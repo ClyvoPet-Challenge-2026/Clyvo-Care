@@ -11,10 +11,12 @@ import { usePets, useDeletePet } from "../Hooks/usePets";
 import { PetSpecieBreedListData } from "../Data/PetSpecieBreedListData";
 import { PetApiDTO } from "../Types/types";
 import { ErrorState } from "../Components/ErrorState";
+import { useTheme } from "../Context/ThemeContext";
 
 export function MyPet() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { user } = useAuth();
+  const { isDark } = useTheme();
 
   const { data: pets = [], isLoading: loading, isError, error, refetch } = usePets(user?.id);
   const deletePetMutation = useDeletePet();
@@ -74,7 +76,7 @@ export function MyPet() {
   });
 
   return (
-    <View className="flex-1 bg-ground">
+    <View className={`flex-1 ${isDark ? "bg-navy-2" : "bg-ground"}`}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 40 }}
@@ -85,9 +87,9 @@ export function MyPet() {
             <View>
               <View className="flex-row items-center gap-2">
                 <Heart size={20} color="#1f6ae1" />
-                <Text className="text-2xl font-bold text-navy">Meus Pets</Text>
+                <Text className={`text-2xl font-bold ${isDark ? "text-paper" : "text-navy"}`}>Meus Pets</Text>
               </View>
-              <Text className="text-xs text-mute mt-1">
+              <Text className={`text-xs mt-1 ${isDark ? "text-soft-line" : "text-mute"}`}>
                 {pets.length} {pets.length === 1 ? "pet registrado" : "pets registrados"} na sua conta
               </Text>
             </View>
@@ -95,15 +97,7 @@ export function MyPet() {
             <TouchableOpacity
               activeOpacity={0.85}
               onPress={() => navigation.navigate("RegisterPet")}
-              className="flex-row items-center gap-2 bg-brand rounded-2xl py-2.5 px-4 shadow-sm active:scale-98"
-              style={{
-                shadowColor: "#1f6ae1",
-                shadowOffset: { width: 0, height: 3 },
-                shadowOpacity: 0.25,
-                shadowRadius: 6,
-                elevation: 3,
-              }}
-            >
+              className="flex-row items-center gap-2 bg-brand rounded-2xl py-2.5 px-4 shadow-sm active:scale-98">
               <Plus size={16} color="#ffffff" />
               <Text className="text-paper text-xs font-bold uppercase tracking-wider">
                 Novo Pet
@@ -112,18 +106,20 @@ export function MyPet() {
           </View>
 
           {/* Barra de Pesquisa */}
-          <View className="mt-5 flex-row items-center bg-paper rounded-2xl px-4 py-3 border border-rule">
+          <View className={`mt-5 flex-row items-center rounded-2xl px-4 py-3 border ${
+            isDark ? "bg-navy border-white/10" : "bg-paper border-rule"
+          }`}>
             <Search size={18} color="#6c778c" />
             <TextInput
               placeholder="Buscar por nome ou raça..."
               placeholderTextColor="#6c778c"
               value={searchTerm}
               onChangeText={setSearchTerm}
-              className="flex-1 ml-3 text-sm text-ink p-0"
+              className={`flex-1 ml-3 text-sm p-0 ${isDark ? "text-paper" : "text-ink"}`}
             />
             {searchTerm.length > 0 && (
               <TouchableOpacity onPress={() => setSearchTerm("")}>
-                <Text className="text-xs font-semibold text-mute">Limpar</Text>
+                <Text className={`text-xs font-semibold ${isDark ? "text-soft-line" : "text-mute"}`}>Limpar</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -144,12 +140,12 @@ export function MyPet() {
                   className={`px-3.5 py-1.5 rounded-xl border ${
                     active
                       ? "bg-brand border-brand"
-                      : "bg-paper border-rule"
+                      : (isDark ? "bg-navy border-white/10" : "bg-paper border-rule")
                   }`}
                 >
                   <Text
                     className={`text-xs font-semibold ${
-                      active ? "text-paper" : "text-soft-ink"
+                      active ? "text-paper" : (isDark ? "text-soft" : "text-soft-ink")
                     }`}
                   >
                     {item}
@@ -190,7 +186,7 @@ export function MyPet() {
               return (
                 <View
                   key={pet.id}
-                  className="bg-paper rounded-3xl p-4 border border-rule"
+                  className="bg-paper dark:bg-navy rounded-3xl p-4 border border-rule dark:border-white/10"
                   style={{
                     shadowColor: "#0c0d10",
                     shadowOffset: { width: 0, height: 2 },
@@ -200,7 +196,7 @@ export function MyPet() {
                   }}
                 >
                   <View className="flex-row items-center gap-3.5">
-                    <View className="w-16 h-16 rounded-2xl overflow-hidden border border-rule bg-soft items-center justify-center">
+                    <View className="w-16 h-16 rounded-2xl overflow-hidden border border-rule dark:border-white/10 bg-soft dark:bg-navy-2 items-center justify-center">
                       <Image
                         source={petImg}
                         className="w-full h-full"
@@ -210,7 +206,7 @@ export function MyPet() {
 
                     <View className="flex-1">
                       <View className="flex-row items-center justify-between">
-                        <Text className="text-base font-bold text-navy truncate" numberOfLines={1}>
+                        <Text className="text-base font-bold text-navy dark:text-paper truncate" numberOfLines={1}>
                           {pet.name}
                         </Text>
                         <View className="flex-row items-center gap-2">
@@ -223,20 +219,20 @@ export function MyPet() {
                         </View>
                       </View>
 
-                      <Text className="text-xs text-mute mt-0.5">
+                      <Text className="text-xs text-mute dark:text-soft-line mt-0.5">
                         {pet.species?.name || "Espécie"} • {pet.breed?.name || "Sem raça"}
                       </Text>
 
                       <View className="flex-row items-center gap-3 mt-1.5">
-                        <View className="flex-row items-center gap-1 bg-ground px-2 py-0.5 rounded-lg border border-rule-2">
+                        <View className="flex-row items-center gap-1 bg-ground dark:bg-navy-2 px-2 py-0.5 rounded-lg border border-rule-2 dark:border-white/10">
                           <Tag size={11} color="#525a6a" />
-                          <Text className="text-[11px] text-soft-ink font-medium">
+                          <Text className="text-[11px] text-soft-ink dark:text-soft font-medium">
                             {pet.sex === "MALE" ? "Macho" : "Fêmea"}
                           </Text>
                         </View>
-                        <View className="flex-row items-center gap-1 bg-ground px-2 py-0.5 rounded-lg border border-rule-2">
+                        <View className="flex-row items-center gap-1 bg-ground dark:bg-navy-2 px-2 py-0.5 rounded-lg border border-rule-2 dark:border-white/10">
                           <Calendar size={11} color="#525a6a" />
-                          <Text className="text-[11px] text-soft-ink font-medium">
+                          <Text className="text-[11px] text-soft-ink dark:text-soft font-medium">
                             {pet.birthDate}
                           </Text>
                         </View>
@@ -245,11 +241,11 @@ export function MyPet() {
                   </View>
 
                   {/* Ação */}
-                  <View className="flex-row gap-2.5 mt-3.5 pt-3 border-t border-rule-2">
+                  <View className="flex-row gap-2.5 mt-3.5 pt-3 border-t border-rule-2 dark:border-white/10">
                     <TouchableOpacity
                       activeOpacity={0.8}
                       onPress={() => navigation.navigate("MakeAppointment")}
-                      className="flex-1 bg-soft rounded-xl py-2 px-3 flex-row items-center justify-center gap-1.5"
+                      className="flex-1 bg-soft dark:bg-navy-2 rounded-xl py-2 px-3 flex-row items-center justify-center gap-1.5 border border-transparent dark:border-white/10"
                     >
                       <Text className="text-xs font-semibold text-brand">Agendar Consulta</Text>
                       <ArrowRight size={13} color="#1f6ae1" />
@@ -258,23 +254,23 @@ export function MyPet() {
                     <TouchableOpacity
                       activeOpacity={0.8}
                       onPress={() => handleEditPet(pet)}
-                      className="bg-ground border border-rule rounded-xl py-2 px-3.5 items-center justify-center"
+                      className="bg-ground dark:bg-navy-2 border border-rule dark:border-white/10 rounded-xl py-2 px-3.5 items-center justify-center"
                     >
-                      <Text className="text-xs font-semibold text-soft-ink">Editar</Text>
+                      <Text className="text-xs font-semibold text-soft-ink dark:text-soft">Editar</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
               );
             })
           ) : (
-            <View className="bg-paper rounded-3xl p-8 border border-rule items-center justify-center mt-2">
-              <View className="w-14 h-14 rounded-full bg-soft items-center justify-center mb-3">
+            <View className="bg-paper dark:bg-navy rounded-3xl p-8 border border-rule dark:border-white/10 items-center justify-center mt-2">
+              <View className="w-14 h-14 rounded-full bg-soft dark:bg-navy-2 items-center justify-center mb-3">
                 <Heart size={24} color="#1f6ae1" />
               </View>
-              <Text className="text-base font-bold text-navy text-center">
+              <Text className="text-base font-bold text-navy dark:text-paper text-center">
                 Nenhum pet encontrado
               </Text>
-              <Text className="text-xs text-mute text-center mt-1 leading-5 px-4">
+              <Text className="text-xs text-mute dark:text-soft-line text-center mt-1 leading-5 px-4">
                 {searchTerm
                   ? "Tente ajustar o termo da busca ou alterar os filtros aplicados."
                   : "Você ainda não possui pets registrados nesta conta."}

@@ -7,10 +7,12 @@ import { locations } from "../Data/LocationData";
 import { APPOINTMENT_REASONS, AVAILABLE_TIMES, QUICK_DATES } from "../Data/AppointmentData";
 import { MakeAppointmentProps } from "../Types/types";
 import { useAuth } from "../Context/AuthContext";
+import { useTheme } from "../Context/ThemeContext";
 import { usePets } from "../Hooks/usePets";
 
 export function MakeAppointment({ navigation }: MakeAppointmentProps) {
   const { user } = useAuth();
+  const { isDark } = useTheme();
   const { data: pets = [], isLoading: loadingPets } = usePets(user?.id);
 
   // Seleções
@@ -51,7 +53,7 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
-      className="flex-1 bg-mainBackground"
+      className={`flex-1 ${isDark ? "bg-navy-2" : "bg-ground"}`}
     >
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -59,11 +61,13 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
         keyboardShouldPersistTaps="handled"
       >
         {/* 1. SELEÇÃO DE PET */}
-        <View className="bg-paper rounded-3xl p-5 mb-5 border border-rule">
+        <View className={`rounded-3xl p-5 mb-5 border ${
+          isDark ? "bg-navy border-white/10" : "bg-paper border-rule"
+        }`}>
           <View className="flex-row items-center justify-between mb-3.5">
             <View className="flex-row items-center gap-2">
               <Heart size={18} color="#1f6ae1" />
-              <Text className="text-base font-bold text-navy">
+              <Text className={`text-base font-bold ${isDark ? "text-paper" : "text-navy"}`}>
                 Qual pet passará na consulta?
               </Text>
             </View>
@@ -109,14 +113,14 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
                     }
                     className={`mr-3 p-3 rounded-2xl border items-center w-28 ${
                       isSelected
-                        ? "border-brand bg-soft"
-                        : "border-rule bg-ground"
+                        ? (isDark ? "border-brand bg-brand/20" : "border-brand bg-soft")
+                        : (isDark ? "border-white/10 bg-navy-2" : "border-rule bg-ground")
                     }`}
                   >
                     <View className="relative mb-2">
                       <View
                         className={`w-14 h-14 rounded-full overflow-hidden border-2 ${
-                          isSelected ? "border-brand" : "border-rule"
+                          isSelected ? "border-brand" : (isDark ? "border-white/10" : "border-rule")
                         }`}
                       >
                         <Image
@@ -126,20 +130,22 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
                         />
                       </View>
                       {isSelected && (
-                        <View className="absolute -bottom-1 -right-1 bg-brand rounded-full w-5 h-5 items-center justify-center border-2 border-paper">
+                        <View className={`absolute -bottom-1 -right-1 bg-brand rounded-full w-5 h-5 items-center justify-center border-2 ${
+                          isDark ? "border-navy" : "border-paper"
+                        }`}>
                           <Check size={11} color="#ffffff" />
                         </View>
                       )}
                     </View>
                     <Text
                       className={`text-xs font-bold text-center ${
-                        isSelected ? "text-brand" : "text-navy"
+                        isSelected ? "text-brand" : (isDark ? "text-paper" : "text-navy")
                       }`}
                       numberOfLines={1}
                     >
                       {pet.name}
                     </Text>
-                    <Text className="text-[10px] text-mute text-center" numberOfLines={1}>
+                    <Text className={`text-[10px] text-center ${isDark ? "text-soft-line" : "text-mute"}`} numberOfLines={1}>
                       {pet.breed?.name || pet.species?.name || "Pet"}
                     </Text>
                   </TouchableOpacity>
@@ -148,7 +154,7 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
             </ScrollView>
           ) : (
             <View className="items-center py-4">
-              <Text className="text-xs text-mute mb-2">Nenhum pet cadastrado para agendamento.</Text>
+              <Text className={`text-xs mb-2 ${isDark ? "text-soft-line" : "text-mute"}`}>Nenhum pet cadastrado para agendamento.</Text>
               <TouchableOpacity
                 onPress={() => navigation.navigate("RegisterPet")}
                 className="flex-row items-center gap-1.5 bg-brand px-3.5 py-2 rounded-xl"
@@ -161,14 +167,16 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
         </View>
 
         {/* 2. SELEÇÃO DO MOTIVO DA CONSULTA */}
-        <View className="bg-paper rounded-3xl p-5 mb-5 border border-rule">
+        <View className={`rounded-3xl p-5 mb-5 border ${
+          isDark ? "bg-navy border-white/10" : "bg-paper border-rule"
+        }`}>
           <View className="flex-row items-center gap-2 mb-1">
             <Stethoscope size={18} color="#1f6ae1" />
-            <Text className="text-base font-bold text-navy">
+            <Text className={`text-base font-bold ${isDark ? "text-paper" : "text-navy"}`}>
               Qual o motivo da consulta?
             </Text>
           </View>
-          <Text className="text-xs text-mute mb-3.5">
+          <Text className={`text-xs mb-3.5 ${isDark ? "text-soft-line" : "text-mute"}`}>
             Selecione a opção que melhor descreve a necessidade do seu pet:
           </Text>
 
@@ -182,15 +190,15 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
                   onPress={() => setSelectedReason(reason.id)}
                   className={`p-3.5 rounded-2xl border flex-row items-center justify-between ${
                     isSelected
-                      ? "border-brand bg-soft "
-                      : "border-rule bg-ground/30"
+                      ? (isDark ? "border-brand bg-brand/20" : "border-brand bg-soft")
+                      : (isDark ? "border-white/10 bg-navy-2/60" : "border-rule bg-ground/30")
                   }`}
                 >
                   <View className="flex-1 mr-3">
                     <View className="flex-row items-center gap-2 mb-0.5">
                       <Text
                         className={`text-sm font-bold ${
-                          isSelected ? "text-brand" : "text-navy"
+                          isSelected ? "text-brand" : (isDark ? "text-paper" : "text-navy")
                         }`}
                       >
                         {reason.title}
@@ -198,12 +206,12 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
                       {reason.badge && (
                         <View
                           className={`px-2 py-0.5 rounded-full ${
-                            isSelected ? "bg-brand/15" : "bg-rule/60"
+                            isSelected ? "bg-brand/15" : (isDark ? "bg-navy-2" : "bg-rule/60")
                           }`}
                         >
                           <Text
                             className={`text-[10px] font-semibold ${
-                              isSelected ? "text-brand" : "text-soft-ink"
+                              isSelected ? "text-brand" : (isDark ? "text-soft" : "text-soft-ink")
                             }`}
                           >
                             {reason.badge}
@@ -211,7 +219,7 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
                         </View>
                       )}
                     </View>
-                    <Text className="text-xs text-soft-ink">
+                    <Text className={`text-xs ${isDark ? "text-soft-line" : "text-soft-ink"}`}>
                       {reason.description}
                     </Text>
                   </View>
@@ -221,7 +229,7 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
                     className={`w-5 h-5 rounded-full border items-center justify-center ${
                       isSelected
                         ? "border-brand bg-brand"
-                        : "border-mute bg-paper"
+                        : (isDark ? "border-soft-line bg-navy-2" : "border-mute bg-paper")
                     }`}
                   >
                     {isSelected && (
@@ -235,14 +243,16 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
         </View>
 
         {/* 3. UNIDADE / CLÍNICA CLYVO */}
-        <View className="bg-paper rounded-3xl p-5 mb-5 border border-rule">
+        <View className={`rounded-3xl p-5 mb-5 border ${
+          isDark ? "bg-navy border-white/10" : "bg-paper border-rule"
+        }`}>
           <View className="flex-row items-center gap-2 mb-1">
             <MapPin size={18} color="#1f6ae1" />
-            <Text className="text-base font-bold text-navy">
+            <Text className={`text-base font-bold ${isDark ? "text-paper" : "text-navy"}`}>
               Unidade de Atendimento
             </Text>
           </View>
-          <Text className="text-xs text-mute mb-3.5">
+          <Text className={`text-xs mb-3.5 ${isDark ? "text-soft-line" : "text-mute"}`}>
             Selecione onde deseja ser atendido:
           </Text>
 
@@ -250,7 +260,9 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
             activeOpacity={0.8}
             onPress={() => setLocationDropdownOpen(!locationDropdownOpen)}
             className={`w-full min-h-[50px] rounded-xl border px-3.5 py-3 flex-row items-center justify-between ${
-              locationDropdownOpen ? "border-brand bg-paper" : "border-rule bg-ground/50"
+              locationDropdownOpen
+                ? (isDark ? "border-brand bg-navy-2" : "border-brand bg-paper")
+                : (isDark ? "border-white/10 bg-navy-2" : "border-rule bg-ground/50")
             }`}
           >
             <View className="flex-row items-center flex-1 mr-2">
@@ -258,14 +270,14 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
                 <MapPin size={18} color="#1f6ae1" />
               </View>
               <View className="flex-1">
-                <Text className="text-sm font-semibold text-navy">
+                <Text className={`text-sm font-semibold ${isDark ? "text-paper" : "text-navy"}`}>
                   {selectedLocation}
                 </Text>
               </View>
             </View>
             <ChevronDown
               size={18}
-              color="#6c778c"
+              color={isDark ? "#99b6e6" : "#6c778c"}
               style={{
                 transform: [{ rotate: locationDropdownOpen ? "180deg" : "0deg" }],
               }}
@@ -273,7 +285,9 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
           </TouchableOpacity>
 
           {locationDropdownOpen && (
-            <View className="mt-2 bg-paper border border-rule-2 rounded-2xl overflow-hidden">
+            <View className={`mt-2 border rounded-2xl overflow-hidden ${
+              isDark ? "bg-navy-2 border-white/10" : "bg-paper border-rule-2"
+            }`}>
               {locations.map((loc, index) => {
                 const isSelected = loc.name === selectedLocation;
                 return (
@@ -285,18 +299,20 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
                       setLocationDropdownOpen(false);
                     }}
                     className={`p-3.5 flex-row items-center justify-between ${
-                      isSelected ? "bg-soft/50" : "bg-paper"
-                    } ${index < locations.length - 1 ? "border-b border-rule-2/70" : ""}`}
+                      isSelected
+                        ? (isDark ? "bg-navy" : "bg-soft/50")
+                        : (isDark ? "bg-navy-2" : "bg-paper")
+                    } ${index < locations.length - 1 ? (isDark ? "border-b border-white/10" : "border-b border-rule-2/70") : ""}`}
                   >
                     <View className="flex-1 mr-3">
                       <Text
                         className={`text-sm font-bold ${
-                          isSelected ? "text-brand" : "text-navy"
+                          isSelected ? "text-brand" : (isDark ? "text-paper" : "text-navy")
                         }`}
                       >
                         {loc.name}
                       </Text>
-                      <Text className="text-xs text-soft-ink mt-0.5" numberOfLines={2}>
+                      <Text className={`text-xs mt-0.5 ${isDark ? "text-soft-line" : "text-soft-ink"}`} numberOfLines={2}>
                         {loc.location}
                       </Text>
                     </View>
@@ -309,14 +325,16 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
         </View>
 
         {/* 4. DATA E HORÁRIO */}
-        <View className="bg-paper rounded-3xl p-5 mb-5 border border-rule">
+        <View className={`rounded-3xl p-5 mb-5 border ${
+          isDark ? "bg-navy border-white/10" : "bg-paper border-rule"
+        }`}>
           <View className="flex-row items-center gap-2 mb-1">
             <Clock size={18} color="#1f6ae1" />
-            <Text className="text-base font-bold text-navy">
+            <Text className={`text-base font-bold ${isDark ? "text-paper" : "text-navy"}`}>
               Data e Horário
             </Text>
           </View>
-          <Text className="text-xs text-mute mb-3.5">
+          <Text className={`text-xs mb-3.5 ${isDark ? "text-soft-line" : "text-mute"}`}>
             Selecione uma data para a consulta:
           </Text>
 
@@ -343,19 +361,19 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
                   className={`flex-1 min-w-[70px] py-2.5 px-3 rounded-2xl border items-center justify-center ${
                     isSelected
                       ? "border-brand bg-brand"
-                      : "border-rule bg-ground/50"
+                      : (isDark ? "border-white/10 bg-navy-2" : "border-rule bg-ground/50")
                   }`}
                 >
                   <Text
                     className={`text-xs font-semibold ${
-                      isSelected ? "text-paper" : "text-navy"
+                      isSelected ? "text-paper" : (isDark ? "text-paper" : "text-navy")
                     }`}
                   >
                     {qDate.label}
                   </Text>
                   <Text
                     className={`text-[10px] mt-0.5 ${
-                      isSelected ? "text-paper" : "text-mute"
+                      isSelected ? "text-paper" : (isDark ? "text-soft-line" : "text-mute")
                     }`}
                   >
                     {qDate.sublabel}
@@ -366,7 +384,7 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
           </View>
 
           {/* Grade de Horários */}
-          <Text className="text-xs font-medium text-mute mb-2">
+          <Text className={`text-xs font-medium mb-2 ${isDark ? "text-soft-line" : "text-mute"}`}>
             Horários disponíveis:
           </Text>
           <View className="flex-row flex-wrap gap-2">
@@ -380,12 +398,12 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
                   className={`py-2 px-3.5 rounded-xl border items-center justify-center ${
                     isSelected
                       ? "border-brand bg-brand"
-                      : "border-rule bg-ground/50"
+                      : (isDark ? "border-white/10 bg-navy-2" : "border-rule bg-ground/50")
                   }`}
                 >
                   <Text
                     className={`text-xs font-semibold ${
-                      isSelected ? "text-paper" : "text-body"
+                      isSelected ? "text-paper" : (isDark ? "text-soft" : "text-body")
                     }`}
                   >
                     {time}
@@ -397,25 +415,29 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
         </View>
 
         {/* 5. OBSERVAÇÕES OU SINTOMAS */}
-        <View className="bg-paper rounded-3xl p-5 mb-6 border border-rule">
+        <View className={`rounded-3xl p-5 mb-6 border ${
+          isDark ? "bg-navy border-white/10" : "bg-paper border-rule"
+        }`}>
           <View className="flex-row items-center gap-2 mb-1">
             <FileText size={18} color="#1f6ae1" />
-            <Text className="text-base font-bold text-navy">
+            <Text className={`text-base font-bold ${isDark ? "text-paper" : "text-navy"}`}>
               Observações (Opcional)
             </Text>
           </View>
-          <Text className="text-xs text-mute mb-3">
+          <Text className={`text-xs mb-3 ${isDark ? "text-soft-line" : "text-mute"}`}>
             Algum sintoma, histórico alérgico ou aviso prévio para o veterinário?
           </Text>
 
-          <View className="rounded-2xl border border-rule bg-ground/50 p-3">
+          <View className={`rounded-2xl border p-3 ${
+            isDark ? "border-white/10 bg-navy-2" : "border-rule bg-ground/50"
+          }`}>
             <TextInput
               placeholder="Ex: O pet está tossindo desde ontem à noite, ou necessita de focinheira para exames..."
               placeholderTextColor="#6c778c"
               multiline
               numberOfLines={3}
               textAlignVertical="top"
-              className="text-sm text-ink min-h-[70px] p-0"
+              className={`text-sm min-h-[70px] p-0 ${isDark ? "text-paper" : "text-ink"}`}
               value={notes}
               onChangeText={setNotes}
             />

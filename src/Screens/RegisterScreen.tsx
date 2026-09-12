@@ -1,23 +1,15 @@
 import { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform,ScrollView, ActivityIndicator } from "react-native";
 import { Mail, Lock, Eye, EyeOff, User, Phone, MapPin, ChevronDown, Check } from "lucide-react-native";
 import { useAuth } from "../Context/AuthContext";
+import { useTheme } from "../Context/ThemeContext";
 import { RegisterScreenProps, RegisterFormData, StateApiDTO, CityApiDTO } from "../Types/types";
 import { getStates, getCities } from "../Services/auth";
 import { DEFAULT_STATES, DEFAULT_CITIES } from "../Data/LocationGeoData";
 
 export function RegisterScreen({ navigation }: RegisterScreenProps) {
   const { register } = useAuth();
+  const { isDark } = useTheme();
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const [formData, setFormData] = useState<RegisterFormData>({
@@ -180,7 +172,7 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
-      className="flex-1 bg-blue"
+      className={`flex-1 ${isDark ? "bg-navy-2" : "bg-brand"}`}
     >
       <ScrollView
         contentContainerStyle={{ flexGrow: 1, paddingVertical: 40 }}
@@ -203,7 +195,9 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
 
           {/* Card do Formulário */}
           <View
-            className="bg-paper rounded-3xl p-6 mb-8"
+            className={`rounded-3xl p-6 mb-8 border ${
+              isDark ? "bg-navy border-white/10" : "bg-paper border-transparent"
+            }`}
             style={{
               shadowColor: "#0c0d10",
               shadowOffset: { width: 0, height: 6 },
@@ -213,22 +207,26 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
             }}
           >
             {apiError ? (
-              <View className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl">
+              <View className={`mb-4 p-3 rounded-xl border ${
+                isDark ? "bg-danger/20 border-danger/30" : "bg-red-50 border-red-200"
+              }`}>
                 <Text className="text-danger text-xs">{apiError}</Text>
               </View>
             ) : null}
 
             {/* Nome Completo */}
             <View className="mb-3.5">
-              <Text className="text-xs font-medium text-mute mb-1.5">Nome Completo</Text>
-              <View className="flex-row items-center rounded-xl border border-rule bg-ground/50 px-3 py-2.5">
-                <User size={16} color="#6c778c" />
+              <Text className={`text-xs font-medium mb-1.5 ${isDark ? "text-soft-line" : "text-mute"}`}>Nome Completo</Text>
+              <View className={`flex-row items-center rounded-xl border px-3 py-2.5 ${
+                isDark ? "border-white/10 bg-navy-2" : "border-rule bg-ground/50"
+              }`}>
+                <User size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
                 <TextInput
                   placeholder="Seu nome"
                   placeholderTextColor="#6c778c"
                   value={formData.name}
                   onChangeText={(text) => setFormData({ ...formData, name: text })}
-                  className="flex-1 ml-2 text-sm text-ink p-0"
+                  className={`flex-1 ml-2 text-sm p-0 ${isDark ? "text-paper" : "text-ink"}`}
                 />
               </View>
               {errors.name ? <Text className="text-danger text-xs mt-1">{errors.name}</Text> : null}
@@ -236,15 +234,17 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
 
             {/* CPF */}
             <View className="mb-3.5">
-              <Text className="text-xs font-medium text-mute mb-1.5">CPF (11 dígitos)</Text>
-              <View className="flex-row items-center rounded-xl border border-rule bg-ground/50 px-3 py-2.5">
+              <Text className={`text-xs font-medium mb-1.5 ${isDark ? "text-soft-line" : "text-mute"}`}>CPF (11 dígitos)</Text>
+              <View className={`flex-row items-center rounded-xl border px-3 py-2.5 ${
+                isDark ? "border-white/10 bg-navy-2" : "border-rule bg-ground/50"
+              }`}>
                 <TextInput
                   placeholder="000.000.000-00"
                   placeholderTextColor="#6c778c"
                   keyboardType="numeric"
                   value={formData.cpf}
                   onChangeText={(text) => setFormData({ ...formData, cpf: formatCpf(text) })}
-                  className="flex-1 text-sm text-ink p-0"
+                  className={`flex-1 text-sm p-0 ${isDark ? "text-paper" : "text-ink"}`}
                 />
               </View>
               {errors.cpf ? <Text className="text-danger text-xs mt-1">{errors.cpf}</Text> : null}
@@ -252,9 +252,11 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
 
             {/* E-mail */}
             <View className="mb-3.5">
-              <Text className="text-xs font-medium text-mute mb-1.5">E-mail</Text>
-              <View className="flex-row items-center rounded-xl border border-rule bg-ground/50 px-3 py-2.5">
-                <Mail size={16} color="#6c778c" />
+              <Text className={`text-xs font-medium mb-1.5 ${isDark ? "text-soft-line" : "text-mute"}`}>E-mail</Text>
+              <View className={`flex-row items-center rounded-xl border px-3 py-2.5 ${
+                isDark ? "border-white/10 bg-navy-2" : "border-rule bg-ground/50"
+              }`}>
+                <Mail size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
                 <TextInput
                   placeholder="voce@email.com"
                   placeholderTextColor="#6c778c"
@@ -262,7 +264,7 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
                   autoCapitalize="none"
                   value={formData.email}
                   onChangeText={(text) => setFormData({ ...formData, email: text })}
-                  className="flex-1 ml-2 text-sm text-ink p-0"
+                  className={`flex-1 ml-2 text-sm p-0 ${isDark ? "text-paper" : "text-ink"}`}
                 />
               </View>
               {errors.email ? <Text className="text-danger text-xs mt-1">{errors.email}</Text> : null}
@@ -270,16 +272,18 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
 
             {/* Telefone */}
             <View className="mb-3.5">
-              <Text className="text-xs font-medium text-mute mb-1.5">Telefone</Text>
-              <View className="flex-row items-center rounded-xl border border-rule bg-ground/50 px-3 py-2.5">
-                <Phone size={16} color="#6c778c" />
+              <Text className={`text-xs font-medium mb-1.5 ${isDark ? "text-soft-line" : "text-mute"}`}>Telefone</Text>
+              <View className={`flex-row items-center rounded-xl border px-3 py-2.5 ${
+                isDark ? "border-white/10 bg-navy-2" : "border-rule bg-ground/50"
+              }`}>
+                <Phone size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
                 <TextInput
                   placeholder="(11) 99999-9999"
                   placeholderTextColor="#6c778c"
                   keyboardType="phone-pad"
                   value={formData.phone}
                   onChangeText={(text) => setFormData({ ...formData, phone: formatPhone(text) })}
-                  className="flex-1 ml-2 text-sm text-ink p-0"
+                  className={`flex-1 ml-2 text-sm p-0 ${isDark ? "text-paper" : "text-ink"}`}
                 />
               </View>
               {errors.phone ? <Text className="text-danger text-xs mt-1">{errors.phone}</Text> : null}
@@ -287,27 +291,33 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
 
             {/* Estado */}
             <View className="mb-3.5">
-              <Text className="text-xs font-medium text-mute mb-1.5">Estado</Text>
+              <Text className={`text-xs font-medium mb-1.5 ${isDark ? "text-soft-line" : "text-mute"}`}>Estado</Text>
               <TouchableOpacity
                 onPress={() => setOpenStateDropdown(!openStateDropdown)}
-                className="w-full min-h-[44px] rounded-xl border border-rule bg-ground/50 px-3 py-2.5 flex-row items-center justify-between"
+                className={`w-full min-h-[44px] rounded-xl border px-3 py-2.5 flex-row items-center justify-between ${
+                  isDark ? "border-white/10 bg-navy-2" : "border-rule bg-ground/50"
+                }`}
               >
                 <View className="flex-row items-center">
-                  <MapPin size={16} color="#6c778c" />
-                  <Text className="ml-2 text-sm text-ink">{currentStateName}</Text>
+                  <MapPin size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
+                  <Text className={`ml-2 text-sm ${isDark ? "text-paper" : "text-ink"}`}>{currentStateName}</Text>
                 </View>
-                <ChevronDown size={16} color="#6c778c" />
+                <ChevronDown size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
               </TouchableOpacity>
               {openStateDropdown && (
-                <View className="mt-1 bg-paper border border-rule rounded-xl max-h-40 overflow-hidden">
+                <View className={`mt-1 border rounded-xl max-h-40 overflow-hidden ${
+                  isDark ? "bg-navy-2 border-white/10" : "bg-paper border-rule"
+                }`}>
                   <ScrollView nestedScrollEnabled>
                     {states.map((s) => (
                       <TouchableOpacity
                         key={s.id}
                         onPress={() => handleStateSelect(s.id)}
-                        className="px-3 py-2.5 flex-row items-center justify-between border-b border-rule/50"
+                        className={`px-3 py-2.5 flex-row items-center justify-between border-b ${
+                          isDark ? "border-white/10" : "border-rule/50"
+                        }`}
                       >
-                        <Text className="text-sm text-body">{s.name} ({s.uf})</Text>
+                        <Text className={`text-sm ${isDark ? "text-paper" : "text-body"}`}>{s.name} ({s.uf})</Text>
                         {selectedStateId === s.id && <Check size={14} color="#1f6ae1" />}
                       </TouchableOpacity>
                     ))}
@@ -318,19 +328,23 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
 
             {/* Cidade */}
             <View className="mb-3.5">
-              <Text className="text-xs font-medium text-mute mb-1.5">Cidade</Text>
+              <Text className={`text-xs font-medium mb-1.5 ${isDark ? "text-soft-line" : "text-mute"}`}>Cidade</Text>
               <TouchableOpacity
                 onPress={() => setOpenCityDropdown(!openCityDropdown)}
-                className="w-full min-h-[44px] rounded-xl border border-rule bg-ground/50 px-3 py-2.5 flex-row items-center justify-between"
+                className={`w-full min-h-[44px] rounded-xl border px-3 py-2.5 flex-row items-center justify-between ${
+                  isDark ? "border-white/10 bg-navy-2" : "border-rule bg-ground/50"
+                }`}
               >
                 <View className="flex-row items-center">
-                  <MapPin size={16} color="#6c778c" />
-                  <Text className="ml-2 text-sm text-ink">{currentCityName}</Text>
+                  <MapPin size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
+                  <Text className={`ml-2 text-sm ${isDark ? "text-paper" : "text-ink"}`}>{currentCityName}</Text>
                 </View>
-                <ChevronDown size={16} color="#6c778c" />
+                <ChevronDown size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
               </TouchableOpacity>
               {openCityDropdown && (
-                <View className="mt-1 bg-paper border border-rule rounded-xl max-h-40 overflow-hidden">
+                <View className={`mt-1 border rounded-xl max-h-40 overflow-hidden ${
+                  isDark ? "bg-navy-2 border-white/10" : "bg-paper border-rule"
+                }`}>
                   <ScrollView nestedScrollEnabled>
                     {availableCities.map((c) => (
                       <TouchableOpacity
@@ -339,9 +353,11 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
                           setFormData({ ...formData, cityId: c.id });
                           setOpenCityDropdown(false);
                         }}
-                        className="px-3 py-2.5 flex-row items-center justify-between border-b border-rule/50"
+                        className={`px-3 py-2.5 flex-row items-center justify-between border-b ${
+                          isDark ? "border-white/10" : "border-rule/50"
+                        }`}
                       >
-                        <Text className="text-sm text-body">{c.name}</Text>
+                        <Text className={`text-sm ${isDark ? "text-paper" : "text-body"}`}>{c.name}</Text>
                         {formData.cityId === c.id && <Check size={14} color="#1f6ae1" />}
                       </TouchableOpacity>
                     ))}
@@ -353,19 +369,25 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
 
             {/* Senha */}
             <View className="mb-3.5">
-              <Text className="text-xs font-medium text-mute mb-1.5">Senha (mínimo 8 caracteres)</Text>
-              <View className="flex-row items-center rounded-xl border border-rule bg-ground/50 px-3 py-2.5">
-                <Lock size={16} color="#6c778c" />
+              <Text className={`text-xs font-medium mb-1.5 ${isDark ? "text-soft-line" : "text-mute"}`}>Senha (mínimo 8 caracteres)</Text>
+              <View className={`flex-row items-center rounded-xl border px-3 py-2.5 ${
+                isDark ? "border-white/10 bg-navy-2" : "border-rule bg-ground/50"
+              }`}>
+                <Lock size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
                 <TextInput
                   placeholder="Mínimo 8 caracteres"
                   placeholderTextColor="#6c778c"
                   secureTextEntry={!showPassword}
                   value={formData.senha}
                   onChangeText={(text) => setFormData({ ...formData, senha: text })}
-                  className="flex-1 ml-2 text-sm text-ink p-0"
+                  className={`flex-1 ml-2 text-sm p-0 ${isDark ? "text-paper" : "text-ink"}`}
                 />
                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                  {showPassword ? <Eye size={16} color="#6c778c" /> : <EyeOff size={16} color="#6c778c" />}
+                  {showPassword ? (
+                    <Eye size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
+                  ) : (
+                    <EyeOff size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
+                  )}
                 </TouchableOpacity>
               </View>
               {errors.senha ? <Text className="text-danger text-xs mt-1">{errors.senha}</Text> : null}
@@ -373,19 +395,25 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
 
             {/* Confirmar Senha */}
             <View className="mb-5">
-              <Text className="text-xs font-medium text-mute mb-1.5">Confirmar Senha</Text>
-              <View className="flex-row items-center rounded-xl border border-rule bg-ground/50 px-3 py-2.5">
-                <Lock size={16} color="#6c778c" />
+              <Text className={`text-xs font-medium mb-1.5 ${isDark ? "text-soft-line" : "text-mute"}`}>Confirmar Senha</Text>
+              <View className={`flex-row items-center rounded-xl border px-3 py-2.5 ${
+                isDark ? "border-white/10 bg-navy-2" : "border-rule bg-ground/50"
+              }`}>
+                <Lock size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
                 <TextInput
                   placeholder="Repita sua senha"
                   placeholderTextColor="#6c778c"
                   secureTextEntry={!showConfirmPassword}
                   value={formData.confirmarSenha}
                   onChangeText={(text) => setFormData({ ...formData, confirmarSenha: text })}
-                  className="flex-1 ml-2 text-sm text-ink p-0"
+                  className={`flex-1 ml-2 text-sm p-0 ${isDark ? "text-paper" : "text-ink"}`}
                 />
                 <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
-                  {showConfirmPassword ? <Eye size={16} color="#6c778c" /> : <EyeOff size={16} color="#6c778c" />}
+                  {showConfirmPassword ? (
+                    <Eye size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
+                  ) : (
+                    <EyeOff size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
+                  )}
                 </TouchableOpacity>
               </View>
               {errors.confirmarSenha ? <Text className="text-danger text-xs mt-1">{errors.confirmarSenha}</Text> : null}
@@ -407,7 +435,7 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
 
             {/* Link de Retorno */}
             <View className="flex-row items-center justify-center mt-5">
-              <Text className="text-sm text-mute">Já tem uma conta? </Text>
+              <Text className={`text-sm ${isDark ? "text-soft-line" : "text-mute"}`}>Já tem uma conta? </Text>
               <TouchableOpacity onPress={() => navigation.navigate("LoginScreen")}>
                 <Text className="text-sm text-brand font-semibold">Entrar</Text>
               </TouchableOpacity>

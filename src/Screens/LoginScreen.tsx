@@ -2,10 +2,12 @@ import { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from "react-native";
 import { Mail, Lock, Eye, EyeOff, Sparkles } from "lucide-react-native";
 import { useAuth } from "../Context/AuthContext";
+import { useTheme } from "../Context/ThemeContext";
 import { LoginScreenProps, LoginFormData } from "../Types/types";
 
 export function LoginScreen({ navigation }: LoginScreenProps) {
   const { login, loginGuest } = useAuth();
+  const { isDark } = useTheme();
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const [formData, setFormData] = useState<LoginFormData>({ email: "", senha: "" });
   const [errors, setErrors] = useState({ email: "", senha: "" });
@@ -60,7 +62,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
-      className="flex-1 bg-blue"
+      className={`flex-1 ${isDark ? "bg-navy-2" : "bg-brand"}`}
     >
       <ScrollView
         contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
@@ -82,7 +84,9 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
 
           {/* Card do Formulário */}
           <View
-            className="bg-paper rounded-3xl p-6"
+            className={`rounded-3xl p-6 border ${
+              isDark ? "bg-navy border-white/10" : "bg-paper border-transparent"
+            }`}
             style={{
               shadowColor: "#0c0d10",
               shadowOffset: { width: 0, height: 6 },
@@ -91,21 +95,25 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
               elevation: 8,
             }}
           >
-            <Text className="text-xl font-semibold text-navy mb-4">Entrar</Text>
+            <Text className={`text-xl font-semibold mb-4 ${isDark ? "text-paper" : "text-navy"}`}>Entrar</Text>
 
             {apiError ? (
-              <View className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl">
+              <View className={`mb-4 p-3 rounded-xl border ${
+                isDark ? "bg-danger/20 border-danger/30" : "bg-red-50 border-red-200"
+              }`}>
                 <Text className="text-danger text-xs">{apiError}</Text>
               </View>
             ) : null}
 
             {/* Campo E-mail */}
             <View className="mb-4">
-              <Text className="text-xs font-medium text-mute mb-1.5">
+              <Text className={`text-xs font-medium mb-1.5 ${isDark ? "text-soft-line" : "text-mute"}`}>
                 E-mail
               </Text>
-              <View className="flex-row items-center rounded-xl border border-rule bg-ground/50 px-3 py-2.5">
-                <Mail size={16} color="#6c778c" />
+              <View className={`flex-row items-center rounded-xl border px-3 py-2.5 ${
+                isDark ? "border-white/10 bg-navy-2" : "border-rule bg-ground/50"
+              }`}>
+                <Mail size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
                 <TextInput
                   placeholder="voce@email.com"
                   placeholderTextColor="#6c778c"
@@ -115,7 +123,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
                   onChangeText={(text) =>
                     setFormData({ ...formData, email: text })
                   }
-                  className="flex-1 ml-2 text-sm text-ink p-0"
+                  className={`flex-1 ml-2 text-sm p-0 ${isDark ? "text-paper" : "text-ink"}`}
                 />
               </View>
               {errors.email ? (
@@ -125,9 +133,11 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
 
             {/* Campo Senha */}
             <View className="mb-5">
-              <Text className="text-xs font-medium text-mute mb-1.5">Senha</Text>
-              <View className="flex-row items-center rounded-xl border border-rule bg-ground/50 px-3 py-2.5">
-                <Lock size={16} color="#6c778c" />
+              <Text className={`text-xs font-medium mb-1.5 ${isDark ? "text-soft-line" : "text-mute"}`}>Senha</Text>
+              <View className={`flex-row items-center rounded-xl border px-3 py-2.5 ${
+                isDark ? "border-white/10 bg-navy-2" : "border-rule bg-ground/50"
+              }`}>
+                <Lock size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
                 <TextInput
                   placeholder="Sua senha"
                   placeholderTextColor="#6c778c"
@@ -136,7 +146,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
                   onChangeText={(text) =>
                     setFormData({ ...formData, senha: text })
                   }
-                  className="flex-1 ml-2 text-sm text-ink p-0"
+                  className={`flex-1 ml-2 text-sm p-0 ${isDark ? "text-paper" : "text-ink"}`}
                 />
                 <TouchableOpacity
                   onPress={() => setShowPassword(!showPassword)}
@@ -144,9 +154,9 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
                   className="pl-2"
                 >
                   {showPassword ? (
-                    <Eye size={16} color="#6c778c" />
+                    <Eye size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
                   ) : (
-                    <EyeOff size={16} color="#6c778c" />
+                    <EyeOff size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
                   )}
                 </TouchableOpacity>
               </View>
@@ -178,7 +188,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
 
             {/* Link de Cadastro */}
             <View className="flex-row items-center justify-center mt-5">
-              <Text className="text-sm text-mute">Não tem cadastro? </Text>
+              <Text className={`text-sm ${isDark ? "text-soft-line" : "text-mute"}`}>Não tem cadastro? </Text>
               <TouchableOpacity
                 onPress={() => navigation.navigate("RegisterScreen")}
               >

@@ -12,7 +12,7 @@ import { DEFAULT_STATES, DEFAULT_CITIES } from "../Data/LocationGeoData";
 
 export function MyInformations() {
   const { user, logout, updateUser } = useAuth();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, isDark, toggleTheme } = useTheme();
 
   // TanStack Query: Leitura em tempo real do perfil do tutor
   const { data: ownerData } = useOwnerProfile(user?.id);
@@ -181,10 +181,6 @@ export function MyInformations() {
     }
   };
 
-  const toggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light");
-  };
-
   const displayOwner = ownerData || user;
   const initial = (displayOwner?.name || displayOwner?.email || "T").charAt(0).toUpperCase();
   const currentCityObj = cities.find((c) => c.id === formCityId) || displayOwner?.city;
@@ -199,7 +195,7 @@ export function MyInformations() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
-      className="flex-1 bg-mainBackground"
+      className={`flex-1 ${isDark ? "bg-navy-2" : "bg-ground"}`}
     >
       <ScrollView
         contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 24 }}
@@ -208,15 +204,17 @@ export function MyInformations() {
       >
         {/* Título da Página (Sem loading no canto) */}
         <View className="mb-5">
-          <Text className="text-2xl font-bold text-navy">Minha Conta</Text>
-          <Text className="text-xs text-mute mt-1">
+          <Text className={`text-2xl font-bold ${isDark ? "text-paper" : "text-navy"}`}>Minha Conta</Text>
+          <Text className={`text-xs mt-1 ${isDark ? "text-soft-line" : "text-mute"}`}>
             Gerencie suas informações pessoais e preferências do aplicativo
           </Text>
         </View>
 
         {/* Card do Perfil & Foto */}
         <View
-          className="bg-paper rounded-3xl p-5 mb-5 border border-rule"
+          className={`rounded-3xl p-5 mb-5 border ${
+            isDark ? "bg-navy border-white/10" : "bg-paper border-rule"
+          }`}
           style={{
             shadowColor: "#0c0d10",
             shadowOffset: { width: 0, height: 4 },
@@ -231,13 +229,13 @@ export function MyInformations() {
             </View>
 
             <View className="flex-1 min-w-0">
-              <Text className="text-lg font-bold text-navy truncate" numberOfLines={1}>
+              <Text className={`text-lg font-bold truncate ${isDark ? "text-paper" : "text-navy"}`} numberOfLines={1}>
                 {displayOwner?.name || "Tutor Clyvo"}
               </Text>
-              <Text className="text-xs text-mute truncate mt-0.5" numberOfLines={1}>
+              <Text className={`text-xs truncate mt-0.5 ${isDark ? "text-soft-line" : "text-mute"}`} numberOfLines={1}>
                 {displayOwner?.email}
               </Text>
-              <Text className="text-[11px] text-brand font-medium mt-1">
+              <Text className={`text-[11px] font-medium mt-1 ${isDark ? "text-soft-line" : "text-brand"}`}>
                 Cidade: {cityNameText}
               </Text>
             </View>
@@ -245,52 +243,58 @@ export function MyInformations() {
         </View>
 
         {/* Card de Dados Pessoais (CRUD - Read & Update) */}
-        <View className="bg-paper rounded-3xl p-6 mb-5 border border-rule">
+        <View className={`rounded-3xl p-6 mb-5 border ${
+          isDark ? "bg-navy border-white/10" : "bg-paper border-rule"
+        }`}>
           <View className="flex-row items-center justify-between mb-4">
-            <Text className="text-base font-bold text-navy">Informações Pessoais</Text>
+            <Text className={`text-base font-bold ${isDark ? "text-paper" : "text-navy"}`}>Informações Pessoais</Text>
             {!isEditing ? (
               <TouchableOpacity
                 onPress={() => setIsEditing(true)}
-                className="px-3 py-1.5 rounded-lg bg-lightBlue"
+                className={`px-3 py-1.5 rounded-lg ${isDark ? "bg-navy-2 border border-white/10" : "bg-lightBlue"}`}
               >
-                <Text className="text-xs font-semibold text-blue">Editar</Text>
+                <Text className={`text-xs font-semibold ${isDark ? "text-soft" : "text-blue"}`}>Editar</Text>
               </TouchableOpacity>
             ) : (
               <TouchableOpacity onPress={handleCancel} className="px-3 py-1.5">
-                <Text className="text-xs font-semibold text-mute">Cancelar</Text>
+                <Text className={`text-xs font-semibold ${isDark ? "text-soft-line" : "text-mute"}`}>Cancelar</Text>
               </TouchableOpacity>
             )}
           </View>
 
           {/* Campo Nome */}
           <View className="mb-4">
-            <Text className="text-xs font-medium text-mute mb-1.5">Nome Completo</Text>
+            <Text className={`text-xs font-medium mb-1.5 ${isDark ? "text-soft-line" : "text-mute"}`}>Nome Completo</Text>
             <View
               className={`flex-row items-center rounded-xl border px-3 py-2.5 ${
-                isEditing ? "border-brand bg-paper" : "border-rule bg-ground/50"
+                isEditing
+                  ? (isDark ? "border-brand bg-navy-2" : "border-brand bg-paper")
+                  : (isDark ? "border-white/10 bg-navy-2/60" : "border-rule bg-ground/50")
               }`}
             >
-              <User size={16} color="#6c778c" />
+              <User size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
               <TextInput
                 editable={isEditing}
                 value={formName}
                 onChangeText={setFormName}
                 placeholder="Seu nome completo"
                 placeholderTextColor="#6c778c"
-                className="flex-1 ml-2 text-sm text-ink p-0"
+                className={`flex-1 ml-2 text-sm p-0 ${isDark ? "text-paper" : "text-ink"}`}
               />
             </View>
           </View>
 
           {/* Campo E-mail Registrado */}
           <View className="mb-4">
-            <Text className="text-xs font-medium text-mute mb-1.5">E-mail Registrado</Text>
+            <Text className={`text-xs font-medium mb-1.5 ${isDark ? "text-soft-line" : "text-mute"}`}>E-mail Registrado</Text>
             <View
               className={`flex-row items-center rounded-xl border px-3 py-2.5 ${
-                isEditing ? "border-brand bg-paper" : "border-rule bg-ground/50"
+                isEditing
+                  ? (isDark ? "border-brand bg-navy-2" : "border-brand bg-paper")
+                  : (isDark ? "border-white/10 bg-navy-2/60" : "border-rule bg-ground/50")
               }`}
             >
-              <Mail size={16} color="#6c778c" />
+              <Mail size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
               <TextInput
                 editable={isEditing}
                 value={formEmail}
@@ -299,20 +303,22 @@ export function MyInformations() {
                 placeholderTextColor="#6c778c"
                 keyboardType="email-address"
                 autoCapitalize="none"
-                className="flex-1 ml-2 text-sm text-ink p-0"
+                className={`flex-1 ml-2 text-sm p-0 ${isDark ? "text-paper" : "text-ink"}`}
               />
             </View>
           </View>
 
           {/* Campo Telefone */}
           <View className="mb-4">
-            <Text className="text-xs font-medium text-mute mb-1.5">Telefone / WhatsApp</Text>
+            <Text className={`text-xs font-medium mb-1.5 ${isDark ? "text-soft-line" : "text-mute"}`}>Telefone / WhatsApp</Text>
             <View
               className={`flex-row items-center rounded-xl border px-3 py-2.5 ${
-                isEditing ? "border-brand bg-paper" : "border-rule bg-ground/50"
+                isEditing
+                  ? (isDark ? "border-brand bg-navy-2" : "border-brand bg-paper")
+                  : (isDark ? "border-white/10 bg-navy-2/60" : "border-rule bg-ground/50")
               }`}
             >
-              <Phone size={16} color="#6c778c" />
+              <Phone size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
               <TextInput
                 editable={isEditing}
                 value={formPhone}
@@ -320,7 +326,7 @@ export function MyInformations() {
                 placeholder="(00) 00000-0000"
                 placeholderTextColor="#6c778c"
                 keyboardType="phone-pad"
-                className="flex-1 ml-2 text-sm text-ink p-0"
+                className={`flex-1 ml-2 text-sm p-0 ${isDark ? "text-paper" : "text-ink"}`}
               />
             </View>
           </View>
@@ -328,17 +334,19 @@ export function MyInformations() {
           {/* Campo Cidade e Estado */}
           {!isEditing ? (
             <View className="mb-4">
-              <Text className="text-xs font-medium text-mute mb-1.5">Cidade e Estado</Text>
-              <View className="flex-row items-center rounded-xl border border-rule bg-ground/50 px-3 py-2.5">
-                <MapPin size={16} color="#6c778c" />
-                <Text className="flex-1 ml-2 text-sm text-ink">{cityNameText}</Text>
+              <Text className={`text-xs font-medium mb-1.5 ${isDark ? "text-soft-line" : "text-mute"}`}>Cidade e Estado</Text>
+              <View className={`flex-row items-center rounded-xl border px-3 py-2.5 ${
+                isDark ? "border-white/10 bg-navy-2/60" : "border-rule bg-ground/50"
+              }`}>
+                <MapPin size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
+                <Text className={`flex-1 ml-2 text-sm ${isDark ? "text-paper" : "text-ink"}`}>{cityNameText}</Text>
               </View>
             </View>
           ) : (
             <View className="mb-4">
               {/* Dropdown Estado */}
               <View className="mb-4">
-                <Text className="text-xs font-medium text-mute mb-1.5">Estado</Text>
+                <Text className={`text-xs font-medium mb-1.5 ${isDark ? "text-soft-line" : "text-mute"}`}>Estado</Text>
                 <TouchableOpacity
                   activeOpacity={0.8}
                   onPress={() => {
@@ -346,24 +354,28 @@ export function MyInformations() {
                     setOpenCityDropdown(false);
                   }}
                   className={`w-full min-h-[46px] rounded-xl border px-3.5 py-2.5 flex-row items-center justify-between ${
-                    openStateDropdown ? "border-brand bg-paper" : "border-rule bg-ground/50"
+                    openStateDropdown
+                      ? (isDark ? "border-brand bg-navy-2" : "border-brand bg-paper")
+                      : (isDark ? "border-white/10 bg-navy-2" : "border-rule bg-ground/50")
                   }`}
                 >
                   <View className="flex-row items-center flex-1 mr-2">
-                    <MapPin size={16} color="#6c778c" className="mr-2.5" />
-                    <Text className="text-sm text-ink font-medium ml-2">
+                    <MapPin size={16} color={isDark ? "#99b6e6" : "#6c778c"} className="mr-2.5" />
+                    <Text className={`text-sm font-medium ml-2 ${isDark ? "text-paper" : "text-ink"}`}>
                       {states.find((s) => s.id === selectedStateId)?.name || "Selecione o Estado"}
                     </Text>
                   </View>
                   <ChevronDown
                     size={16}
-                    color="#6c778c"
+                    color={isDark ? "#99b6e6" : "#6c778c"}
                     style={{ transform: [{ rotate: openStateDropdown ? "180deg" : "0deg" }] }}
                   />
                 </TouchableOpacity>
 
                 {openStateDropdown && (
-                  <View className="mt-1.5 bg-paper border border-rule-2 rounded-2xl overflow-hidden max-h-52">
+                  <View className={`mt-1.5 border rounded-2xl overflow-hidden max-h-52 ${
+                    isDark ? "bg-navy-2 border-white/10" : "bg-paper border-rule-2"
+                  }`}>
                     <ScrollView nestedScrollEnabled>
                       {states.map((st, index) => {
                         const isSelected = st.id === selectedStateId;
@@ -373,10 +385,14 @@ export function MyInformations() {
                             activeOpacity={0.7}
                             onPress={() => handleStateSelect(st.id)}
                             className={`px-4 py-3 flex-row items-center justify-between ${
-                              isSelected ? "bg-soft/50" : "bg-paper"
-                            } ${index < states.length - 1 ? "border-b border-rule-2/70" : ""}`}
+                              isSelected
+                                ? (isDark ? "bg-navy" : "bg-soft/50")
+                                : (isDark ? "bg-navy-2" : "bg-paper")
+                            } ${index < states.length - 1 ? (isDark ? "border-b border-white/10" : "border-b border-rule-2/70") : ""}`}
                           >
-                            <Text className={`text-sm ${isSelected ? "text-brand font-semibold" : "text-body"}`}>
+                            <Text className={`text-sm ${
+                              isSelected ? "text-brand font-semibold" : (isDark ? "text-paper" : "text-body")
+                            }`}>
                               {st.name} ({st.uf})
                             </Text>
                             {isSelected && <Check size={16} color="#1f6ae1" />}
@@ -390,7 +406,7 @@ export function MyInformations() {
 
               {/* Dropdown Cidade */}
               <View className="mb-1">
-                <Text className="text-xs font-medium text-mute mb-1.5">Cidade</Text>
+                <Text className={`text-xs font-medium mb-1.5 ${isDark ? "text-soft-line" : "text-mute"}`}>Cidade</Text>
                 <TouchableOpacity
                   activeOpacity={0.8}
                   onPress={() => {
@@ -398,24 +414,28 @@ export function MyInformations() {
                     setOpenStateDropdown(false);
                   }}
                   className={`w-full min-h-[46px] rounded-xl border px-3.5 py-2.5 flex-row items-center justify-between ${
-                    openCityDropdown ? "border-brand bg-paper" : "border-rule bg-ground/50"
+                    openCityDropdown
+                      ? (isDark ? "border-brand bg-navy-2" : "border-brand bg-paper")
+                      : (isDark ? "border-white/10 bg-navy-2" : "border-rule bg-ground/50")
                   }`}
                 >
                   <View className="flex-row items-center flex-1 mr-2">
-                    <MapPin size={16} color="#6c778c" className="mr-2.5" />
-                    <Text className="text-sm text-ink font-medium ml-2">
+                    <MapPin size={16} color={isDark ? "#99b6e6" : "#6c778c"} className="mr-2.5" />
+                    <Text className={`text-sm font-medium ml-2 ${isDark ? "text-paper" : "text-ink"}`}>
                       {cities.find((c) => c.id === formCityId)?.name || "Selecione a Cidade"}
                     </Text>
                   </View>
                   <ChevronDown
                     size={16}
-                    color="#6c778c"
+                    color={isDark ? "#99b6e6" : "#6c778c"}
                     style={{ transform: [{ rotate: openCityDropdown ? "180deg" : "0deg" }] }}
                   />
                 </TouchableOpacity>
 
                 {openCityDropdown && (
-                  <View className="mt-1.5 bg-paper border border-rule-2 rounded-2xl overflow-hidden max-h-52">
+                  <View className={`mt-1.5 border rounded-2xl overflow-hidden max-h-52 ${
+                    isDark ? "bg-navy-2 border-white/10" : "bg-paper border-rule-2"
+                  }`}>
                     <ScrollView nestedScrollEnabled>
                       {availableCities.map((ct, index) => {
                         const isSelected = ct.id === formCityId;
@@ -428,10 +448,14 @@ export function MyInformations() {
                               setOpenCityDropdown(false);
                             }}
                             className={`px-4 py-3 flex-row items-center justify-between ${
-                              isSelected ? "bg-soft/50" : "bg-paper"
-                            } ${index < availableCities.length - 1 ? "border-b border-rule-2/70" : ""}`}
+                              isSelected
+                                ? (isDark ? "bg-navy" : "bg-soft/50")
+                                : (isDark ? "bg-navy-2" : "bg-paper")
+                            } ${index < availableCities.length - 1 ? (isDark ? "border-b border-white/10" : "border-b border-rule-2/70") : ""}`}
                           >
-                            <Text className={`text-sm ${isSelected ? "text-brand font-semibold" : "text-body"}`}>
+                            <Text className={`text-sm ${
+                              isSelected ? "text-brand font-semibold" : (isDark ? "text-paper" : "text-body")
+                            }`}>
                               {ct.name}
                             </Text>
                             {isSelected && <Check size={16} color="#1f6ae1" />}
@@ -448,16 +472,18 @@ export function MyInformations() {
           {/* Campo Nova Senha (Opcional durante edição) */}
           {isEditing && (
             <View className="mb-4">
-              <Text className="text-xs font-medium text-mute mb-1.5">Nova Senha (Opcional)</Text>
-              <View className="flex-row items-center rounded-xl border border-brand bg-paper px-3 py-2.5">
-                <Lock size={16} color="#6c778c" />
+              <Text className={`text-xs font-medium mb-1.5 ${isDark ? "text-soft-line" : "text-mute"}`}>Nova Senha (Opcional)</Text>
+              <View className={`flex-row items-center rounded-xl border border-brand px-3 py-2.5 ${
+                isDark ? "bg-navy-2" : "bg-paper"
+              }`}>
+                <Lock size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
                 <TextInput
                   value={formPassword}
                   onChangeText={setFormPassword}
                   placeholder="Mínimo 8 dígitos (deixe em branco para manter)"
                   placeholderTextColor="#6c778c"
                   secureTextEntry
-                  className="flex-1 ml-2 text-sm text-ink p-0"
+                  className={`flex-1 ml-2 text-sm p-0 ${isDark ? "text-paper" : "text-ink"}`}
                 />
               </View>
             </View>
@@ -492,13 +518,17 @@ export function MyInformations() {
 
         {/* Seção Configurações do Aplicativo (Design Original com Pill Switch e Divisórias) */}
         <View className="mb-2">
-          <Text className="text-xs font-semibold text-mute uppercase tracking-wider mb-2 ml-1">
+          <Text className={`text-xs font-semibold uppercase tracking-wider mb-2 ml-1 ${
+            isDark ? "text-soft-line" : "text-mute"
+          }`}>
             Configurações do Aplicativo
           </Text>
         </View>
 
         <View
-          className="bg-paper rounded-3xl border border-rule overflow-hidden mb-6"
+          className={`rounded-3xl border overflow-hidden mb-6 ${
+            isDark ? "bg-navy border-white/10" : "bg-paper border-rule"
+          }`}
           style={{
             shadowColor: "#0c0d10",
             shadowOffset: { width: 0, height: 4 },
@@ -511,19 +541,23 @@ export function MyInformations() {
           <TouchableOpacity
             onPress={toggleTheme}
             activeOpacity={0.7}
-            className="flex-row items-center justify-between px-5 py-4 border-b border-rule/60"
+            className={`flex-row items-center justify-between px-5 py-4 border-b ${
+              isDark ? "border-white/10" : "border-rule/60"
+            }`}
           >
             <View className="flex-row items-center gap-3.5 flex-1">
-              <View className="w-9 h-9 rounded-xl bg-soft items-center justify-center">
-                {theme === "dark" ? (
-                  <Moon size={18} color="#1f6ae1" />
+              <View className={`w-9 h-9 rounded-xl items-center justify-center ${
+                isDark ? "bg-navy-2" : "bg-soft"
+              }`}>
+                {isDark ? (
+                  <Sun size={18} color="#f6b60b" />
                 ) : (
-                  <Sun size={18} color="#1f6ae1" />
+                  <Moon size={18} color="#1f6ae1" />
                 )}
               </View>
               <View>
-                <Text className="text-sm font-semibold text-ink">Tema da Aplicação</Text>
-                <Text className="text-xs text-mute mt-0.5">
+                <Text className={`text-sm font-semibold ${isDark ? "text-paper" : "text-ink"}`}>Tema da Aplicação</Text>
+                <Text className={`text-xs mt-0.5 ${isDark ? "text-soft-line" : "text-mute"}`}>
                   Alternar entre modo claro e escuro
                 </Text>
               </View>
@@ -531,12 +565,12 @@ export function MyInformations() {
 
             {/* Pill Switch */}
             <View className="flex-row items-center gap-2">
-              <Text className="text-xs font-medium text-mute">
-                {theme === "dark" ? "Escuro" : "Claro"}
+              <Text className={`text-xs font-medium ${isDark ? "text-soft-line" : "text-mute"}`}>
+                {isDark ? "Escuro" : "Claro"}
               </Text>
               <View
                 className={`w-12 h-6 rounded-full p-0.5 flex-row items-center ${
-                  theme === "dark" ? "bg-brand justify-end" : "bg-rule justify-start"
+                  isDark ? "bg-brand justify-end" : "bg-rule justify-start"
                 }`}
               >
                 <View className="w-5 h-5 rounded-full bg-paper shadow-sm" />
@@ -548,18 +582,22 @@ export function MyInformations() {
           <TouchableOpacity
             onPress={logout}
             activeOpacity={0.7}
-            className="flex-row items-center justify-between px-5 py-4 border-b border-rule/60"
+            className={`flex-row items-center justify-between px-5 py-4 border-b ${
+              isDark ? "border-white/10" : "border-rule/60"
+            }`}
           >
             <View className="flex-row items-center gap-3.5">
-              <View className="w-9 h-9 rounded-xl bg-soft items-center justify-center">
+              <View className={`w-9 h-9 rounded-xl items-center justify-center ${
+                isDark ? "bg-navy-2" : "bg-soft"
+              }`}>
                 <LogOut size={18} color="#1f6ae1" />
               </View>
               <View>
-                <Text className="text-sm font-semibold text-ink">Desconectar</Text>
-                <Text className="text-xs text-mute mt-0.5">Sair da sua conta atual</Text>
+                <Text className={`text-sm font-semibold ${isDark ? "text-paper" : "text-ink"}`}>Desconectar</Text>
+                <Text className={`text-xs mt-0.5 ${isDark ? "text-soft-line" : "text-mute"}`}>Sair da sua conta atual</Text>
               </View>
             </View>
-            <ChevronRight size={18} color="#6c778c" />
+            <ChevronRight size={18} color={isDark ? "#99b6e6" : "#6c778c"} />
           </TouchableOpacity>
 
           {/* Opção Excluir Conta (CRUD - Delete via TanStack Query) */}
@@ -574,7 +612,7 @@ export function MyInformations() {
               </View>
               <View>
                 <Text className="text-sm font-semibold text-danger">Excluir Conta</Text>
-                <Text className="text-xs text-mute mt-0.5">
+                <Text className={`text-xs mt-0.5 ${isDark ? "text-soft-line" : "text-mute"}`}>
                   Remover permanentemente seus dados
                 </Text>
               </View>
@@ -596,7 +634,9 @@ export function MyInformations() {
       >
         <View className="flex-1 bg-black/60 items-center justify-center p-5">
           <View
-            className="w-full max-w-sm bg-paper rounded-3xl p-6 border border-rule"
+            className={`w-full max-w-sm rounded-3xl p-6 border ${
+              isDark ? "bg-navy border-white/10" : "bg-paper border-rule"
+            }`}
             style={{
               shadowColor: "#0c0d10",
               shadowOffset: { width: 0, height: 6 },
@@ -606,25 +646,29 @@ export function MyInformations() {
             }}
           >
             <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-lg font-bold text-navy">Tem certeza?</Text>
+              <Text className={`text-lg font-bold ${isDark ? "text-paper" : "text-navy"}`}>Tem certeza?</Text>
               <TouchableOpacity
                 onPress={() => setConfirmDeleteModal(false)}
-                className="w-8 h-8 rounded-full items-center justify-center bg-ground"
+                className={`w-8 h-8 rounded-full items-center justify-center ${
+                  isDark ? "bg-navy-2" : "bg-ground"
+                }`}
               >
-                <X size={16} color="#0c0d10" />
+                <X size={16} color={isDark ? "#ffffff" : "#0c0d10"} />
               </TouchableOpacity>
             </View>
 
-            <Text className="text-xs text-mute mb-5 leading-relaxed">
+            <Text className={`text-xs mb-5 leading-relaxed ${isDark ? "text-soft-line" : "text-mute"}`}>
               Esta ação é permanente. Todos os seus dados de tutor, histórico de agendamentos e pets cadastrados serão removidos.
             </Text>
 
             <View className="flex-row gap-3">
               <TouchableOpacity
                 onPress={() => setConfirmDeleteModal(false)}
-                className="flex-1 rounded-xl border border-rule py-3 items-center justify-center"
+                className={`flex-1 rounded-xl border py-3 items-center justify-center ${
+                  isDark ? "border-white/10 bg-navy-2" : "border-rule bg-paper"
+                }`}
               >
-                <Text className="text-sm font-semibold text-ink">Cancelar</Text>
+                <Text className={`text-sm font-semibold ${isDark ? "text-paper" : "text-ink"}`}>Cancelar</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={handleDeleteAccount}
