@@ -8,10 +8,9 @@
 ## Sumário
 - [Vídeo de Demonstração](#-vídeo-de-demonstração)
 - [Repositório do Backend (API Java Spring Boot)](#-repositório-do-backend-api-java-spring-boot)
-- [Inicialização Extrema (End-to-End: Java + Cloudflare Tunnel + Expo)](#-inicialização-extrema-end-to-end-java--cloudflare-tunnel--expo)
 - [Inicialização Tradicional (Wi-Fi Local ou Emulador)](#-inicialização-tradicional-wi-fi-local-ou-emulador)
+- [Inicialização Extrema (End-to-End: Java + Cloudflare Tunnel + Expo)](#-inicialização-extrema-end-to-end-java--cloudflare-tunnel--expo)
 - [Solução do Projeto e Funcionalidades](#-solução-do-projeto-e-funcionalidades)
-- [Rotas e Critérios Avaliativos da Sprint 3](#-rotas-e-critérios-avaliativos-da-sprint-3)
 - [Tecnologias Utilizadas](#-tecnologias-utilizadas)
 - [Arquitetura e Estrutura de Pastas](#-arquitetura-e-estrutura-de-pastas)
 - [Diagnóstico e Comandos Úteis](#-diagnóstico-e-comandos-úteis)
@@ -37,6 +36,33 @@ O **Clyvo Care** consome a API RESTful desenvolvida no repositório parceiro do 
 - **Segurança:** Autenticação stateless via tokens JWT assinados com par de chaves RSA (RS256) e criptografia de senhas com `BCryptPasswordEncoder`.
 - **Porta Padrão:** Executada localmente na porta `8080` (`http://localhost:8080`).
 
+## Inicialização Tradicional (Wi-Fi Local ou Emulador)
+
+Caso prefira conectar diretamente sem utilizar o Cloudflare Tunnel:
+
+### 1. Via Emulador Android Studio (mesma máquina)
+Configure no `.env`:
+```env
+EXPO_PUBLIC_API_URL=http://10.0.2.2:8080
+```
+
+### 2. Via Dispositivo Físico na Mesma Rede Wi-Fi Convencional
+1. Certifique-se de que computador e smartphone estão no mesmo roteador Wi-Fi residencial (sem isolamento).
+2. Descubra o IP local do computador:
+   ```bash
+   # Linux / macOS:
+   ip route get 1.1.1.1 | awk '{print $7}'
+   # Windows:
+   ipconfig
+   ```
+3. Configure no `.env`:
+   ```env
+   EXPO_PUBLIC_API_URL=http://<SEU_IP_LOCAL>:8080
+   ```
+4. Inicie o Expo:
+   ```bash
+   npx expo start -c
+   ```
 
 
 ## Inicialização Extrema (End-to-End: Java + Cloudflare Tunnel + Expo)
@@ -116,43 +142,17 @@ Abra o app **Expo Go** no seu smartphone (Android ou iOS) e escaneie o QR Code e
 ### Credenciais de Acesso (Login & Demonstração)
 
 > [!IMPORTANT]
-> **Usuário e Senha de Teste:**  
+> **Usuário e Senha de Teste:**
+> 
+> **E-Mail usado:** rural@gmail.com
+> 
+> **Senha Usada:** senha123
+>
 > As credenciais de acesso oficiais utilizadas para homologação e avaliação **estão demonstradas detalhadamente no vídeo de apresentação da Sprint**.  
 >  
 > Caso deseje criar um novo usuário na hora, utilize o fluxo nativo de **"Cadastre-se"** diretamente no aplicativo:
 > - O backend valida regras estritas de formato e dígitos verificadores de CPF (`@CPF`).
 > - A senha é automaticamente persistida com hash seguro BCrypt no banco Oracle.
-
-
-
-## Inicialização Tradicional (Wi-Fi Local ou Emulador)
-
-Caso prefira conectar diretamente sem utilizar o Cloudflare Tunnel:
-
-### 1. Via Emulador Android Studio (mesma máquina)
-Configure no `.env`:
-```env
-EXPO_PUBLIC_API_URL=http://10.0.2.2:8080
-```
-
-### 2. Via Dispositivo Físico na Mesma Rede Wi-Fi Convencional
-1. Certifique-se de que computador e smartphone estão no mesmo roteador Wi-Fi residencial (sem isolamento).
-2. Descubra o IP local do computador:
-   ```bash
-   # Linux / macOS:
-   ip route get 1.1.1.1 | awk '{print $7}'
-   # Windows:
-   ipconfig
-   ```
-3. Configure no `.env`:
-   ```env
-   EXPO_PUBLIC_API_URL=http://<SEU_IP_LOCAL>:8080
-   ```
-4. Inicie o Expo:
-   ```bash
-   npx expo start -c
-   ```
-
 
 ## Solução do Projeto e Funcionalidades
 
