@@ -84,8 +84,7 @@ export function MainScreen({ navigation }: MainScreenProps) {
   // Encontra os detalhes visuais do plano ativo
   const activePlanDetails =
     ClyvoPlansData.find((p) => p.id === activePlanId || p.name.toLowerCase().includes(String(activePlanId).toLowerCase())) ||
-    ClyvoPlansData[1]; // Clyvo Conforto como fallback padrão visual
-
+    ClyvoPlansData[1]; // Clyvo Basic como fallback padrão visual
   return (
     <View className={`flex-1 ${isDark ? "bg-navy-2" : "bg-ground"}`}>
       <ScrollView
