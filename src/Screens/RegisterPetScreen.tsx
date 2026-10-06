@@ -1,196 +1,40 @@
-import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
-import { MyPetData } from '../Data/MyPetData';
-import { PetSpecieBreedListData } from '../Data/PetSpecieBreedListData';
-import { DropdownProps } from '../Types/types';
-import { Camera, Image as ImageIcon, Sparkles, ChevronDown, Check, User, Calendar, Tag, Dna } from 'lucide-react-native';
-import React, { useState } from 'react';
+import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
+import { Camera, Image as ImageIcon, Sparkles, Check, User, Calendar, Tag, Dna } from 'lucide-react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { RootStackParamList } from '../Navigation/navigation';
-import { useAuth } from '../Context/AuthContext';
+import { RootStackParamList } from '../Types/types';
 import { useTheme } from '../Context/ThemeContext';
-import { useSpecies, useBreeds, useCreatePet, useUpdatePet } from '../Hooks/usePets';
-
-function Dropdown({ label, value, placeholder = "Selecione", options, onSelect, icon }: DropdownProps) {
-    const [open, setOpen] = useState(false);
-    const { isDark } = useTheme();
-
-    return (
-        <View className="w-full mb-4">
-            <Text className={`text-xs font-medium mb-1.5 ${isDark ? "text-soft-line" : "text-mute"}`}>{label}</Text>
-            <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => setOpen(!open)}
-                className={`w-full min-h-[46px] rounded-xl border px-3.5 py-2.5 flex-row items-center justify-between ${
-                    open
-                        ? (isDark ? "border-brand bg-navy-2" : "border-brand bg-paper")
-                        : (isDark ? "border-white/10 bg-navy-2" : "border-rule bg-ground/50")
-                }`}
-            >
-                <View className="flex-row items-center flex-1 mr-2">
-                    {icon && <View className="mr-2.5">{icon}</View>}
-                    <Text className={`text-sm ${
-                        value
-                            ? (isDark ? "text-paper font-medium" : "text-ink font-medium")
-                            : (isDark ? "text-soft-line" : "text-mute")
-                    }`}>
-                        {value || placeholder}
-                    </Text>
-                </View>
-                <ChevronDown
-                    size={16}
-                    color={isDark ? "#99b6e6" : "#6c778c"}
-                    style={{ transform: [{ rotate: open ? "180deg" : "0deg" }] }}
-                />
-            </TouchableOpacity>
-
-            {open && (
-                <View className={`mt-1.5 border rounded-2xl overflow-hidden max-h-52 ${
-                    isDark ? "bg-navy-2 border-white/10" : "bg-paper border-rule-2"
-                }`}>
-                    <ScrollView nestedScrollEnabled>
-                        {options.map((option, index) => {
-                            const isSelected = option === value;
-                            return (
-                                <TouchableOpacity
-                                    key={option}
-                                    activeOpacity={0.7}
-                                    onPress={() => {
-                                        onSelect(option);
-                                        setOpen(false);
-                                    }}
-                                    className={`px-4 py-3 flex-row items-center justify-between ${
-                                        isSelected
-                                            ? (isDark ? "bg-navy" : "bg-soft/50")
-                                            : (isDark ? "bg-navy-2" : "bg-paper")
-                                    } ${index < options.length - 1 ? (isDark ? "border-b border-white/10" : "border-b border-rule-2/70") : ""}`}
-                                >
-                                    <Text
-                                        className={`text-sm ${
-                                            isSelected ? "text-brand font-semibold" : (isDark ? "text-paper" : "text-body")
-                                        }`}
-                                    >
-                                        {option}
-                                    </Text>
-                                    {isSelected && <Check size={16} color="#1f6ae1" />}
-                                </TouchableOpacity>
-                            );
-                        })}
-                    </ScrollView>
-                </View>
-            )}
-        </View>
-    );
-}
+import { usePetForm } from '../Hooks/usePetForm';
+import { Dropdown } from '../Components/Dropdown';
 
 export function RegisterPet() {
     const navigation = useNavigation();
     const route = useRoute<RouteProp<RootStackParamList, 'RegisterPet'>>();
-    const petToEdit = route.params?.petToEdit;
-    const isEditing = !!petToEdit;
-
-    const { user } = useAuth();
     const { isDark } = useTheme();
-    const { data: apiSpecies = [] } = useSpecies();
-    const { data: apiBreeds = [] } = useBreeds();
-    const createPetMutation = useCreatePet();
-    const updatePetMutation = useUpdatePet();
-    const isSaving = createPetMutation.isPending || updatePetMutation.isPending;
-
-    // Listas do design original
-    const specieOptions = PetSpecieBreedListData.map((item) => item.species);
-    const initialSpecie = specieOptions[0] || "Canino";
-    const initialBreeds = PetSpecieBreedListData.find((item) => item.species === initialSpecie)?.breeds || [];
-    const fallbackDefaultBreed = initialBreeds[0] || "";
-
-    const [petName, setPetName] = useState(petToEdit?.name || "");
-    const [petBirthDate, setPetBirthDate] = useState(petToEdit?.birthDate || "");
-    const [unknownBirthDate, setUnknownBirthDate] = useState(false);
-    const [petTutor, setPetTutor] = useState(petToEdit?.owner?.name || user?.name || "");
-    const [selectedSex, setSelectedSex] = useState<string>(
-        petToEdit?.sex === "FEMALE" ? "Femea" : "Macho"
-    );
-    const [selectedSpecie, setSelectedSpecie] = useState<string>(
-        petToEdit?.species?.name || initialSpecie
-    );
-    const [selectedBreed, setSelectedBreed] = useState<string>(
-        petToEdit?.breed?.name || fallbackDefaultBreed
-    );
-
-    const breedOptions =
-        PetSpecieBreedListData.find((item) => item.species === selectedSpecie)?.breeds || [];
-
-    const selectedPetImage =
-        MyPetData.find((pet) => pet.species.toLowerCase() === selectedSpecie.toLowerCase())?.img || MyPetData[0]?.img;
-
-    const handleSpecieSelect = (value: string) => {
-        setSelectedSpecie(value);
-        const nextBreeds =
-            PetSpecieBreedListData.find((item) => item.species === value)?.breeds || [];
-        setSelectedBreed(nextBreeds[0] || "");
-    };
-
-    const handleSavePet = async () => {
-        if (!petName.trim()) {
-            Alert.alert("Atenção", "Por favor, informe o nome do pet.");
-            return;
-        }
-
-        const ownerId = user?.id || 1;
-
-        // Tenta encontrar ID da espécie na API (comparando com nome em PT ou EN)
-        const currentSpecieItem = PetSpecieBreedListData.find(
-            (item) => item.species.toLowerCase() === selectedSpecie.toLowerCase()
-        );
-        const targetApiName = currentSpecieItem?.apiName?.toLowerCase() || selectedSpecie.toLowerCase();
-
-        const matchedSpecies = apiSpecies.find((s) => {
-            const sName = s.name.toLowerCase();
-            return sName === selectedSpecie.toLowerCase() || sName === targetApiName;
-        }) || apiSpecies[0];
-        const speciesId = matchedSpecies ? matchedSpecies.id : 1;
-
-        // Tenta encontrar ID da raça na API
-        const matchedBreed = apiBreeds.find(
-            (b) => b.name.toLowerCase() === selectedBreed.toLowerCase()
-        );
-        const breedId = matchedBreed ? matchedBreed.id : undefined;
-
-        // Formatação da data (se "Não sei", usa a data atual)
-        let formattedDate = petBirthDate.trim();
-        if (unknownBirthDate || !formattedDate) {
-            formattedDate = new Date().toISOString().split("T")[0];
-        } else if (formattedDate.includes("/")) {
-            const parts = formattedDate.split("/");
-            if (parts.length === 3) {
-                formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
-            }
-        }
-
-        const payload = {
-            name: petName.trim(),
-            birthDate: formattedDate,
-            sex: (selectedSex === "Macho" ? "MALE" : "FEMALE") as "MALE" | "FEMALE",
-            ownerId,
-            speciesId,
-            breedId,
-        };
-
-        try {
-            if (isEditing && petToEdit) {
-                await updatePetMutation.mutateAsync({ id: petToEdit.id, data: payload });
-                Alert.alert("Sucesso! 🐾", "Pet atualizado com sucesso!", [
-                    { text: "OK", onPress: () => navigation.goBack() }
-                ]);
-            } else {
-                await createPetMutation.mutateAsync(payload);
-                Alert.alert("Sucesso! 🐾", "Pet cadastrado com sucesso!", [
-                    { text: "Ver Pets", onPress: () => navigation.goBack() }
-                ]);
-            }
-        } catch (err: any) {
-            Alert.alert("Erro ao salvar pet", err.message || "Tente novamente.");
-        }
-    };
+    const {
+        isEditing,
+        isSaving,
+        petName,
+        setPetName,
+        petBirthDate,
+        setPetBirthDate,
+        unknownBirthDate,
+        toggleUnknownBirthDate,
+        petTutor,
+        setPetTutor,
+        selectedSex,
+        setSelectedSex,
+        selectedSpecie,
+        selectedBreed,
+        setSelectedBreed,
+        specieOptions,
+        breedOptions,
+        selectedPetImage,
+        handleSpecieSelect,
+        handleSavePet,
+    } = usePetForm({
+        petToEdit: route.params?.petToEdit,
+        onSuccess: () => navigation.goBack(),
+    });
 
     return (
         <KeyboardAvoidingView
@@ -305,15 +149,7 @@ export function RegisterPet() {
                             {/* Botão de "Não sei a data" */}
                             <TouchableOpacity
                                 activeOpacity={0.8}
-                                onPress={() => {
-                                    setUnknownBirthDate((prev) => {
-                                        const next = !prev;
-                                        if (next) {
-                                            setPetBirthDate("");
-                                        }
-                                        return next;
-                                    });
-                                }}
+                                onPress={toggleUnknownBirthDate}
                                 className={`h-[42px] px-3 rounded-xl border flex-row items-center justify-center gap-1.5 ${
                                     unknownBirthDate
                                         ? "bg-brand/20 border-brand"
