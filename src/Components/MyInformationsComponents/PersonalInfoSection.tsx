@@ -1,35 +1,8 @@
+import { FormattedTextInput } from "../FormattedTextInput";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator } from "react-native";
 import { User, Mail, Phone, MapPin, ChevronDown, Save, Lock, Check } from "lucide-react-native";
-import type { StateApiDTO, CityApiDTO } from "../../Types/types";
+import type { PersonalInfoSectionProps } from "../../Types/types";
 
-interface PersonalInfoSectionProps {
-  isDark: boolean;
-  isEditing: boolean;
-  setIsEditing: (value: boolean) => void;
-  handleCancel: () => void;
-  formName: string;
-  setFormName: (value: string) => void;
-  formEmail: string;
-  setFormEmail: (value: string) => void;
-  formPhone: string;
-  setFormPhone: (value: string) => void;
-  cityNameText: string;
-  openStateDropdown: boolean;
-  setOpenStateDropdown: (value: boolean) => void;
-  openCityDropdown: boolean;
-  setOpenCityDropdown: (value: boolean) => void;
-  states: StateApiDTO[];
-  selectedStateId: number | null;
-  handleStateSelect: (stateId: number) => void;
-  cities: CityApiDTO[];
-  formCityId: number;
-  availableCities: CityApiDTO[];
-  setFormCityId: (value: number) => void;
-  formPassword: string;
-  setFormPassword: (value: string) => void;
-  handleSave: () => Promise<void>;
-  isSaving: boolean;
-}
 
 export function PersonalInfoSection({
   isDark,
@@ -136,13 +109,13 @@ export function PersonalInfoSection({
           }`}
         >
           <Phone size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
-          <TextInput
+          <FormattedTextInput
+            format="phone"
             editable={isEditing}
             value={formPhone}
             onChangeText={setFormPhone}
             placeholder="(00) 00000-0000"
             placeholderTextColor="#6c778c"
-            keyboardType="phone-pad"
             className={`flex-1 ml-2 text-sm p-0 ${isDark ? "text-paper" : "text-ink"}`}
           />
         </View>

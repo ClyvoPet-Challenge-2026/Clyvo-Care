@@ -1,173 +1,32 @@
-import { useState, useEffect } from "react";
+import { FormattedTextInput } from "../Components/FormattedTextInput";
+import { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform,ScrollView, ActivityIndicator } from "react-native";
 import { Mail, Lock, Eye, EyeOff, User, Phone, MapPin, ChevronDown, Check } from "lucide-react-native";
-import { useAuth } from "../Context/AuthContext";
 import { useTheme } from "../Context/ThemeContext";
-import { RegisterScreenProps, RegisterFormData, StateApiDTO, CityApiDTO } from "../Types/types";
-import { getStates, getCities } from "../Services/auth";
-import { DEFAULT_STATES, DEFAULT_CITIES } from "../Data/LocationGeoData";
+import { RegisterScreenProps } from "../Types/types";
+import { useRegisterForm } from "../Hooks/useRegisterForm";
+import { ErrorState } from "../Components/ErrorState";
 
 export function RegisterScreen({ navigation }: RegisterScreenProps) {
-  const { register } = useAuth();
   const { isDark } = useTheme();
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  const [formData, setFormData] = useState<RegisterFormData>({
-    name: "",
-    cpf: "",
-    email: "",
-    senha: "",
-    confirmarSenha: "",
-    phone: "",
-    cityId: 0,
-  });
-
-  const [states, setStates] = useState<StateApiDTO[]>([]);
-  const [cities, setCities] = useState<CityApiDTO[]>([]);
-  const [selectedStateId, setSelectedStateId] = useState<number | null>(null);
+  const { formData, errors, apiError, isSubmitting, updateField, handleRegister, locations } = useRegisterForm();
+  const {
+    states, availableCities, selectedStateId, selectedCityId,
+    currentStateName, currentCityName, isBusy: loadingLocations,
+    isUnavailable: locationsUnavailable, canRegister, selectState, selectCity,
+    retry: retryLocations,
+  } = locations;
 
   const [openStateDropdown, setOpenStateDropdown] = useState(false);
   const [openCityDropdown, setOpenCityDropdown] = useState(false);
-
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [apiError, setApiError] = useState("");
-  const [loadingLocations, setLoadingLocations] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  useEffect(() => {
-    loadLocationData();
-  }, []);
-
-  const loadLocationData = async () => {
-    try {
-      setLoadingLocations(true);
-      const [statesData, citiesData] = await Promise.all([
-        getStates(),
-        getCities(),
-      ]);
-
-      if (statesData && statesData.length > 0) {
-        setStates(statesData);
-        setCities(citiesData || []);
-        setSelectedStateId(statesData[0].id);
-        const stateCities = (citiesData || []).filter((c) => c.state?.id === statesData[0].id);
-        if (stateCities.length > 0) {
-          setFormData((prev) => ({ ...prev, cityId: stateCities[0].id }));
-        }
-        return;
-      }
-    } catch (e) {
-      console.warn("API de estados/cidades indisponível no momento, usando catálogo padrão:", e);
-    } finally {
-      setLoadingLocations(false);
-    }
-
-    // Fallback importado de src/Data/LocationGeoData.ts
-    setStates(DEFAULT_STATES);
-    setCities(DEFAULT_CITIES);
-    setSelectedStateId(DEFAULT_STATES[0].id);
-    setFormData((prev) => ({ ...prev, cityId: DEFAULT_CITIES[0].id }));
-  };
-
   const handleStateSelect = (stateId: number) => {
-    setSelectedStateId(stateId);
+    selectState(stateId);
     setOpenStateDropdown(false);
-    const filtered = cities.filter((c) => c.state?.id === stateId);
-    if (filtered.length > 0) {
-      setFormData((prev) => ({ ...prev, cityId: filtered[0].id }));
-    } else {
-      setFormData((prev) => ({ ...prev, cityId: 0 }));
-    }
+    setOpenCityDropdown(false);
   };
-
-  const formatCpf = (text: string) => {
-    const cleaned = text.replace(/\D/g, "").slice(0, 11);
-    if (cleaned.length <= 3) return cleaned;
-    if (cleaned.length <= 6) return `${cleaned.slice(0, 3)}.${cleaned.slice(3)}`;
-    if (cleaned.length <= 9) return `${cleaned.slice(0, 3)}.${cleaned.slice(3, 6)}.${cleaned.slice(6)}`;
-    return `${cleaned.slice(0, 3)}.${cleaned.slice(3, 6)}.${cleaned.slice(6, 9)}-${cleaned.slice(9, 11)}`;
-  };
-
-  const formatPhone = (text: string) => {
-    const cleaned = text.replace(/\D/g, "").slice(0, 11);
-    if (cleaned.length <= 2) return cleaned;
-    if (cleaned.length <= 7) return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2)}`;
-    return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7)}`;
-  };
-
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-    let isValid = true;
-
-    if (!formData.name.trim()) {
-      newErrors.name = "Nome completo é obrigatório";
-      isValid = false;
-    }
-
-    const rawCpf = formData.cpf.replace(/\D/g, "");
-    if (rawCpf.length !== 11) {
-      newErrors.cpf = "CPF deve conter 11 dígitos";
-      isValid = false;
-    }
-
-    if (!emailRegex.test(formData.email)) {
-      newErrors.email = "Email inválido";
-      isValid = false;
-    }
-
-    if (!formData.phone.trim()) {
-      newErrors.phone = "Telefone é obrigatório";
-      isValid = false;
-    }
-
-    if (!formData.cityId || formData.cityId === 0) {
-      newErrors.city = "Selecione uma cidade";
-      isValid = false;
-    }
-
-    if (formData.senha.length < 8) {
-      newErrors.senha = "Senha deve ter no mínimo 8 caracteres (requisito da API)";
-      isValid = false;
-    }
-
-    if (formData.senha !== formData.confirmarSenha) {
-      newErrors.confirmarSenha = "As senhas não coincidem";
-      isValid = false;
-    }
-
-    setErrors(newErrors);
-    return isValid;
-  };
-
-  const handleRegister = async () => {
-    setApiError("");
-    if (!validateForm()) return;
-
-    try {
-      setIsSubmitting(true);
-      await register({
-        ...formData,
-        cpf: formData.cpf.replace(/\D/g, ""),
-      });
-    } catch (err: any) {
-      setApiError(err.message || "Não foi possível realizar o cadastro.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const availableCities = selectedStateId
-    ? cities.filter((c) => c.state?.id === selectedStateId)
-    : cities;
-
-  const currentStateName =
-    states.find((s) => s.id === selectedStateId)?.name || "Selecione o Estado";
-
-  const currentCityName =
-    cities.find((c) => c.id === formData.cityId)?.name || "Selecione a Cidade";
 
   return (
     <KeyboardAvoidingView
@@ -198,13 +57,6 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
             className={`rounded-3xl p-6 mb-8 border ${
               isDark ? "bg-navy border-white/10" : "bg-paper border-transparent"
             }`}
-            style={{
-              shadowColor: "#0c0d10",
-              shadowOffset: { width: 0, height: 6 },
-              shadowOpacity: 0.1,
-              shadowRadius: 16,
-              elevation: 8,
-            }}
           >
             {apiError ? (
               <View className={`mb-4 p-3 rounded-xl border ${
@@ -225,7 +77,7 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
                   placeholder="Seu nome"
                   placeholderTextColor="#6c778c"
                   value={formData.name}
-                  onChangeText={(text) => setFormData({ ...formData, name: text })}
+                  onChangeText={(text) => updateField("name", text)}
                   className={`flex-1 ml-2 text-sm p-0 ${isDark ? "text-paper" : "text-ink"}`}
                 />
               </View>
@@ -238,12 +90,12 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
               <View className={`flex-row items-center rounded-xl border px-3 py-2.5 ${
                 isDark ? "border-white/10 bg-navy-2" : "border-rule bg-ground/50"
               }`}>
-                <TextInput
+                <FormattedTextInput
+                  format="cpf"
                   placeholder="000.000.000-00"
                   placeholderTextColor="#6c778c"
-                  keyboardType="numeric"
                   value={formData.cpf}
-                  onChangeText={(text) => setFormData({ ...formData, cpf: formatCpf(text) })}
+                  onChangeText={(text) => updateField("cpf", text)}
                   className={`flex-1 text-sm p-0 ${isDark ? "text-paper" : "text-ink"}`}
                 />
               </View>
@@ -263,7 +115,7 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
                   keyboardType="email-address"
                   autoCapitalize="none"
                   value={formData.email}
-                  onChangeText={(text) => setFormData({ ...formData, email: text })}
+                  onChangeText={(text) => updateField("email", text)}
                   className={`flex-1 ml-2 text-sm p-0 ${isDark ? "text-paper" : "text-ink"}`}
                 />
               </View>
@@ -277,23 +129,43 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
                 isDark ? "border-white/10 bg-navy-2" : "border-rule bg-ground/50"
               }`}>
                 <Phone size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
-                <TextInput
+                <FormattedTextInput
+                  format="phone"
                   placeholder="(11) 99999-9999"
                   placeholderTextColor="#6c778c"
-                  keyboardType="phone-pad"
                   value={formData.phone}
-                  onChangeText={(text) => setFormData({ ...formData, phone: formatPhone(text) })}
+                  onChangeText={(text) => updateField("phone", text)}
                   className={`flex-1 ml-2 text-sm p-0 ${isDark ? "text-paper" : "text-ink"}`}
                 />
               </View>
               {errors.phone ? <Text className="text-danger text-xs mt-1">{errors.phone}</Text> : null}
             </View>
 
+            {loadingLocations ? (
+              <View className="flex-row items-center gap-2 mb-3.5" accessibilityLiveRegion="polite">
+                <ActivityIndicator size="small" color="#1f6ae1" />
+                <Text className={`text-xs ${isDark ? "text-soft-line" : "text-mute"}`}>
+                  Carregando estados e cidades...
+                </Text>
+              </View>
+            ) : locationsUnavailable ? (
+              <ErrorState
+                title="Localidades indisponíveis"
+                message="Não foi possível obter os estados e cidades necessários para o cadastro. Tente novamente mais tarde."
+                onRetry={() => { void retryLocations(); }}
+              />
+            ) : null}
+
             {/* Estado */}
             <View className="mb-3.5">
               <Text className={`text-xs font-medium mb-1.5 ${isDark ? "text-soft-line" : "text-mute"}`}>Estado</Text>
               <TouchableOpacity
-                onPress={() => setOpenStateDropdown(!openStateDropdown)}
+                disabled={loadingLocations || locationsUnavailable}
+                accessibilityState={{ disabled: loadingLocations || locationsUnavailable }}
+                onPress={() => {
+                  setOpenStateDropdown(!openStateDropdown);
+                  setOpenCityDropdown(false);
+                }}
                 className={`w-full min-h-[44px] rounded-xl border px-3 py-2.5 flex-row items-center justify-between ${
                   isDark ? "border-white/10 bg-navy-2" : "border-rule bg-ground/50"
                 }`}
@@ -304,7 +176,7 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
                 </View>
                 <ChevronDown size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
               </TouchableOpacity>
-              {openStateDropdown && (
+              {openStateDropdown && !loadingLocations && !locationsUnavailable && (
                 <View className={`mt-1 border rounded-xl max-h-40 overflow-hidden ${
                   isDark ? "bg-navy-2 border-white/10" : "bg-paper border-rule"
                 }`}>
@@ -330,7 +202,12 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
             <View className="mb-3.5">
               <Text className={`text-xs font-medium mb-1.5 ${isDark ? "text-soft-line" : "text-mute"}`}>Cidade</Text>
               <TouchableOpacity
-                onPress={() => setOpenCityDropdown(!openCityDropdown)}
+                disabled={loadingLocations || locationsUnavailable || availableCities.length === 0}
+                accessibilityState={{ disabled: loadingLocations || locationsUnavailable || availableCities.length === 0 }}
+                onPress={() => {
+                  setOpenCityDropdown(!openCityDropdown);
+                  setOpenStateDropdown(false);
+                }}
                 className={`w-full min-h-[44px] rounded-xl border px-3 py-2.5 flex-row items-center justify-between ${
                   isDark ? "border-white/10 bg-navy-2" : "border-rule bg-ground/50"
                 }`}
@@ -341,7 +218,7 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
                 </View>
                 <ChevronDown size={16} color={isDark ? "#99b6e6" : "#6c778c"} />
               </TouchableOpacity>
-              {openCityDropdown && (
+              {openCityDropdown && !loadingLocations && !locationsUnavailable && (
                 <View className={`mt-1 border rounded-xl max-h-40 overflow-hidden ${
                   isDark ? "bg-navy-2 border-white/10" : "bg-paper border-rule"
                 }`}>
@@ -350,7 +227,7 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
                       <TouchableOpacity
                         key={c.id}
                         onPress={() => {
-                          setFormData({ ...formData, cityId: c.id });
+                          selectCity(c.id);
                           setOpenCityDropdown(false);
                         }}
                         className={`px-3 py-2.5 flex-row items-center justify-between border-b ${
@@ -358,11 +235,16 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
                         }`}
                       >
                         <Text className={`text-sm ${isDark ? "text-paper" : "text-body"}`}>{c.name}</Text>
-                        {formData.cityId === c.id && <Check size={14} color="#1f6ae1" />}
+                        {selectedCityId === c.id && <Check size={14} color="#1f6ae1" />}
                       </TouchableOpacity>
                     ))}
                   </ScrollView>
                 </View>
+              )}
+              {!loadingLocations && !locationsUnavailable && availableCities.length === 0 && (
+                <Text className="text-danger text-xs mt-1">
+                  Nenhuma cidade disponível neste estado. Selecione outro estado.
+                </Text>
               )}
               {errors.city ? <Text className="text-danger text-xs mt-1">{errors.city}</Text> : null}
             </View>
@@ -379,7 +261,7 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
                   placeholderTextColor="#6c778c"
                   secureTextEntry={!showPassword}
                   value={formData.senha}
-                  onChangeText={(text) => setFormData({ ...formData, senha: text })}
+                  onChangeText={(text) => updateField("senha", text)}
                   className={`flex-1 ml-2 text-sm p-0 ${isDark ? "text-paper" : "text-ink"}`}
                 />
                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
@@ -405,7 +287,7 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
                   placeholderTextColor="#6c778c"
                   secureTextEntry={!showConfirmPassword}
                   value={formData.confirmarSenha}
-                  onChangeText={(text) => setFormData({ ...formData, confirmarSenha: text })}
+                  onChangeText={(text) => updateField("confirmarSenha", text)}
                   className={`flex-1 ml-2 text-sm p-0 ${isDark ? "text-paper" : "text-ink"}`}
                 />
                 <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
@@ -422,7 +304,8 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
             {/* Botão de Cadastro */}
             <TouchableOpacity
               onPress={handleRegister}
-              disabled={isSubmitting}
+              disabled={isSubmitting || !canRegister}
+              style={{ opacity: isSubmitting || !canRegister ? 0.5 : 1 }}
               activeOpacity={0.85}
               className="w-full rounded-xl bg-brand py-3.5 items-center justify-center"
             >
