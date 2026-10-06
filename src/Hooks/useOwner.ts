@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getProfile, updateProfile, deleteAccount } from "../Services/auth";
-import { RegisterFormData, OwnerApiDTO } from "../Types/types";
+import { getProfile, updateProfile, deleteAccount } from "../Services/owner";
+import { RegisterFormData } from "../Types/types";
 import { queryKeys } from "../Lib/queryKeys";
 
 export function useOwnerProfile(ownerId?: number) {

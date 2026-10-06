@@ -38,7 +38,7 @@ api.interceptors.response.use(
     const status = error.response?.status ?? 0;
 
     // Se o token expirou ou for inválido (401), dispara deslogar automático
-    if (status === 401) {
+    if (status === 401 && error.config?.headers?.Authorization) {
       onUnauthorized?.();
     }
 

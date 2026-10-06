@@ -1,20 +1,12 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { loginUser, registerUser, getProfile } from "../Services/auth";
+import { loginUser } from "../Services/auth";
+import { registerUser, getProfile } from "../Services/owner";
 import { setUnauthorizedHandler } from "../Services/http";
 import { LoginFormData, RegisterFormData, OwnerApiDTO } from "../Types/types";
+import type { AuthContextType } from "../Types/types";
 
-interface AuthContextType {
-  loggedIn: boolean;
-  loading: boolean;
-  user: OwnerApiDTO | null;
-  login: (data: LoginFormData) => Promise<void>;
-  register: (data: RegisterFormData) => Promise<void>;
-  logout: () => Promise<void>;
-  refreshUser: () => Promise<void>;
-  updateUser: (data: Partial<OwnerApiDTO>) => Promise<void>;
-}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const USER_KEY = "@clyvo_user_data";
