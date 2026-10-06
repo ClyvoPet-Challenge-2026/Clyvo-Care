@@ -1,52 +1,14 @@
 import { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from "react-native";
-import { Mail, Lock, Eye, EyeOff, Sparkles } from "lucide-react-native";
-import { useAuth } from "../Context/AuthContext";
+import { Mail, Lock, Eye, EyeOff } from "lucide-react-native";
+import { useLoginForm } from "../Hooks/useLoginForm";
 import { useTheme } from "../Context/ThemeContext";
-import { LoginScreenProps, LoginFormData } from "../Types/types";
+import { LoginScreenProps } from "../Types/types";
 
 export function LoginScreen({ navigation }: LoginScreenProps) {
-  const { login } = useAuth();
   const { isDark } = useTheme();
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const [formData, setFormData] = useState<LoginFormData>({ email: "", senha: "" });
-  const [errors, setErrors] = useState({ email: "", senha: "" });
+  const { formData, errors, isSubmitting, apiError, updateField, handleLogin } = useLoginForm();
   const [showPassword, setShowPassword] = useState(false);
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [apiError, setApiError] = useState("");
-
-  const validateForm = () => {
-    const newErrors = { email: "", senha: "" };
-    let isValid = true;
-
-    if (!emailRegex.test(formData.email)) {
-      newErrors.email = "Email inválido";
-      isValid = false;
-    }
-
-    if (formData.senha.length < 6) {
-      newErrors.senha = "Senha deve ter no mínimo 6 caracteres";
-      isValid = false;
-    }
-
-    setErrors(newErrors);
-    return isValid;
-  };
-
-  const handleLogin = async () => {
-    setApiError("");
-    if (!validateForm()) return;
-
-    try {
-      setIsSubmitting(true);
-      await login(formData);
-    } catch (err: any) {
-      setApiError(err.message || "Email ou senha incorretos.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   return (
     <KeyboardAvoidingView
@@ -110,7 +72,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
                   autoCapitalize="none"
                   value={formData.email}
                   onChangeText={(text) =>
-                    setFormData({ ...formData, email: text })
+                    updateField("email", text)
                   }
                   className={`flex-1 ml-2 text-sm p-0 ${isDark ? "text-paper" : "text-ink"}`}
                 />
@@ -133,7 +95,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
                   secureTextEntry={!showPassword}
                   value={formData.senha}
                   onChangeText={(text) =>
-                    setFormData({ ...formData, senha: text })
+                    updateField("senha", text)
                   }
                   className={`flex-1 ml-2 text-sm p-0 ${isDark ? "text-paper" : "text-ink"}`}
                 />
