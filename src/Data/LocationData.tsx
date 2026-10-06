@@ -1,17 +1,10 @@
-import { ImageSourcePropType } from "react-native";
+import type { LocalLocation } from "../Types/types";
 
 const ClyvoSJCampos = require("../Images/Location/ClyvoSJCampos.png");
 
-export interface Location {
-  identifier: number;
-  id : string; 
-  name: string;
-  img: ImageSourcePropType; 
-  linkMaps: string;
-  location: string;
-}
+export type { LocalLocation as Location };
 
-export const locations: Location[] = [
+export const locations: LocalLocation[] = [
   { 
     identifier: 1,
     id: 'ClyvoSJCampos', 

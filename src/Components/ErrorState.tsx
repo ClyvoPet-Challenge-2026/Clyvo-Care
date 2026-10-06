@@ -1,12 +1,7 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import { AlertCircle, RotateCcw } from "lucide-react-native";
 import { useTheme } from "../Context/ThemeContext";
-
-interface ErrorStateProps {
-  title?: string;
-  message: string;
-  onRetry?: () => void;
-}
+import type { ErrorStateProps } from "../Types/types";
 
 export function ErrorState({
   title = "Falha ao carregar dados",

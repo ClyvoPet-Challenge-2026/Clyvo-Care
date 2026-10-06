@@ -1,4 +1,4 @@
-import { ImageSourcePropType } from "react-native";
+import type { LocalPet } from "../Types/types";
 
 const Dog = require("../Images/PetImage/dog.jpg");
 const Cat = require("../Images/PetImage/cat.jpg");
@@ -8,19 +8,9 @@ const Rodent = require("../Images/PetImage/rodent.jpg");
 const Reptile = require("../Images/PetImage/reptile.jpg");
 const Mahoraga = require("../Images/PetImage/Mahoraga.png");
 
-export interface Pet {
-  identifier: number;
-  id: string;
-  name: string;
-  img: ImageSourcePropType;
-  species: string;
-  breed: string;
-  sex: string;
-  age: number;
-  tutor: string;
-}
+export type { LocalPet as Pet };
 
-export const MyPetData: Pet[] = [
+export const MyPetData: LocalPet[] = [
   {
     identifier: 1,
     id: "dog-1",

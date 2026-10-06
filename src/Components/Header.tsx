@@ -1,17 +1,13 @@
 import { View, Text, TouchableOpacity, Modal } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { Menu, X, User, LogOut, Home, Heart, PlusCircle, Calendar, Settings, Moon, Sun } from "lucide-react-native";
+import { Menu, X, User, LogOut, Home, Heart, PlusCircle, Calendar, Settings } from "lucide-react-native";
 import { useState } from "react";
 import { useAuth } from "../Context/AuthContext";
 import { useOwnerProfile } from "../Hooks/useOwner";
 import { useTheme } from "../Context/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../Types/types";
-
-interface HeaderProps {
-  navigation?: NativeStackNavigationProp<RootStackParamList>;
-}
+import type { RootStackParamList, HeaderProps } from "../Types/types";
 
 export default function Header({ navigation: propNavigation }: HeaderProps = {}) {
   const [drawerOpen, setDrawerOpen] = useState(false);

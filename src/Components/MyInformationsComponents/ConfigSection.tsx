@@ -1,12 +1,7 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import { Moon, Sun, ChevronRight, LogOut, Trash2 } from "lucide-react-native";
+import type { ConfigSectionProps } from "../../Types/types";
 
-interface ConfigSectionProps {
-  isDark: boolean;
-  toggleTheme: () => void;
-  logout: () => Promise<void>;
-  onDeleteAccount: () => void;
-}
 
 export function ConfigSection({
   isDark,

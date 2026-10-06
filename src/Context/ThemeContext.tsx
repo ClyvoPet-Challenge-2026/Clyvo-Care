@@ -2,20 +2,13 @@ import React, { createContext, useContext, useEffect, useState, useMemo } from "
 import { Appearance } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useColorScheme } from "nativewind";
-import type { ClyvoThemeColors, ThemeType } from "../Types/types";
+import type { Theme, ClyvoThemeColors, ThemeContextType } from "../Types/types";
 
 const { clyvoLightColors, clyvoDarkColors } = require("../../tailwind.config");
 
-export type Theme = ThemeType;
+export type { Theme } from "../Types/types";
 export type { ClyvoThemeColors };
 
-interface ThemeContextType {
-  theme: Theme;
-  isDark: boolean;
-  colors: ClyvoThemeColors;
-  setTheme: (theme: Theme) => void;
-  toggleTheme: () => void;
-}
 
 const STORAGE_THEME_KEY = "@clyvo_app_theme";
 

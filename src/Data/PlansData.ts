@@ -1,15 +1,6 @@
-export interface ClyvoPlan {
-  id: string;
-  name: string;
-  tagline: string;
-  price: string;
-  period: string;
-  popular?: boolean;
-  color: string;
-  badgeBg: string;
-  badgeText: string;
-  features: string[];
-}
+import type { ClyvoPlan } from "../Types/types";
+
+export type { ClyvoPlan };
 
 export const ClyvoPlansData: ClyvoPlan[] = [
   {

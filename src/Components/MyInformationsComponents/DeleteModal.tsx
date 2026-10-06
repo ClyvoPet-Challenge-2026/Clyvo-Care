@@ -1,13 +1,7 @@
 import { View, Text, TouchableOpacity, Modal, ActivityIndicator } from "react-native";
 import { X } from "lucide-react-native";
+import type { DeleteModalProps } from "../../Types/types";
 
-interface DeleteModalProps {
-  isDark: boolean;
-  visible: boolean;
-  onClose: () => void;
-  onConfirm: () => Promise<void>;
-  isDeleting: boolean;
-}
 
 export function DeleteModal({
   isDark,

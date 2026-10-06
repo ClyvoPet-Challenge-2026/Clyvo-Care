@@ -1,8 +1,6 @@
-export interface PetSpecieBreed {
-  species: string;
-  apiName?: string;
-  breeds: string[];
-}
+import type { PetSpecieBreed } from "../Types/types";
+
+export type { PetSpecieBreed };
 
 export const PetSpecieBreedListData: PetSpecieBreed[] = [
   {
