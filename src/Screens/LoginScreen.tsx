@@ -6,7 +6,7 @@ import { useTheme } from "../Context/ThemeContext";
 import { LoginScreenProps, LoginFormData } from "../Types/types";
 
 export function LoginScreen({ navigation }: LoginScreenProps) {
-  const { login, loginGuest } = useAuth();
+  const { login } = useAuth();
   const { isDark } = useTheme();
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const [formData, setFormData] = useState<LoginFormData>({ email: "", senha: "" });
@@ -43,17 +43,6 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
       await login(formData);
     } catch (err: any) {
       setApiError(err.message || "Email ou senha incorretos.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleQuickAccess = async () => {
-    try {
-      setIsSubmitting(true);
-      await loginGuest();
-    } catch (err: any) {
-      setApiError("Não foi possível acessar no modo convidado.");
     } finally {
       setIsSubmitting(false);
     }

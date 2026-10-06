@@ -10,7 +10,6 @@ interface AuthContextType {
   loading: boolean;
   user: OwnerApiDTO | null;
   login: (data: LoginFormData) => Promise<void>;
-  loginGuest: () => Promise<void>;
   register: (data: RegisterFormData) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -20,22 +19,6 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const USER_KEY = "@clyvo_user_data";
 
-export const GUEST_USER: OwnerApiDTO = {
-  id: 1,
-  name: "Dr. Roberto Silva",
-  email: "roberto.silva@clyvo.com.br",
-  cpf: "11111111111",
-  phone: "(11) 98765-4321",
-  city: {
-    id: 1,
-    name: "São Paulo",
-    state: {
-      id: 1,
-      name: "São Paulo",
-      uf: "SP",
-    },
-  },
-};
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<OwnerApiDTO | null>(null);
@@ -84,13 +67,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     await AsyncStorage.setItem(USER_KEY, JSON.stringify(authenticatedUser));
     setUser(authenticatedUser);
-  };
-
-  const loginGuest = async () => {
-    // Mantido por compatibilidade de tipo, mas não mais exposto na UI
-    await AsyncStorage.setItem(USER_KEY, JSON.stringify(GUEST_USER));
-    await AsyncStorage.setItem("authToken", "guest-token");
-    setUser(GUEST_USER);
   };
 
   const register = async (data: RegisterFormData) => {
@@ -150,7 +126,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loading,
         user,
         login,
-        loginGuest,
         register,
         logout,
         refreshUser,
