@@ -306,6 +306,7 @@ export type RootStackParamList = {
     MyPet: undefined;
     MakeAppointment: undefined;
     MyInformations: undefined;
+    AboutScreen: undefined;
 };
 
 export type AuthStackParamList = {
@@ -344,6 +345,11 @@ export type RegisterPet = NativeStackScreenProps<
 export type MakeAppointmentProps = NativeStackScreenProps<
   RootStackParamList,
   'MakeAppointment'
+>;
+
+export type AboutScreenProps = NativeStackScreenProps<
+  RootStackParamList,
+  'AboutScreen'
 >;
 
 // ==========================================

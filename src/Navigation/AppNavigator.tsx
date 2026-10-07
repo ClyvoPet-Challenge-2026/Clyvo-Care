@@ -8,6 +8,7 @@ import { RegisterPet } from "../Screens/RegisterPetScreen";
 import { MyPet } from "../Screens/MyPetScreen";
 import { MakeAppointment } from "../Screens/MakeAppointment";
 import { MyInformations } from "../Screens/MyInformations";
+import { AboutScreen } from "../Screens/AboutScreen";
 import Header from "../Components/Header";
 import { RootStackParamList, AuthStackParamList } from "./navigation";
 
@@ -29,6 +30,7 @@ export function RootNavigator() {
                     <RootStack.Screen name="MyPet" component={MyPet} />
                     <RootStack.Screen name="MakeAppointment" component={MakeAppointment} />
                     <RootStack.Screen name="MyInformations" component={MyInformations} />
+                    <RootStack.Screen name="AboutScreen" component={AboutScreen} />
                 </RootStack.Group>
             ) : (
                 // Stack para usuário NÃO autenticado

@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, Modal } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { Menu, X, User, LogOut, Home, Heart, PlusCircle, Calendar, Settings } from "lucide-react-native";
+import { Menu, X, User, LogOut, Home, Heart, PlusCircle, Calendar, Settings, Info } from "lucide-react-native";
 import { useState } from "react";
 import { useAuth } from "../Context/AuthContext";
 import { useOwnerProfile } from "../Hooks/useOwner";
@@ -206,6 +206,16 @@ export default function Header({ navigation: propNavigation }: HeaderProps = {})
               >
                 <User size={20} color="#1f6ae1" />
                 <Text className={`text-sm font-medium ${isDark ? "text-paper" : "text-ink"}`}>Minha Conta</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                accessibilityRole="button"
+                onPress={() => navigateTo("AboutScreen")}
+                className={`flex-row items-center gap-3 px-3 py-3 rounded-xl ${
+                  isDark ? "active:bg-navy" : "active:bg-soft"
+                }`}
+              >
+                <Info size={20} color="#1f6ae1" />
+                <Text className={`text-sm font-medium ${isDark ? "text-paper" : "text-ink"}`}>Sobre o App</Text>
               </TouchableOpacity>
             </View>
           </SafeAreaView>
