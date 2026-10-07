@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getProfile, updateProfile, deleteAccount } from "../Services/owner";
+import { updateProfile, deleteAccount } from "../Services/owner";
+import { getCurrentUser } from "../Services/auth";
 import { RegisterFormData } from "../Types/types";
 import { queryKeys } from "../Lib/queryKeys";
 
@@ -8,7 +9,7 @@ export function useOwnerProfile(ownerId?: number) {
     queryKey: queryKeys.owner.profile(ownerId),
     queryFn: () => {
       if (!ownerId) return Promise.resolve(null);
-      return getProfile(ownerId);
+      return getCurrentUser();
     },
     enabled: !!ownerId,
     retry: false,
@@ -23,7 +24,6 @@ export function useUpdateProfile() {
       updateProfile(id, data),
     onSuccess: (updatedOwner, variables) => {
       queryClient.setQueryData(queryKeys.owner.profile(variables.id), updatedOwner);
-      queryClient.invalidateQueries({ queryKey: queryKeys.owner.profile(variables.id) });
     },
   });
 }

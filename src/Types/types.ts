@@ -48,9 +48,6 @@ export type RegisterFormErrors = Partial<Record<keyof RegisterFormData | "city",
 
 export interface LoginResponseDTO {
   token: string;
-  ownerId?: number;
-  name?: string;
-  email?: string;
 }
 
 export interface AuthResponse {
@@ -81,6 +78,7 @@ export interface UserProfile {
 
 export interface OwnerApiDTO {
   id: number;
+  roleName?: string;
   name: string;
   cpf: string;
   email: string;
@@ -241,6 +239,25 @@ export interface PetApiDTO {
   createdAt?: string;
 }
 
+export interface PetFormValues {
+  name: string;
+  birthDate: string;
+  unknownBirthDate: boolean;
+  tutor: string;
+  sex: string;
+  species: string;
+  breed: string;
+}
+
+export type PetFormTextField = "name" | "birthDate" | "tutor" | "sex" | "breed";
+
+export interface PetPayloadContext {
+  ownerId?: number;
+  species: SpeciesApiDTO[];
+  breeds: BreedApiDTO[];
+  today: string;
+}
+
 export interface UsePetFormOptions {
   petToEdit?: PetApiDTO;
   onSuccess: () => void;
@@ -356,6 +373,15 @@ export type AboutScreenProps = NativeStackScreenProps<
 // Props de Componentes
 // ==========================================
 
+export interface AppointmentFormValues {
+  petId: number | string;
+  reason: string;
+  location: string;
+  date: string;
+  time: string;
+  notes: string;
+}
+
 export interface UseAppointmentFormOptions {
   onViewPets: () => void;
   onGoHome: () => void;
@@ -452,33 +478,48 @@ export interface HeaderProps {
   navigation?: NativeStackNavigationProp<RootStackParamList>;
 }
 
+export interface ProfileFormValues {
+  name: string;
+  email: string;
+  phone: string;
+  cpf: string;
+  password: string;
+  cityId: number;
+  stateId: number | null;
+}
+
+export type ProfileTextField = "name" | "email" | "phone" | "password";
+
+export interface ProfileFormControls {
+  values: ProfileFormValues;
+  updateField: (field: ProfileTextField, value: string) => void;
+  isEditing: boolean;
+  isSaving: boolean;
+  startEditing: () => void;
+  cancel: () => void;
+  save: () => Promise<void>;
+}
+
+export interface ProfileLocationControls {
+  states: StateApiDTO[];
+  cities: CityApiDTO[];
+  stateId: number | null;
+  cityId: number;
+  selectState: (id: number) => void;
+  selectCity: (id: number) => void;
+}
+
 export interface PersonalInfoSectionProps {
   isDark: boolean;
+  form: ProfileFormControls;
+  children: React.ReactNode;
+}
+
+export interface ProfileLocationSectionProps {
+  isDark: boolean;
   isEditing: boolean;
-  setIsEditing: (value: boolean) => void;
-  handleCancel: () => void;
-  formName: string;
-  setFormName: (value: string) => void;
-  formEmail: string;
-  setFormEmail: (value: string) => void;
-  formPhone: string;
-  setFormPhone: (value: string) => void;
   cityNameText: string;
-  openStateDropdown: boolean;
-  setOpenStateDropdown: (value: boolean) => void;
-  openCityDropdown: boolean;
-  setOpenCityDropdown: (value: boolean) => void;
-  states: StateApiDTO[];
-  selectedStateId: number | null;
-  handleStateSelect: (stateId: number) => void;
-  cities: CityApiDTO[];
-  formCityId: number;
-  availableCities: CityApiDTO[];
-  setFormCityId: (value: number) => void;
-  formPassword: string;
-  setFormPassword: (value: string) => void;
-  handleSave: () => Promise<void>;
-  isSaving: boolean;
+  locations: ProfileLocationControls;
 }
 
 export interface ConfigSectionProps {

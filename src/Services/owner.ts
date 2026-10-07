@@ -13,11 +13,6 @@ export async function registerUser(data: RegisterFormData): Promise<OwnerApiDTO>
   return response.data;
 }
 
-export async function getProfile(id: number): Promise<OwnerApiDTO> {
-  const response = await api.get<OwnerApiDTO>(`/responsaveis/${id}`);
-  return response.data;
-}
-
 export async function updateProfile(id: number, data: RegisterFormData): Promise<OwnerApiDTO> {
   const response = await api.put<OwnerApiDTO>(`/responsaveis/${id}`, {
     name: data.name,

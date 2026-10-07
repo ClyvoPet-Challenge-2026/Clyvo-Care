@@ -5,13 +5,14 @@ import { useProfileForm } from "../Hooks/useProfileForm";
 import { useAccountActions } from "../Hooks/useAccountActions";
 import { Footer } from "../Components/Footer";
 import { PersonalInfoSection } from "../Components/MyInformationsComponents/PersonalInfoSection";
+import { ProfileLocationSection } from "../Components/MyInformationsComponents/ProfileLocationSection";
 import { ConfigSection } from "../Components/MyInformationsComponents/ConfigSection";
 import { DeleteModal } from "../Components/MyInformationsComponents/DeleteModal";
 
 export function MyInformations() {
   const { isDark, toggleTheme } = useTheme();
   const { user } = useAuth();
-  const { displayOwner, initial, cityNameText, personalInfoProps } = useProfileForm();
+  const { displayOwner, initial, cityNameText, form, locations } = useProfileForm();
   const {
     logout,
     confirmDeleteModal,
@@ -71,7 +72,15 @@ export function MyInformations() {
           </View>
         </View>
 
-        <PersonalInfoSection isDark={isDark} {...personalInfoProps} />
+        <PersonalInfoSection isDark={isDark} form={form}>
+          <ProfileLocationSection
+            key={form.isEditing ? "editing" : "viewing"}
+            isDark={isDark}
+            isEditing={form.isEditing}
+            cityNameText={cityNameText}
+            locations={locations}
+          />
+        </PersonalInfoSection>
 
         <ConfigSection
           isDark={isDark}

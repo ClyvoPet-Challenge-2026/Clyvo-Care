@@ -1,5 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getStoredToken } from "./sessionStorage";
 import { env } from "../env";
 
 export const api = axios.create({
@@ -20,12 +20,14 @@ export function setUnauthorizedHandler(handler: (() => void) | null) {
 api.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     try {
-      const token = await AsyncStorage.getItem("authToken");
-      if (token && config.headers) {
+      const token = await getStoredToken();
+      const isPublicRequest = config.url === "/auth/login" ||
+        (config.url === "/responsaveis" && config.method === "post");
+      if (!isPublicRequest && token && config.headers && !config.headers.Authorization) {
         config.headers.Authorization = `Bearer ${token}`;
       }
     } catch (e) {
-      console.warn("Não foi possível obter authToken do AsyncStorage:", e);
+      console.warn("Não foi possível obter o token da sessão:", e);
     }
     return config;
   },
@@ -34,30 +36,31 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => response,
-  (error: AxiosError<any>) => {
+  async (error: AxiosError<any>) => {
     const status = error.response?.status ?? 0;
 
-    // Se o token expirou ou for inválido (401), dispara deslogar automático
+    // Uma resposta atrasada de outra sessão não deve encerrar a sessão atual.
     if (status === 401 && error.config?.headers?.Authorization) {
-      onUnauthorized?.();
+      try {
+        const token = await getStoredToken();
+        if (token && error.config.headers.Authorization === `Bearer ${token}`) {
+          onUnauthorized?.();
+        }
+      } catch (storageError) {
+        console.warn("Não foi possível conferir a sessão expirada:", storageError);
+      }
     }
 
     // Timeout
     if (error.code === "ECONNABORTED" || error.message?.includes("timeout")) {
-      return Promise.reject(
-        new Error(
-          `Tempo limite excedido ao conectar em ${env.apiUrl}. Verifique se o backend está acessível na mesma rede Wi-Fi.`
-        )
-      );
+      error.message = `Tempo limite excedido ao conectar em ${env.apiUrl}. Verifique se o backend está acessível na mesma rede Wi-Fi.`;
+      return Promise.reject(error);
     }
 
     // Erro de rede (ex: conexão recusada, IP inacessível)
     if (!error.response) {
-      return Promise.reject(
-        new Error(
-          `Sem conexão com o servidor (${env.apiUrl}). Verifique sua conexão e a URL configurada.`
-        )
-      );
+      error.message = `Sem conexão com o servidor (${env.apiUrl}). Verifique sua conexão e a URL configurada.`;
+      return Promise.reject(error);
     }
 
     // Resposta de erro do Spring Boot (ex: 400 Bad Request com validação ou 409 Conflict)
@@ -68,6 +71,7 @@ api.interceptors.response.use(
       (typeof data === "string" ? data : null) ||
       `Erro na requisição (Status ${error.response.status}).`;
 
-    return Promise.reject(new Error(message));
+    error.message = message;
+    return Promise.reject(error);
   }
 );
