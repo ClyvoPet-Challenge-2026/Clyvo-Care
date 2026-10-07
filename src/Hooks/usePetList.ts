@@ -3,20 +3,18 @@ import { Alert } from "react-native";
 import { useAuth } from "../Context/AuthContext";
 import { usePets, useDeletePet } from "./usePets";
 import { SPECIES_FILTER_LIST } from "../Data/SpeciesFilterData";
-import { getPetSpeciesLabel } from "../Utils/petPresentation";
+import { filterPets } from "../Utils/petFilters";
 
 export function usePetList() {
   const { user } = useAuth();
 
-  const { data: pets = [], isLoading: loading, isError, error, refetch } = usePets(user?.id);
+  const query = usePets(user?.id);
   const deletePetMutation = useDeletePet();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("Todos");
 
-  const speciesList = SPECIES_FILTER_LIST;
-
-  const handleDeletePet = (petId: number, petName: string) => {
+  const requestDelete = (petId: number, petName: string) => {
     Alert.alert(
       "Remover Pet",
       `Tem certeza que deseja remover ${petName}?`,
@@ -37,27 +35,10 @@ export function usePetList() {
     );
   };
 
-  const filteredPets = pets.filter((pet) => {
-    const breedName = pet.breed?.name || "";
-    const speciesName = pet.species?.name || "";
-    const matchesSearch =
-      pet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      breedName.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const resolvedSpecieLabel = getPetSpeciesLabel(speciesName);
-
-    const matchesFilter =
-      selectedFilter === "Todos" ||
-      (selectedFilter === "Outros"
-        ? !["Canino", "Felino", "Ave"].includes(resolvedSpecieLabel)
-        : resolvedSpecieLabel.toLowerCase() === selectedFilter.toLowerCase());
-
-    return matchesSearch && matchesFilter;
-  });
-
   return {
-    pets, filteredPets, loading, isError, error, refetch,
-    searchTerm, setSearchTerm, selectedFilter, setSelectedFilter,
-    speciesList, handleDeletePet,
+    query,
+    filteredPets: filterPets(query.data ?? [], searchTerm, selectedFilter),
+    filters: { searchTerm, setSearchTerm, selectedFilter, setSelectedFilter, speciesList: SPECIES_FILTER_LIST },
+    requestDelete,
   };
 }

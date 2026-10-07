@@ -13,11 +13,9 @@ import { useTheme } from "../Context/ThemeContext";
 export function MyPet() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { isDark } = useTheme();
-  const {
-    pets, filteredPets, loading, isError, error, refetch,
-    searchTerm, setSearchTerm, selectedFilter, setSelectedFilter,
-    speciesList, handleDeletePet,
-  } = usePetList();
+  const { query, filteredPets, filters, requestDelete } = usePetList();
+
+  const totalPets = query.data?.length ?? 0;
 
   const handleEditPet = (pet: PetApiDTO) => {
     navigation.navigate("RegisterPet", { petToEdit: pet });
@@ -38,7 +36,7 @@ export function MyPet() {
                 <Text className={`text-2xl font-bold ${isDark ? "text-paper" : "text-navy"}`}>Meus Pets</Text>
               </View>
               <Text className={`text-xs mt-1 ${isDark ? "text-soft-line" : "text-mute"}`}>
-                {pets.length} {pets.length === 1 ? "pet registrado" : "pets registrados"} na sua conta
+                {totalPets} {totalPets === 1 ? "pet registrado" : "pets registrados"} na sua conta
               </Text>
             </View>
 
@@ -53,28 +51,22 @@ export function MyPet() {
             </TouchableOpacity>
           </View>
 
-          <PetFilters
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            selectedFilter={selectedFilter}
-            setSelectedFilter={setSelectedFilter}
-            speciesList={speciesList}
-          />
+          <PetFilters {...filters} />
         </View>
 
         {/* Lista de Pets */}
         <View className="px-5 mt-2 gap-3">
-          {loading ? (
+          {query.isLoading ? (
             <ActivityIndicator size="large" color="#1f6ae1" className="py-10" />
-          ) : isError ? (
+          ) : query.isError ? (
             <ErrorState
               title="Erro ao carregar pets"
               message={
-                error instanceof Error
-                  ? error.message
+                query.error instanceof Error
+                  ? query.error.message
                   : "Não foi possível obter a lista de pets da API. Verifique sua conexão com o servidor."
               }
-              onRetry={() => refetch()}
+              onRetry={() => query.refetch()}
             />
           ) : filteredPets.length > 0 ? (
             filteredPets.map((pet) => (
@@ -82,7 +74,7 @@ export function MyPet() {
                 key={pet.id}
                 pet={pet}
                 onEdit={() => handleEditPet(pet)}
-                onDelete={() => handleDeletePet(pet.id, pet.name)}
+                onDelete={() => requestDelete(pet.id, pet.name)}
                 onAppointment={() => navigation.navigate("MakeAppointment")}
               />
             ))
@@ -95,7 +87,7 @@ export function MyPet() {
                 Nenhum pet encontrado
               </Text>
               <Text className="text-xs text-mute dark:text-soft-line text-center mt-1 leading-5 px-4">
-                {searchTerm
+                {filters.searchTerm
                   ? "Tente ajustar o termo da busca ou alterar os filtros aplicados."
                   : "Você ainda não possui pets registrados nesta conta."}
               </Text>
