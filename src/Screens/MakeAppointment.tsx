@@ -10,23 +10,7 @@ import { AppointmentNotes } from "../Components/MakeAppointmentComponents/Appoin
 
 export function MakeAppointment({ navigation }: MakeAppointmentProps) {
   const { isDark } = useTheme();
-  const {
-    pets,
-    loadingPets,
-    selectedPet,
-    setSelectedPet,
-    selectedReason,
-    setSelectedReason,
-    selectedLocation,
-    setSelectedLocation,
-    selectedDate,
-    setSelectedDate,
-    selectedTime,
-    setSelectedTime,
-    notes,
-    setNotes,
-    handleConfirmAppointment,
-  } = useAppointmentForm({
+  const { pets, loadingPets, values, updateField, confirm } = useAppointmentForm({
     onViewPets: () => navigation.navigate("MyPet"),
     onGoHome: () => navigation.navigate("MainScreen"),
   });
@@ -44,30 +28,30 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
         <PetSelector
           pets={pets}
           loadingPets={loadingPets}
-          selectedPet={selectedPet}
-          setSelectedPet={setSelectedPet}
+          selectedPet={values.petId}
+          setSelectedPet={(value) => updateField("petId", value)}
           onRegisterPet={() => navigation.navigate("RegisterPet")}
         />
         <AppointmentReasonSelector
-          selectedReason={selectedReason}
-          setSelectedReason={setSelectedReason}
+          selectedReason={values.reason}
+          setSelectedReason={(value) => updateField("reason", value)}
         />
         <ClinicSelector
-          selectedLocation={selectedLocation}
-          setSelectedLocation={setSelectedLocation}
+          selectedLocation={values.location}
+          setSelectedLocation={(value) => updateField("location", value)}
         />
         <AppointmentDateTimeSelector
-          selectedDate={selectedDate}
-          setSelectedDate={setSelectedDate}
-          selectedTime={selectedTime}
-          setSelectedTime={setSelectedTime}
+          selectedDate={values.date}
+          setSelectedDate={(value) => updateField("date", value)}
+          selectedTime={values.time}
+          setSelectedTime={(value) => updateField("time", value)}
         />
-        <AppointmentNotes notes={notes} setNotes={setNotes} />
+        <AppointmentNotes notes={values.notes} setNotes={(value) => updateField("notes", value)} />
 
         {/* BOTÃO PRINCIPAL DE AGENDAR */}
         <TouchableOpacity
           activeOpacity={0.85}
-          onPress={handleConfirmAppointment}
+          onPress={confirm}
           className="w-full items-center justify-center bg-brand rounded-2xl py-4 mb-6 shadow-md"
         >
           <Text className="text-paper text-base font-bold">

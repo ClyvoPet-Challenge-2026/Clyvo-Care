@@ -3,26 +3,30 @@ import { Alert, AlertButton } from "react-native";
 import { useAuth } from "../Context/AuthContext";
 import { usePets } from "./usePets";
 import { locations } from "../Data/LocationData";
-import type { UseAppointmentFormOptions } from "../Types/types";
+import type { AppointmentFormValues, UseAppointmentFormOptions } from "../Types/types";
 
 // Fluxo legado: a confirmação ainda é demonstrativa, sem persistência na API.
 export function useAppointmentForm({ onViewPets, onGoHome }: UseAppointmentFormOptions) {
   const { user } = useAuth();
   const { data: pets = [], isLoading: loadingPets } = usePets(user?.id);
 
-  // Seleções
-  const [selectedPet, setSelectedPet] = useState<number | string>("");
-  const [selectedReason, setSelectedReason] = useState<string>("checkup");
+  const [values, setValues] = useState<AppointmentFormValues>({
+    petId: "",
+    reason: "checkup",
+    location: locations[0]?.name ?? "São José dos Campos",
+    date: "Hoje",
+    time: "09:15",
+    notes: "",
+  });
 
   useEffect(() => {
-    if (pets.length > 0 && !selectedPet) {
-      setSelectedPet(pets[0].id);
-    }
+    if (!pets.length) return;
+    setValues((current) => current.petId ? current : { ...current, petId: pets[0].id });
   }, [pets]);
-  const [selectedLocation, setSelectedLocation] = useState<string>(locations[0]?.name ?? "São José dos Campos");
-  const [selectedDate, setSelectedDate] = useState<string>("Hoje");
-  const [selectedTime, setSelectedTime] = useState<string>("09:15");
-  const [notes, setNotes] = useState<string>("");
+
+  const updateField = <K extends keyof AppointmentFormValues>(field: K, value: AppointmentFormValues[K]) => {
+    setValues((current) => ({ ...current, [field]: value }));
+  };
 
   const handleConfirmAppointment = () => {
     const alertButtons: AlertButton[] = [
@@ -44,21 +48,5 @@ export function useAppointmentForm({ onViewPets, onGoHome }: UseAppointmentFormO
     );
   };
 
-  return {
-    pets,
-    loadingPets,
-    selectedPet,
-    setSelectedPet,
-    selectedReason,
-    setSelectedReason,
-    selectedLocation,
-    setSelectedLocation,
-    selectedDate,
-    setSelectedDate,
-    selectedTime,
-    setSelectedTime,
-    notes,
-    setNotes,
-    handleConfirmAppointment,
-  };
+  return { pets, loadingPets, values, updateField, confirm: handleConfirmAppointment };
 }
