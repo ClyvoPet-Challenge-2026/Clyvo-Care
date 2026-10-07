@@ -10,7 +10,7 @@ export const queryKeys = {
     all: ['plans'] as const,
     list: () => ['plans', 'list'] as const,
     paymentMethods: ['plans', 'paymentMethods'] as const,
-    subscriptions: (petId?: number) => ['plans', 'subscriptions', petId] as const,
+    subscriptions: (ownerId?: number) => ['plans', 'subscriptions', ownerId] as const,
   },
   locations: {
     states: ['locations', 'states'] as const,

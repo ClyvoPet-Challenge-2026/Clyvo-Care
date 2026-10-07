@@ -1,15 +1,18 @@
 import { api } from "./http";
-import { SpeciesApiDTO, BreedApiDTO, PetApiDTO, CreatePetDTO } from "../Types/types";
+import { SpeciesApiDTO, BreedApiDTO, PetApiDTO, CreatePetDTO, SpringPage } from "../Types/types";
 
 export async function listPetsByOwner(ownerId: number): Promise<PetApiDTO[]> {
-  const response = await api.get<{ content: PetApiDTO[] } | PetApiDTO[]>("/pets", {
-    params: { ownerId },
-  });
-  // Se a API retornar objeto paginado Spring Page (content) ou List
-  if ("content" in response.data) {
-    return response.data.content;
+  const pets: PetApiDTO[] = [];
+  let page = 0;
+  while (true) {
+    const { data } = await api.get<SpringPage<PetApiDTO> | PetApiDTO[]>("/pets", {
+      params: { ownerId, page, size: 100, sort: "id,asc" },
+    });
+    if (Array.isArray(data)) return data;
+    pets.push(...data.content);
+    if (data.last || page + 1 >= data.totalPages) return pets;
+    page += 1;
   }
-  return response.data;
 }
 
 export async function getPetById(id: number): Promise<PetApiDTO> {

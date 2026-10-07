@@ -1,60 +1,50 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  listPlans,
-  listPaymentMethods,
-  listSubscriptionsByPet,
-  createSubscription,
-  cancelSubscription,
-} from "../Services/plans";
-import { CreateSubscriptionDTO } from "../Types/types";
+import { listPlans, listPaymentMethods, listMySubscriptions, simulateSubscription, createSubscription, cancelSubscription } from "../Services/plans";
+import type { SubscriptionApiDTO } from "../Types/types";
 import { queryKeys } from "../Lib/queryKeys";
 
 export function usePlans() {
-  return useQuery({
-    queryKey: queryKeys.plans.list(),
-    queryFn: () => listPlans(),
-    staleTime: 1000 * 60 * 10, // 10 minutos
-  });
+  return useQuery({ queryKey: queryKeys.plans.list(), queryFn: listPlans, staleTime: 1000 * 60 * 10 });
 }
 
 export function usePaymentMethods() {
+  return useQuery({ queryKey: queryKeys.plans.paymentMethods, queryFn: listPaymentMethods, staleTime: 1000 * 60 * 10 });
+}
+
+export function useMySubscriptions(ownerId?: number) {
   return useQuery({
-    queryKey: queryKeys.plans.paymentMethods,
-    queryFn: () => listPaymentMethods(),
-    staleTime: 1000 * 60 * 10,
+    queryKey: queryKeys.plans.subscriptions(ownerId),
+    queryFn: listMySubscriptions,
+    enabled: !!ownerId,
   });
 }
 
-export function usePetSubscriptions(petId?: number) {
-  return useQuery({
-    queryKey: queryKeys.plans.subscriptions(petId),
-    queryFn: () => {
-      if (!petId) return Promise.resolve([]);
-      return listSubscriptionsByPet(petId);
-    },
-    enabled: !!petId,
-  });
+export function useSimulateSubscription() {
+  return useMutation({ mutationFn: simulateSubscription });
 }
 
-export function useCreateSubscription() {
+function useSubscriptionCache(ownerId?: number) {
   const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: CreateSubscriptionDTO) => createSubscription(data),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.plans.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.plans.subscriptions(variables.petId) });
-    },
-  });
+  const key = queryKeys.plans.subscriptions(ownerId);
+  return async (subscription: SubscriptionApiDTO) => {
+    // O logout remove o cache; uma resposta tardia não deve recriá-lo.
+    if (!queryClient.getQueryState(key)) return;
+    await queryClient.cancelQueries({ queryKey: key });
+    if (!queryClient.getQueryState(key)) return;
+    queryClient.setQueryData<SubscriptionApiDTO[]>(key, (current = []) => {
+      const others = current.filter((item) => item.id !== subscription.id);
+      return subscription.status === "ACTIVE" ? [...others, subscription] : others;
+    });
+    void queryClient.invalidateQueries({ queryKey: key });
+  };
 }
 
-export function useCancelSubscription() {
-  const queryClient = useQueryClient();
+export function useCreateSubscription(ownerId?: number) {
+  const updateCache = useSubscriptionCache(ownerId);
+  return useMutation({ mutationFn: createSubscription, onSuccess: updateCache });
+}
 
-  return useMutation({
-    mutationFn: (subscriptionId: number) => cancelSubscription(subscriptionId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.plans.all });
-    },
-  });
+export function useCancelSubscription(ownerId?: number) {
+  const updateCache = useSubscriptionCache(ownerId);
+  return useMutation({ mutationFn: cancelSubscription, onSuccess: updateCache });
 }

@@ -27,7 +27,7 @@ export function MainScreen({ navigation }: MainScreenProps) {
           onRegisterPet={() => navigation.navigate("RegisterPet")}
         />
         <View className="px-5 pt-8 space-y-9">
-          <PlansSection {...plans} petName={pets[0]?.name} />
+          <PlansSection {...plans} onRegisterPet={() => navigation.navigate("RegisterPet")} />
           <RegisteredPetsSection
             pets={pets}
             onViewPets={() => navigation.navigate("MyPet")}

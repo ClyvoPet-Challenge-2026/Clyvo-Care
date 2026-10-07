@@ -279,38 +279,40 @@ export interface CreatePetDTO {
 export interface PlanApiDTO {
   id: number;
   name: string;
-  description: string;
   monthlyValue: number;
 }
 
-export interface PaymentMethodApiDTO {
-  id: number;
-  name: string;
-}
-
-export interface SubStatusApiDTO {
-  id: number;
-  name: string;
-}
+export type PaymentMethodApiDTO = "CREDIT_CARD" | "DEBIT_CARD" | "BOLETO" | "PIX";
+export type SubStatusApiDTO = "ACTIVE" | "INACTIVE" | "PENDING";
 
 export interface SubscriptionApiDTO {
   id: number;
-  pet: {
-    id: number;
-    name: string;
-  };
+  startDate: string;
+  pet: PetApiDTO;
   plan: PlanApiDTO;
   status: SubStatusApiDTO;
   paymentMethod: PaymentMethodApiDTO;
   contractedValue: number;
-  createdAt: string;
 }
 
 export interface CreateSubscriptionDTO {
   petId: number;
   planId: number;
-  statusId: number;
-  paymentMethodId: number;
+  paymentMethod: PaymentMethodApiDTO;
+}
+
+export interface SubscriptionSimulationDTO {
+  baseValue: number;
+  discountRate: number;
+  discountAmount: number;
+  finalValue: number;
+}
+
+export interface SpringPage<T> {
+  content: T[];
+  last: boolean;
+  totalPages: number;
+  number: number;
 }
 
 // ==========================================
@@ -429,22 +431,31 @@ export interface RegisteredPetsSectionProps {
   onRegisterPet: () => void;
 }
 
-export interface HomePlanItem {
-  plan: PlanApiDTO;
-  isPopular?: boolean;
-  tagline: string;
-  features: string[];
+export interface HomePlansState {
+  pets: PetApiDTO[];
+  selectedPet?: PetApiDTO;
+  paymentMethods: PaymentMethodApiDTO[];
+  paymentMethod?: PaymentMethodApiDTO;
+  plans: PlanApiDTO[];
+  subscription?: SubscriptionApiDTO;
+  loading: boolean;
+  error: string | null;
+  busy: boolean;
+  canCancel: boolean;
+}
+
+export interface HomePlansActions {
+  selectPet: (id: number) => void;
+  selectPayment: (method: PaymentMethodApiDTO) => void;
+  subscribe: (plan: PlanApiDTO) => Promise<void>;
+  cancel: () => void;
+  retry: () => void;
 }
 
 export interface PlansSectionProps {
-  activePlanId: string | null;
-  activePlanDetails?: ClyvoPlan;
-  petName?: string;
-  availablePlans: HomePlanItem[];
-  loadingPlans: boolean;
-  onSelectPlan: (plan: PlanApiDTO) => Promise<void>;
-  onCancelSubscription: () => void;
-  onChangePlan: () => void;
+  state: HomePlansState;
+  actions: HomePlansActions;
+  onRegisterPet: () => void;
 }
 
 export interface PetCardProps {
