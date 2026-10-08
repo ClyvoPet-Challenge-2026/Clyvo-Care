@@ -1,6 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { getStoredToken } from "./sessionStorage";
-import { env } from "../env";
+import { env } from "../Config/env";
 
 export const api = axios.create({
   baseURL: env.apiUrl,

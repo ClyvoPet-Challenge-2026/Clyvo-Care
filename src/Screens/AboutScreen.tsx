@@ -3,7 +3,7 @@ import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ArrowLeft, Heart, PawPrint, Users, Info, GitCommitHorizontal, Tag } from "lucide-react-native";
 import { Footer } from "../Components/Footer";
-import { appInfo } from "../Config/appInfo";
+import { appInfo } from "../Data/AppInfo";
 import { useTheme } from "../Context/ThemeContext";
 import type { AboutScreenProps } from "../Types/types";
 
