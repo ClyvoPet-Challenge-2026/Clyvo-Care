@@ -25,7 +25,7 @@ export function useCities() {
   });
 }
 
-export function useLocations({ allowFallback = true }: UseLocationsOptions = {}) {
+export function useLocations({ allowFallback = false }: UseLocationsOptions = {}) {
   const statesQuery = useStates();
   const citiesQuery = useCities();
   const isError = statesQuery.isError || citiesQuery.isError;
