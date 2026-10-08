@@ -13,6 +13,7 @@ export function RegisterPet() {
     const {
         values, updateField, isEditing, isSaving, save,
         selectSpecies, toggleUnknownBirthDate, options, image,
+        catalogMessage, canRetryCatalog, retryCatalog, speciesLabel, breedLabel,
     } = usePetForm({
         petToEdit: route.params?.petToEdit,
         onSuccess: () => navigation.goBack(),
@@ -53,7 +54,7 @@ export function RegisterPet() {
                             {values.name.trim() ? values.name : "Nome do Pet"}
                         </Text>
                         <Text className={`text-xs mt-0.5 ${isDark ? "text-soft-line" : "text-mute"}`}>
-                            Padrão: {values.species || "Geral"} • {values.breed || "Raça"}
+                            Padrão: {values.species ? speciesLabel(values.species) : "Geral"} • {breedLabel(values.breed)}
                         </Text>
                     </View>
 
@@ -213,16 +214,23 @@ export function RegisterPet() {
                                 placeholderTextColor="#6c778c"
                                 className={`flex-1 ml-2 text-sm p-0 ${isDark ? "text-paper" : "text-ink"}`}
                                 value={values.tutor}
-                                onChangeText={(value) => updateField("tutor", value)}
+                                editable={false}
                             />
                         </View>
                     </View>
 
+                    {!!catalogMessage && <Text className="text-brand mb-3">{catalogMessage}</Text>}
+                    {canRetryCatalog && (
+                        <TouchableOpacity onPress={() => { void retryCatalog(); }}>
+                            <Text className="text-brand mb-4">Tentar novamente</Text>
+                        </TouchableOpacity>
+                    )}
                     {/* Dropdown: Espécie */}
                     <Dropdown
                         label="Espécie"
                         value={values.species}
                         options={options.species}
+                        getOptionLabel={speciesLabel}
                         onSelect={selectSpecies}
                         icon={<Sparkles size={16} color={isDark ? "#99b6e6" : "#6c778c"} />}
                     />
@@ -232,14 +240,22 @@ export function RegisterPet() {
                         label="Raça"
                         value={values.breed}
                         options={options.breeds}
+                        placeholder="Não informada"
+                        getOptionLabel={breedLabel}
                         onSelect={(value) => updateField("breed", value)}
                         icon={<Dna size={16} color={isDark ? "#99b6e6" : "#6c778c"} />}
                     />
 
+                    {!catalogMessage && !!values.species && options.breeds.length === 1 && (
+                        <Text className={isDark ? "text-soft-line" : "text-mute"}>
+                            Nenhuma raça cadastrada para esta espécie. Você pode continuar sem informar a raça.
+                        </Text>
+                    )}
+
                     {/* Botão de Ação Principal */}
                     <TouchableOpacity
                         onPress={save}
-                        disabled={isSaving}
+                        disabled={isSaving || !!catalogMessage}
                         activeOpacity={0.8}
                         className="w-full items-center justify-center bg-brand rounded-xl py-3.5 mt-4 shadow-sm"
                     >

@@ -154,6 +154,7 @@ export interface RegisterPetFormData {
 }
 
 export interface DropdownProps {
+  getOptionLabel?: (value: string) => string;
   label: string;
   value: string;
   placeholder?: string;
@@ -245,8 +246,8 @@ export interface PetFormValues {
   unknownBirthDate: boolean;
   tutor: string;
   sex: string;
-  species: string;
-  breed: string;
+  species: string; // ID da API; vazio quando não selecionado.
+  breed: string; // ID da API; vazio quando não informado.
 }
 
 export type PetFormTextField = "name" | "birthDate" | "tutor" | "sex" | "breed";

@@ -4,7 +4,7 @@ import { ChevronDown, Check } from "lucide-react-native";
 import { useTheme } from "../Context/ThemeContext";
 import type { DropdownProps } from "../Types/types";
 
-export function Dropdown({ label, value, placeholder = "Selecione", options, onSelect, icon }: DropdownProps) {
+export function Dropdown({ label, value, placeholder = "Selecione", options, onSelect, icon, getOptionLabel = (option) => option }: DropdownProps) {
     const [open, setOpen] = useState(false);
     const { isDark } = useTheme();
 
@@ -27,7 +27,7 @@ export function Dropdown({ label, value, placeholder = "Selecione", options, onS
                             ? (isDark ? "text-paper font-medium" : "text-ink font-medium")
                             : (isDark ? "text-soft-line" : "text-mute")
                     }`}>
-                        {value || placeholder}
+                        {value ? getOptionLabel(value) : placeholder}
                     </Text>
                 </View>
                 <ChevronDown
@@ -63,7 +63,7 @@ export function Dropdown({ label, value, placeholder = "Selecione", options, onS
                                             isSelected ? "text-brand font-semibold" : (isDark ? "text-paper" : "text-body")
                                         }`}
                                     >
-                                        {option}
+                                        {getOptionLabel(option)}
                                     </Text>
                                     {isSelected && <Check size={16} color="#1f6ae1" />}
                                 </TouchableOpacity>
