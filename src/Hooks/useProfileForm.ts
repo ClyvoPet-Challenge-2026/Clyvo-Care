@@ -5,7 +5,7 @@ import { useOwnerProfile, useUpdateProfile } from "./useOwner";
 import { useLocations } from "./useLocations";
 import { formatPhone } from "../Utils/formatters";
 import { profileToForm, profileToPayload, validateProfileUpdate } from "../Utils/profileForm";
-import type { ProfileTextField } from "../Types/types";
+import type { OwnerApiDTO, ProfileTextField } from "../Types/types";
 
 export function useProfileForm() {
   const { user, updateUser, logout } = useAuth();
@@ -66,21 +66,30 @@ export function useProfileForm() {
       return;
     }
 
+    let updatedOwner: OwnerApiDTO;
     try {
-      const updatedOwner = await updateMutation.mutateAsync({ id: ownerId, data: profileToPayload(values) });
-      setIsEditing(false);
-      setValues(profileToForm(updatedOwner));
-      // O subject do JWT é o e-mail antigo: é necessário entrar novamente.
-      if (updatedOwner.email !== user?.email) {
-        await logout();
-        Alert.alert("Perfil atualizado", "Entre novamente com seu e-mail e senha atualizados.");
-        return;
-      }
-      await updateUser(updatedOwner);
-      Alert.alert("Sucesso!", "Seus dados foram atualizados com sucesso!");
+      updatedOwner = await updateMutation.mutateAsync({ id: ownerId, data: profileToPayload(values) });
     } catch (error) {
       Alert.alert("Não foi possível salvar", error instanceof Error ? error.message : "Tente novamente. Seus dados não foram confirmados pelo servidor.");
+      return;
     }
+
+    setIsEditing(false);
+    setValues(profileToForm(updatedOwner));
+    // O subject do JWT é o e-mail antigo: é necessário entrar novamente.
+    const emailChanged = updatedOwner.email !== user?.email;
+    try {
+      if (emailChanged) await logout();
+      else await updateUser(updatedOwner);
+    } catch {
+      Alert.alert("Perfil atualizado no servidor", emailChanged
+        ? "Seus dados foram salvos, mas não foi possível limpar a sessão salva neste dispositivo. Entre novamente com seu e-mail e senha atualizados."
+        : "Seus dados foram salvos, mas não foi possível atualizar a sessão neste dispositivo. Entre novamente para carregar o perfil atualizado.");
+      return;
+    }
+    Alert.alert(emailChanged ? "Perfil atualizado" : "Sucesso!", emailChanged
+      ? "Entre novamente com seu e-mail e senha atualizados."
+      : "Seus dados foram atualizados com sucesso!");
   };
 
   const currentCity = cities.find((city) => city.id === values.cityId) || displayOwner?.city;

@@ -23,11 +23,18 @@ export function useAccountActions(ownerId?: number) {
 
     try {
       await deleteAccountMutation.mutateAsync(currentOwnerId);
-      await logout();
-      Alert.alert("Conta Excluída", "Sua conta foi excluída com sucesso.");
     } catch (error) {
       Alert.alert("Não foi possível excluir", error instanceof Error ? error.message : "Tente novamente. A exclusão não foi confirmada pelo servidor.");
+      return;
     }
+
+    try {
+      await logout();
+    } catch {
+      Alert.alert("Conta excluída", "O servidor confirmou a exclusão, mas não foi possível limpar a sessão salva neste dispositivo.");
+      return;
+    }
+    Alert.alert("Conta Excluída", "Sua conta foi excluída com sucesso.");
   };
 
   return {
