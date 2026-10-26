@@ -36,6 +36,23 @@ O **Clyvo Care** consome a API RESTful desenvolvida no repositório parceiro do 
 - **Segurança:** Autenticação stateless via tokens JWT assinados com par de chaves RSA (RS256) e criptografia de senhas com `BCryptPasswordEncoder`.
 - **Porta Padrão:** Executada localmente na porta `8080` (`http://localhost:8080`).
 
+## Perfil do tutor — integração da Sprint 4
+
+Na branch `teste/sprint-4`, contas `OWNER` e `ADMIN` podem editar o próprio perfil. A interface só permite editar quando o perfil exibido corresponde ao ID autenticado; o serviço envia `PUT /responsaveis/{id}` com esse ID. A API Java deve estar executando as correções da mesma branch, que validam a propriedade no servidor.
+
+A senha de 8 a 100 caracteres continua obrigatória e será a senha de acesso após salvar. Estado e cidade vêm da API; a cidade precisa corresponder ao estado selecionado. Se o e-mail mudar, o app encerra a sessão após a confirmação do servidor e solicita novo login. Tokens antigos sem `ownerId` também exigem novo login ao receber `401`. Falhas de atualização preservam o formulário; exclusão de conta continua administrativa.
+
+Verificação estática: `npx tsc --noEmit`. A declaração em `src/Types/styles.d.ts` permite verificar a importação CSS sem desativar as checagens do TypeScript.
+
+### Validação no dispositivo — pendente
+
+- Entrar como OWNER, editar nome/telefone/cidade, informar a senha e salvar; reabrir o perfil e conferir os dados.
+- Trocar estado e conferir que a cidade pertence ao novo estado.
+- Alterar o e-mail, confirmar o encerramento da sessão e entrar com e-mail e senha atualizados.
+- Tentar usar um e-mail já cadastrado: conferir a mensagem de erro e a preservação dos campos.
+- Simular falta de conexão durante o envio: não deve haver mensagem de sucesso nem alteração local confirmada.
+- Repetir a edição do próprio perfil com ADMIN e conferir ambos os temas.
+
 ## Inicialização Tradicional (Wi-Fi Local ou Emulador)
 
 Caso prefira conectar diretamente sem utilizar o Cloudflare Tunnel:
@@ -161,7 +178,7 @@ O **Clyvo Care** é o portal do tutor dentro da plataforma Clyvo Vet. Suas princ
 2. **CRUD Completo de Pets:** Cadastro de pets com seleção de espécies e raças vindas da API, listagem dinâmica filtrada por tutor, edição de dados e remoção com invalidação automática de cache.
 3. **CRUD Completo de Tutor (Perfil):** Visualização dos dados do responsável, edição de contato/endereço e exclusão definitiva de conta (`DELETE /responsaveis/{id}`).
 4. **Contratação de Planos de Saúde Pet:** Visualização e contratação de planos veterinários categorizados por cobertura.
-5. **Agendamento de Consultas:** Agendamento veterinário associando o pet cadastrado às clínicas disponíveis.
+5. **Agendamento de Consultas:** A tela ainda é demonstrativa. A persistência será integrada à API .NET, responsável pelo contexto clínico, vinculando as clínicas aos pets/tutores mantidos na API Java. O contrato dos endpoints ainda precisa ser definido.
 6. **Preferências e Temas:** Alternância dinâmica entre modo Claro (*Light*) e Escuro (*Dark*).
 
 
