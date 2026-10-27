@@ -1,4 +1,6 @@
 export const queryKeys = {
+  clinics: { all: ['clinics'] as const },
+  appointments: { all: ['appointments'] as const },
   pets: {
     all: ['pets'] as const,
     list: (ownerId?: number) => ['pets', 'list', ownerId] as const,
