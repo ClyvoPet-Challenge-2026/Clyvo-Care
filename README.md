@@ -178,7 +178,11 @@ O **Clyvo Care** é o portal do tutor dentro da plataforma Clyvo Vet. Suas princ
 2. **CRUD Completo de Pets:** Cadastro de pets com seleção de espécies e raças vindas da API, listagem dinâmica filtrada por tutor, edição de dados e remoção com invalidação automática de cache.
 3. **CRUD Completo de Tutor (Perfil):** Visualização dos dados do responsável, edição de contato/endereço e exclusão definitiva de conta (`DELETE /responsaveis/{id}`).
 4. **Contratação de Planos de Saúde Pet:** Visualização e contratação de planos veterinários categorizados por cobertura.
-5. **Agendamento de Consultas:** A tela ainda é demonstrativa. A persistência será integrada à API .NET, responsável pelo contexto clínico, vinculando as clínicas aos pets/tutores mantidos na API Java. O contrato dos endpoints ainda precisa ser definido.
+5. **Agendamento de Consultas:** O Mobile consulta clínicas na API .NET e cria agendamentos autenticados em `POST /api/agendamentos`, usando pets da Java. A confirmação exibe ID e data retornados após `201`; falhas preservam o formulário. Datas são reais, convertidas do fuso do dispositivo para UTC. Os horários sugeridos não representam disponibilidade da clínica. A validação em dispositivo com Oracle/JWT real continua pendente.
+
+Configure `EXPO_PUBLIC_DOTNET_API_URL` com a origem da API .NET (sem `/api`), por exemplo `http://<SEU_IP_LOCAL>:5067`, e reinicie o Expo. A Java continua usando `EXPO_PUBLIC_API_URL`. O backend .NET precisa estar acessível pela rede e usar a chave pública correspondente ao JWT Java, com a migration de agendamentos aplicada após revisão.
+
+Validação local do Mobile: `npx tsc --noEmit` e `TZ=America/Sao_Paulo node --test tests/appointment.test.cjs`. Em dispositivo, validar carregamento/erro/lista vazia de clínicas, criação com data futura, erro 409, sessão expirada e indisponibilidade de rede; conferir o registro criado no backend.
 6. **Preferências e Temas:** Alternância dinâmica entre modo Claro (*Light*) e Escuro (*Dark*).
 
 
@@ -255,3 +259,11 @@ Clyvo-Care/
 | *Giovane Amato dos Santos*    | *RM561336* |
 | *Matheus Roque Arantes*       | *RM561959* |
 | *Orlando Gonçalves de Arruda* | *RM561584* |
+
+### Notificações de agendamento
+
+Fluxo local implementado após confirmação da API, com navegação para Meus Pets ao
+tocar e conferência da conta autenticada. Implementação organizada como o `mockmerce-app`, com `NotificacoesProvider` e
+configuração global em `Lib/notificacoes.ts`. Pacote instalado: `57.0.24`; TypeScript
+e testes locais aprovados. Teste no novo build/dispositivo ainda pendente. Veja
+[instalação e roteiro de validação](docs/notificacoes.md).
