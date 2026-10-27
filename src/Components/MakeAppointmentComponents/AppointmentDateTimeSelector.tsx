@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import { Clock } from "lucide-react-native";
-import { QUICK_DATES, AVAILABLE_TIMES } from "../../Data/AppointmentData";
+import { AVAILABLE_TIMES } from "../../Data/AppointmentData";
+import { getAppointmentDates } from "../../Utils/appointment";
 import { useTheme } from "../../Context/ThemeContext";
 import type { AppointmentDateTimeSelectorProps } from "../../Types/types";
 
@@ -22,13 +23,13 @@ export function AppointmentDateTimeSelector({ selectedDate, setSelectedDate, sel
 
       {/* Atalhos de Datas Rápidas */}
       <View className="flex-row flex-wrap gap-2 mb-4">
-        {QUICK_DATES.map((qDate) => {
-          const isSelected = selectedDate === qDate.label;
+        {getAppointmentDates().map((qDate) => {
+          const isSelected = selectedDate === qDate.value;
           return (
             <TouchableOpacity
               key={qDate.label}
               activeOpacity={0.8}
-              onPress={() => setSelectedDate(qDate.label)}
+              onPress={() => setSelectedDate(qDate.value)}
               style={
                 isSelected
                   ? {
@@ -67,7 +68,7 @@ export function AppointmentDateTimeSelector({ selectedDate, setSelectedDate, sel
 
       {/* Grade de Horários */}
       <Text className={`text-xs font-medium mb-2 ${isDark ? "text-soft-line" : "text-mute"}`}>
-        Horários disponíveis:
+        Opções de horário (sem consulta de disponibilidade):
       </Text>
       <View className="flex-row flex-wrap gap-2">
         {AVAILABLE_TIMES.map((time) => {

@@ -1,4 +1,4 @@
-import { AppointmentReason, QuickDate } from "../Types/types";
+import { AppointmentReason } from "../Types/types";
 
 // Tipos de Consulta
 export const APPOINTMENT_REASONS: AppointmentReason[] = [
@@ -50,12 +50,4 @@ export const AVAILABLE_TIMES: string[] = [
   "15:30",
   "16:45",
   "17:30",
-];
-
-// Dias rápidos pré-definidos (visuais)
-export const QUICK_DATES: QuickDate[] = [
-  { label: "Hoje", sublabel: "10/05" },
-  { label: "Amanhã", sublabel: "11/05" },
-  { label: "Quarta", sublabel: "12/05" },
-  { label: "Quinta", sublabel: "13/05" },
 ];

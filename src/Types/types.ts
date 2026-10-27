@@ -379,7 +379,7 @@ export type AboutScreenProps = NativeStackScreenProps<
 export interface AppointmentFormValues {
   petId: number | string;
   reason: string;
-  location: string;
+  clinicId: string;
   date: string;
   time: string;
   notes: string;
@@ -404,6 +404,10 @@ export interface AppointmentReasonSelectorProps {
 }
 
 export interface ClinicSelectorProps {
+  clinics: import("./clinical").ClinicApiDTO[];
+  loading: boolean;
+  error: string | null;
+  onRetry: () => void;
   selectedLocation: string;
   setSelectedLocation: (value: string) => void;
 }

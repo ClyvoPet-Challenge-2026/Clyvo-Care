@@ -25,6 +25,7 @@ export function AppointmentNotes({ notes, setNotes }: AppointmentNotesProps) {
         <TextInput
           placeholder="Ex: O pet está tossindo desde ontem à noite, ou necessita de focinheira para exames..."
           placeholderTextColor="#6c778c"
+          maxLength={1000}
           multiline
           numberOfLines={3}
           textAlignVertical="top"
