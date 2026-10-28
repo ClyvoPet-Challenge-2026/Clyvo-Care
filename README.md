@@ -1,6 +1,6 @@
 # Clyvo Care — Mobile Application
 
-> **Challenge 2026 — Sprint 3 (Mobile Application)**  
+> **Challenge 2026 — Sprint 4 (Mobile Application)**  
 > Aplicativo mobile desenvolvido em **React Native + Expo** integrado à API Spring Boot para o ecossistema **Clyvo Vet**, focado na gestão completa da saúde, planos e acompanhamento preventivo de pets.
 
 
@@ -8,6 +8,7 @@
 ## Sumário
 - [Vídeo de Demonstração](#-vídeo-de-demonstração)
 - [Repositório do Backend (API Java Spring Boot)](#-repositório-do-backend-api-java-spring-boot)
+- [Repositório do Backend (API .NET — Clínicas e Agendamentos)](#-repositório-do-backend-api-net--clínicas-e-agendamentos)
 - [Inicialização Tradicional (Wi-Fi Local ou Emulador)](#-inicialização-tradicional-wi-fi-local-ou-emulador)
 - [Inicialização Extrema (End-to-End: Java + Cloudflare Tunnel + Expo)](#-inicialização-extrema-end-to-end-java--cloudflare-tunnel--expo)
 - [Solução do Projeto e Funcionalidades](#-solução-do-projeto-e-funcionalidades)
@@ -19,7 +20,7 @@
 
 ## Vídeo de Demonstração
 
-> **Link do Vídeo no YouTube:** [Link do video no Youtube](https://youtu.be/vcfJ3j9KZHc)
+> **Link do Vídeo no YouTube:** [Link do video no Youtube](https://youtu.be/vcfJ3j9KZHc) (Video é da Sprint 3 ainda...)
 
 > *Demonstração completa da aplicação em execução contínua no celular físico, autenticação JWT, navegação protegida, operações de CRUD sincronizadas em tempo real com a API Java e tratamento de estados de carregamento.*
 
@@ -36,22 +37,17 @@ O **Clyvo Care** consome a API RESTful desenvolvida no repositório parceiro do 
 - **Segurança:** Autenticação stateless via tokens JWT assinados com par de chaves RSA (RS256) e criptografia de senhas com `BCryptPasswordEncoder`.
 - **Porta Padrão:** Executada localmente na porta `8080` (`http://localhost:8080`).
 
-## Perfil do tutor — integração da Sprint 4
+## Repositório do Backend (API .NET — Clínicas e Agendamentos)
 
-Na branch `teste/sprint-4`, contas `OWNER` e `ADMIN` podem editar o próprio perfil. A interface só permite editar quando o perfil exibido corresponde ao ID autenticado; o serviço envia `PUT /responsaveis/{id}` com esse ID. A API Java deve estar executando as correções da mesma branch, que validam a propriedade no servidor.
+O **Clyvo Care** consome conjuntamente a API RESTful em ASP.NET Core desenvolvida para o contexto de rede veterinária credenciada e agendamentos clínicos:
 
-A senha de 8 a 100 caracteres continua obrigatória e será a senha de acesso após salvar. Estado e cidade vêm da API; a cidade precisa corresponder ao estado selecionado. Se o e-mail mudar, o app encerra a sessão após a confirmação do servidor e solicita novo login. Tokens antigos sem `ownerId` também exigem novo login ao receber `401`. Falhas de atualização preservam o formulário; exclusão de conta continua administrativa.
+**Repositório da API .NET:** [ClyvoPet-Challenge-2026/.Net-Sprint-1](https://github.com/ClyvoPet-Challenge-2026/.Net-Sprint-1)
 
-Verificação estática: `npx tsc --noEmit`. A declaração em `src/Types/styles.d.ts` permite verificar a importação CSS sem desativar as checagens do TypeScript.
-
-### Validação no dispositivo — pendente
-
-- Entrar como OWNER, editar nome/telefone/cidade, informar a senha e salvar; reabrir o perfil e conferir os dados.
-- Trocar estado e conferir que a cidade pertence ao novo estado.
-- Alterar o e-mail, confirmar o encerramento da sessão e entrar com e-mail e senha atualizados.
-- Tentar usar um e-mail já cadastrado: conferir a mensagem de erro e a preservação dos campos.
-- Simular falta de conexão durante o envio: não deve haver mensagem de sucesso nem alteração local confirmada.
-- Repetir a edição do próprio perfil com ADMIN e conferir ambos os temas.
+### Sobre a API .NET:
+- **Tecnologias:** .NET 9 (C#), ASP.NET Core, Entity Framework Core, Banco Oracle (schema compartilhado) e MongoDB (auditoria).
+- **Domínio Clínico & Agendamentos:** Responsável pelo gerenciamento e busca de clínicas veterinárias credenciadas (`TB_CAD_CLINIC`), leitura de localidades compartilhadas (`TB_CAD_CITY`, `TB_CAD_STATE`) e criação/consulta de eventos clínicos e agendamentos (`TB_HEA_CLINICAL_EVENT`).
+- **Segurança e Interoperabilidade:** Validação de tokens JWT emitidos pela API Java através da chave pública RSA compartilhada (`Jwt__PublicKeyPath`), garantindo autorização stateless e integridade do tutor autenticado (`ownerId`, `sub`, `role`).
+- **Porta Padrão:** Executada localmente na porta `5067` sob HTTP (`http://localhost:5067`) ou `7197` sob HTTPS (`https://localhost:7197`).
 
 ## Inicialização Tradicional (Wi-Fi Local ou Emulador)
 
@@ -80,6 +76,39 @@ EXPO_PUBLIC_API_URL=http://10.0.2.2:8080
    ```bash
    npx expo start -c
    ```
+
+### 3. Configuração e Execução da API .NET (Modo Tradicional)
+Para que os módulos de clínicas veterinárias e agendamento de consultas funcionem corretamente na inicialização tradicional:
+
+1. **Pré-requisitos e Execução do Backend .NET:**
+   No diretório do projeto .NET (`.Net-Sprint-1/ClyvoCare`):
+   ```bash
+   cd ../.Net-Sprint-1/ClyvoCare
+   
+   # Configurar a string de conexão Oracle e o caminho absoluto da chave pública do JWT Java
+   export ConnectionStrings__ClyvoCareOracle='Data Source=oracle.fiap.com.br:1521/ORCL;User Id=SEU_RM;Password=SUA_SENHA;'
+   export Jwt__PublicKeyPath='/caminho/absoluto/para/public_key.pem'
+   
+   # Restaurar dependências e executar a API
+   dotnet restore
+   dotnet run --project ClyvoCare.API --launch-profile http
+   ```
+   *(A API .NET subirá por padrão na porta `5067` sob HTTP)*.
+
+2. **Configuração da variável no `.env` do Clyvo-Care:**
+   Adicione a URL base de origem da API .NET (**sempre sem `/api` no final**):
+   - **Via Emulador Android Studio (mesma máquina):**
+     ```env
+     EXPO_PUBLIC_DOTNET_API_URL=http://10.0.2.2:5067
+     ```
+   - **Via Dispositivo Físico (mesma rede Wi-Fi local):**
+     ```env
+     EXPO_PUBLIC_DOTNET_API_URL=http://<SEU_IP_LOCAL>:5067
+     ```
+   - **Via Web / iOS Simulator:**
+     ```env
+     EXPO_PUBLIC_DOTNET_API_URL=http://localhost:5067
+     ```
 
 
 ## Inicialização Extrema (End-to-End: Java + Cloudflare Tunnel + Expo)
@@ -127,6 +156,35 @@ O Cloudflare exibirá no terminal a URL pública gerada:
 
 ---
 
+### Passo 2.1: Iniciar a API .NET (.Net-Sprint-1)
+Em uma nova janela de terminal, navegue até a pasta da API .NET e execute o projeto:
+```bash
+cd ../.Net-Sprint-1/ClyvoCare
+
+# Exportar variáveis de conexão Oracle e caminho da chave pública RSA do JWT
+export ConnectionStrings__ClyvoCareOracle='Data Source=oracle.fiap.com.br:1521/ORCL;User Id=SEU_RM;Password=SUA_SENHA;'
+export Jwt__PublicKeyPath='/caminho/absoluto/para/public_key.pem'
+
+# Iniciar no perfil HTTP (porta 5067)
+dotnet run --project ClyvoCare.API --launch-profile http
+```
+*(Aguarde até a mensagem indicando que a API .NET está pronta e escutando na porta 5067: `http://localhost:5067`)*.
+
+---
+
+### Passo 2.2: Iniciar o Segundo Túnel Cloudflare para a API .NET (porta 5067)
+Em outra janela de terminal, inicie o túnel para expor a porta da API .NET:
+```bash
+# Caso o executável esteja no seu diretório de usuário:
+~/cloudflared tunnel --url http://localhost:5067
+
+# Ou caso instalado globalmente no sistema:
+cloudflared tunnel --url http://localhost:5067
+```
+*(Copie a URL HTTPS pública gerada para a API .NET, por exemplo: `https://exemplo-aleatorio-dotnet.trycloudflare.com`)*.
+
+---
+
 ### Passo 3: Configurar o `.env` do Clyvo-Care
 No diretório deste projeto (`Clyvo-Care`), crie o arquivo `.env` (se ainda não o tiver) e cole a URL:
 ```bash
@@ -135,7 +193,14 @@ cp .env.example .env
 Edite o arquivo `.env`:
 ```env
 EXPO_PUBLIC_API_URL=https://exemplo-aleatorio-gerado.trycloudflare.com
+EXPO_PUBLIC_DOTNET_API_URL=https://exemplo-aleatorio-dotnet.trycloudflare.com
 ```
+
+> [!IMPORTANT]
+> **Regras Obrigatórias de Execução com a API .NET:**
+> - **Formato da URL base:** A variável `EXPO_PUBLIC_DOTNET_API_URL` deve conter exclusivamente a origem (ex: `https://exemplo.trycloudflare.com`), **nunca termine com `/api`**, pois as rotas dos serviços de agendamentos (`/api/agendamentos`) e clínicas (`/api/clinicas`) são inseridas automaticamente nas chamadas Axios do aplicativo.
+> - **Validação de Token JWT:** A API .NET valida o token JWT emitido pela API Java. Por essa razão, a variável `Jwt__PublicKeyPath` deve apontar para o arquivo PEM da chave pública compatível com a chave privada usada pelo Spring Boot.
+> - **Cache do Expo:** Sempre que modificar as variáveis no arquivo `.env`, reinicie o bundler do Expo com cache limpo (`npx expo start -c`) para que o bundle absorva as novas configurações.
 
 
 
@@ -178,11 +243,9 @@ O **Clyvo Care** é o portal do tutor dentro da plataforma Clyvo Vet. Suas princ
 2. **CRUD Completo de Pets:** Cadastro de pets com seleção de espécies e raças vindas da API, listagem dinâmica filtrada por tutor, edição de dados e remoção com invalidação automática de cache.
 3. **CRUD Completo de Tutor (Perfil):** Visualização dos dados do responsável, edição de contato/endereço e exclusão definitiva de conta (`DELETE /responsaveis/{id}`).
 4. **Contratação de Planos de Saúde Pet:** Visualização e contratação de planos veterinários categorizados por cobertura.
-5. **Agendamento de Consultas:** O Mobile consulta clínicas na API .NET e cria agendamentos autenticados em `POST /api/agendamentos`, usando pets da Java. A confirmação exibe ID e data retornados após `201`; falhas preservam o formulário. Datas são reais, convertidas do fuso do dispositivo para UTC. Os horários sugeridos não representam disponibilidade da clínica. A validação em dispositivo com Oracle/JWT real continua pendente.
+5. **Agendamento de Consultas:** O Mobile consulta clínicas na API .NET e cria agendamentos autenticados em `POST /api/agendamentos`, usando pets da Java. A confirmação exibe ID e data retornados após `201`; falhas preservam o formulário. Datas são reais, convertidas do fuso do dispositivo para UTC. Os horários sugeridos não representam disponibilidade da clínica. O fluxo integrado foi confirmado no Expo Go/iOS; a versão final do APK deve ser validada sem Metro.
 
 Configure `EXPO_PUBLIC_DOTNET_API_URL` com a origem da API .NET (sem `/api`), por exemplo `http://<SEU_IP_LOCAL>:5067`, e reinicie o Expo. A Java continua usando `EXPO_PUBLIC_API_URL`. O backend .NET precisa estar acessível pela rede e usar a chave pública correspondente ao JWT Java, com a migration de agendamentos aplicada após revisão.
-
-Validação local do Mobile: `npx tsc --noEmit` e `TZ=America/Sao_Paulo node --test tests/appointment.test.cjs`. Em dispositivo, validar carregamento/erro/lista vazia de clínicas, criação com data futura, erro 409, sessão expirada e indisponibilidade de rede; conferir o registro criado no backend.
 6. **Preferências e Temas:** Alternância dinâmica entre modo Claro (*Light*) e Escuro (*Dark*).
 
 
@@ -204,7 +267,7 @@ Fluxo Autenticado (Protegido por AuthGuard):
 
 ## Tecnologias Utilizadas
 
-- **Framework Core:** [React Native](https://reactnative.dev/) & [Expo SDK 57](https://expo.dev/)
+- **Framework Core:** [React Native](https://reactnative.dev/) & [Expo SDK 58](https://expo.dev/)
 - **Linguagem:** [TypeScript](https://www.typescriptlang.org/)
 - **Gerenciamento de Estado & Cache:** [TanStack Query v5 (`@tanstack/react-query`)](https://tanstack.com/query)
 - **Cliente HTTP:** [Axios](https://axios-http.com/)
@@ -247,6 +310,11 @@ Clyvo-Care/
 | **Testar login via terminal** | `curl -i -X POST http://localhost:8080/auth/login -H "Content-Type: application/json" -d '{"email":"seu_email","password":"sua_senha"}'` |
 | **Iniciar Expo com cache limpo** | `npx expo start -c --tunnel` |
 | **Verificar processos ativos** | `ps aux \| grep -E "cloudflared\|expo\|java"` |
+| **Iniciar API .NET (perfil HTTP / porta 5067)** | `dotnet run --project ClyvoCare.API --launch-profile http` |
+| **Iniciar Túnel Cloudflare (.NET - porta 5067)** | `cloudflared tunnel --url http://localhost:5067` |
+| **Testar se a API .NET está respondendo (Health check)** | `curl -i http://localhost:5067/health` |
+| **Testar listagem de clínicas (.NET)** | `curl -i http://localhost:5067/api/clinicas` |
+| **Verificar processos ativos (.NET, Java, Túneis, Expo)** | `ps aux \| grep -E "cloudflared\|expo\|java\|dotnet"` |
 
 
 
@@ -259,11 +327,3 @@ Clyvo-Care/
 | *Giovane Amato dos Santos*    | *RM561336* |
 | *Matheus Roque Arantes*       | *RM561959* |
 | *Orlando Gonçalves de Arruda* | *RM561584* |
-
-### Notificações de agendamento
-
-Fluxo local implementado após confirmação da API, com navegação para Meus Pets ao
-tocar e conferência da conta autenticada. Implementação organizada como o `mockmerce-app`, com `NotificacoesProvider` e
-configuração global em `Lib/notificacoes.ts`. Pacote instalado: `57.0.24`; TypeScript
-e testes locais aprovados. Teste no novo build/dispositivo ainda pendente. Veja
-[instalação e roteiro de validação](docs/notificacoes.md).
