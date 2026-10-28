@@ -12,7 +12,7 @@ import { useTheme } from "../Context/ThemeContext";
 
 export function MyPet() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { isDark } = useTheme();
+  const { isDark, colors } = useTheme();
   const { query, filteredPets, filters, requestDelete } = usePetList();
 
   const totalPets = query.data?.length ?? 0;
@@ -79,14 +79,14 @@ export function MyPet() {
               />
             ))
           ) : (
-            <View className="bg-paper dark:bg-navy rounded-3xl p-8 border border-rule dark:border-white/10 items-center justify-center mt-2">
-              <View className="w-14 h-14 rounded-full bg-soft dark:bg-navy-2 items-center justify-center mb-3">
+            <View className="rounded-3xl p-8 border items-center justify-center mt-2" style={{ backgroundColor: colors.card, borderColor: colors.border }}>
+              <View className="w-14 h-14 rounded-full items-center justify-center mb-3" style={{ backgroundColor: colors.soft }}>
                 <Heart size={24} color="#1f6ae1" />
               </View>
-              <Text className="text-base font-bold text-navy dark:text-paper text-center">
+              <Text className="text-base font-bold text-center" style={{ color: colors.text }}>
                 Nenhum pet encontrado
               </Text>
-              <Text className="text-xs text-mute dark:text-soft-line text-center mt-1 leading-5 px-4">
+              <Text className="text-xs text-center mt-1 leading-5 px-4" style={{ color: colors.textMuted }}>
                 {filters.searchTerm
                   ? "Tente ajustar o termo da busca ou alterar os filtros aplicados."
                   : "Você ainda não possui pets registrados nesta conta."}
