@@ -17,7 +17,3 @@ export function getPetSpeciesImage(speciesName = "") {
   return MyPetData.find((pet) => pet.species.toLowerCase() === label)?.img
     || MyPetData[0]?.img;
 }
-
-export function getLocalPetBreeds(speciesLabel: string) {
-  return PetSpecieBreedListData.find((item) => item.species === speciesLabel)?.breeds || [];
-}
