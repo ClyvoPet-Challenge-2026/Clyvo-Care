@@ -33,6 +33,12 @@
     "plugins": [
       "expo-status-bar",
       "expo-notifications"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "db33aa27-db4c-4753-ba9e-c56e218117ff"
+      }
+    },
+    "owner": "ruralgiovane"
   }
 }
