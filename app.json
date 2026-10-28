@@ -6,13 +6,9 @@
     "orientation": "portrait",
     "icon": "./assets/Logo-ClyvoCare.png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/Logo-ClyvoCare.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ruralgiovane.ClyvoCare"
     },
     "android": {
       "adaptiveIcon": {
@@ -21,14 +17,23 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.ruralgiovane.ClyvoCare",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
     "plugins": [
-      "expo-status-bar"
-    ]
+      "expo-status-bar",
+      "expo-notifications"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "db33aa27-db4c-4753-ba9e-c56e218117ff"
+      }
+    },
+    "owner": "ruralgiovane"
   }
 }

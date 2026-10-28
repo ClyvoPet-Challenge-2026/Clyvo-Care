@@ -13,7 +13,8 @@ export function useProfileForm() {
   const updateMutation = useUpdateProfile();
   const { states, cities } = useLocations({ allowFallback: false });
   const displayOwner = ownerData || user;
-  const canManageProfile = user?.roleName === "ADMIN";
+  const canManageProfile = !!user?.id && displayOwner?.id === user.id &&
+    (user.roleName === "ADMIN" || user.roleName === "OWNER");
   const [isEditing, setIsEditing] = useState(false);
   const [values, setValues] = useState(() => profileToForm(displayOwner));
 
@@ -54,7 +55,7 @@ export function useProfileForm() {
       Alert.alert("Atenção", validationError);
       return;
     }
-    const ownerId = user?.id || ownerData?.id;
+    const ownerId = user?.id;
     if (!ownerId) {
       Alert.alert("Erro", "Identificador de usuário não encontrado.");
       return;

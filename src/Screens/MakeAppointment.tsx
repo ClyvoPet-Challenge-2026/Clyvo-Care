@@ -10,7 +10,7 @@ import { AppointmentNotes } from "../Components/MakeAppointmentComponents/Appoin
 
 export function MakeAppointment({ navigation }: MakeAppointmentProps) {
   const { isDark } = useTheme();
-  const { pets, loadingPets, values, updateField, confirm } = useAppointmentForm({
+  const { pets, loadingPets, petsError, retryPets, clinics, loadingClinics, clinicsError, retryClinics, values, updateField, confirm, submitting, confirmed } = useAppointmentForm({
     onViewPets: () => navigation.navigate("MyPet"),
     onGoHome: () => navigation.navigate("MainScreen"),
   });
@@ -25,6 +25,7 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
         contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 20 }}
         keyboardShouldPersistTaps="handled"
       >
+        {petsError && <TouchableOpacity onPress={() => void retryPets()}><Text className="text-brand">Não foi possível carregar os pets. Tentar novamente.</Text></TouchableOpacity>}
         <PetSelector
           pets={pets}
           loadingPets={loadingPets}
@@ -37,8 +38,12 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
           setSelectedReason={(value) => updateField("reason", value)}
         />
         <ClinicSelector
-          selectedLocation={values.location}
-          setSelectedLocation={(value) => updateField("location", value)}
+          clinics={clinics}
+          loading={loadingClinics}
+          error={clinicsError}
+          onRetry={() => void retryClinics()}
+          selectedLocation={values.clinicId}
+          setSelectedLocation={(value) => updateField("clinicId", value)}
         />
         <AppointmentDateTimeSelector
           selectedDate={values.date}
@@ -52,10 +57,12 @@ export function MakeAppointment({ navigation }: MakeAppointmentProps) {
         <TouchableOpacity
           activeOpacity={0.85}
           onPress={confirm}
+          disabled={submitting || confirmed || loadingPets || loadingClinics || !pets.length || !clinics.length}
+          accessibilityState={{ disabled: submitting || confirmed || loadingPets || loadingClinics || !pets.length || !clinics.length }}
           className="w-full items-center justify-center bg-brand rounded-2xl py-4 mb-6 shadow-md"
         >
           <Text className="text-paper text-base font-bold">
-            Confirmar Agendamento
+            {submitting ? "Agendando..." : confirmed ? "Agendamento confirmado" : "Confirmar Agendamento"}
           </Text>
         </TouchableOpacity>
       </ScrollView>

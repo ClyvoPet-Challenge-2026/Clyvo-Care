@@ -8,8 +8,6 @@ const Rodent = require("../Images/PetImage/rodent.jpg");
 const Reptile = require("../Images/PetImage/reptile.jpg");
 const Mahoraga = require("../Images/PetImage/Mahoraga.png");
 
-export type { LocalPet as Pet };
-
 export const MyPetData: LocalPet[] = [
   {
     identifier: 1,

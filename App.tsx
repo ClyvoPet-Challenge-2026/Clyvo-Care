@@ -1,8 +1,10 @@
 import './global.css';
+import { navigationRef } from './src/Navigation/navigationRef';
+import { NotificationProvider, useNotifications } from './src/Context/NotificationContext';
 import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import AppNavigator from "./src/Navigation/AppNavigator";
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { AuthProvider } from "./src/Context/AuthContext";
 import { ThemeProvider, useTheme } from "./src/Context/ThemeContext";
@@ -11,6 +13,7 @@ import { queryClient } from './src/Lib/queryClient';
 
 function AppContent() {
   const { isDark, colors } = useTheme();
+  const { consumePendingNavigation } = useNotifications();
 
   const navigationTheme = {
     ...(isDark ? DarkTheme : DefaultTheme),
@@ -25,9 +28,9 @@ function AppContent() {
   };
 
   return (
-    <View className={`flex-1 ${isDark ? "dark bg-navy-2" : "bg-ground"}`} style={{ backgroundColor: colors.background }}>
+    <View className={`flex-1 ${isDark ? "dark bg-navy-2" : "bg-ground"}`} style={{ flex: 1, backgroundColor: colors.background }}>
       <StatusBar style={isDark ? "light" : "dark"} />
-      <NavigationContainer theme={navigationTheme}>
+      <NavigationContainer ref={navigationRef} onReady={consumePendingNavigation} onStateChange={consumePendingNavigation} theme={navigationTheme}>
         <AppNavigator />
       </NavigationContainer>
     </View>
@@ -36,12 +39,14 @@ function AppContent() {
 
 export default function App() {
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <ThemeProvider>
-            <AppContent />
-          </ThemeProvider>
+          <NotificationProvider>
+            <ThemeProvider>
+              <AppContent />
+            </ThemeProvider>
+          </NotificationProvider>
         </AuthProvider>
       </QueryClientProvider>
     </SafeAreaProvider>
