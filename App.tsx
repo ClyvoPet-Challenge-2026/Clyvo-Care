@@ -4,7 +4,7 @@ import { NotificacoesProvider, useNotificacoes } from './src/Context/Notificacoe
 import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import AppNavigator from "./src/Navigation/AppNavigator";
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { AuthProvider } from "./src/Context/AuthContext";
 import { ThemeProvider, useTheme } from "./src/Context/ThemeContext";
@@ -28,7 +28,7 @@ function AppContent() {
   };
 
   return (
-    <View className={`flex-1 ${isDark ? "dark bg-navy-2" : "bg-ground"}`} style={{ backgroundColor: colors.background }}>
+    <View className={`flex-1 ${isDark ? "dark bg-navy-2" : "bg-ground"}`} style={{ flex: 1, backgroundColor: colors.background }}>
       <StatusBar style={isDark ? "light" : "dark"} />
       <NavigationContainer ref={navigationRef} onReady={consumirNavegacaoPendente} onStateChange={consumirNavegacaoPendente} theme={navigationTheme}>
         <AppNavigator />
@@ -39,7 +39,7 @@ function AppContent() {
 
 export default function App() {
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <NotificacoesProvider>
