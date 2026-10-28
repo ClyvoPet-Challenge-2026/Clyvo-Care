@@ -1,6 +1,6 @@
 import './global.css';
 import { navigationRef } from './src/Navigation/navigationRef';
-import { NotificacoesProvider, useNotificacoes } from './src/Context/NotificacoesContext';
+import { NotificationProvider, useNotifications } from './src/Context/NotificationContext';
 import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import AppNavigator from "./src/Navigation/AppNavigator";
@@ -13,7 +13,7 @@ import { queryClient } from './src/Lib/queryClient';
 
 function AppContent() {
   const { isDark, colors } = useTheme();
-  const { consumirNavegacaoPendente } = useNotificacoes();
+  const { consumePendingNavigation } = useNotifications();
 
   const navigationTheme = {
     ...(isDark ? DarkTheme : DefaultTheme),
@@ -30,7 +30,7 @@ function AppContent() {
   return (
     <View className={`flex-1 ${isDark ? "dark bg-navy-2" : "bg-ground"}`} style={{ flex: 1, backgroundColor: colors.background }}>
       <StatusBar style={isDark ? "light" : "dark"} />
-      <NavigationContainer ref={navigationRef} onReady={consumirNavegacaoPendente} onStateChange={consumirNavegacaoPendente} theme={navigationTheme}>
+      <NavigationContainer ref={navigationRef} onReady={consumePendingNavigation} onStateChange={consumePendingNavigation} theme={navigationTheme}>
         <AppNavigator />
       </NavigationContainer>
     </View>
@@ -42,11 +42,11 @@ export default function App() {
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <NotificacoesProvider>
+          <NotificationProvider>
             <ThemeProvider>
               <AppContent />
             </ThemeProvider>
-          </NotificacoesProvider>
+          </NotificationProvider>
         </AuthProvider>
       </QueryClientProvider>
     </SafeAreaProvider>

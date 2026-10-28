@@ -1,22 +1,24 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
-import { CANAL_PADRAO, prepararCanalAndroid } from '../Lib/notificacoes';
+import { DEFAULT_NOTIFICATION_CHANNEL, prepareAndroidNotificationChannel } from '../Lib/notifications';
 import type { AppointmentApiDTO } from '../Types/clinical';
-import type { NotificationDelivery, PermissaoNotificacoes } from '../Types/notifications';
+import type { NotificationDelivery, NotificationPermissionStatus } from '../Types/notifications';
 
-export async function prepararPermissao(): Promise<PermissaoNotificacoes> {
+export async function prepareNotificationPermission(): Promise<NotificationPermissionStatus> {
   try {
-    await prepararCanalAndroid();
-    let permissao = await Notifications.getPermissionsAsync();
-    const concedida = () => permissao.granted || permissao.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL;
-    if (!concedida() && permissao.canAskAgain) permissao = await Notifications.requestPermissionsAsync();
-    return concedida() ? 'concedida' : 'negada';
+    await prepareAndroidNotificationChannel();
+    let permission = await Notifications.getPermissionsAsync();
+    const isGranted = () => permission.granted || permission.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL;
+    if (!isGranted() && permission.canAskAgain) {
+      permission = await Notifications.requestPermissionsAsync();
+    }
+    return isGranted() ? 'granted' : 'denied';
   } catch {
-    return 'indisponivel';
+    return 'unavailable';
   }
 }
 
-export async function enviarNotificacaoAgendamento(appointment: AppointmentApiDTO, ownerId: number): Promise<NotificationDelivery> {
+export async function sendAppointmentNotification(appointment: AppointmentApiDTO, ownerId: number): Promise<NotificationDelivery> {
   try {
     await Notifications.scheduleNotificationAsync({
       identifier: `appointment-${ownerId}-${appointment.id}`,
@@ -26,7 +28,7 @@ export async function enviarNotificacaoAgendamento(appointment: AppointmentApiDT
         sound: 'default',
         data: { kind: 'appointment-created', ownerId, appointmentId: appointment.id, petId: appointment.petId },
       },
-      trigger: Platform.OS === 'android' ? { channelId: CANAL_PADRAO } : null,
+      trigger: Platform.OS === 'android' ? { channelId: DEFAULT_NOTIFICATION_CHANNEL } : null,
     });
     return 'sent';
   } catch {

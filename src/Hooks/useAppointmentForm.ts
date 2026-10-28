@@ -3,14 +3,14 @@ import { Alert } from "react-native";
 import { useAuth } from "../Context/AuthContext";
 import { usePets } from "./usePets";
 import { useClinics } from "./useClinics";
-import { useNotificacoes } from "../Context/NotificacoesContext";
+import { useNotifications } from "../Context/NotificationContext";
 import { useCreateAppointment } from "./useAppointment";
 import { buildAppointmentRequest, getAppointmentDates } from "../Utils/appointment";
 import type { AppointmentFormValues, UseAppointmentFormOptions } from "../Types/types";
 
 export function useAppointmentForm({ onViewPets, onGoHome }: UseAppointmentFormOptions) {
   const { user } = useAuth();
-  const { notificarAgendamento } = useNotificacoes();
+  const { notifyAppointment } = useNotifications();
   const petsQuery = usePets(user?.id);
   const clinicsQuery = useClinics();
   const mutation = useCreateAppointment();
@@ -37,7 +37,7 @@ export function useAppointmentForm({ onViewPets, onGoHome }: UseAppointmentFormO
       if (!clinics.some(clinic => clinic.id === Number(values.clinicId))) throw new Error("Selecione uma clínica disponível.");
       const appointment = await mutation.mutateAsync(buildAppointmentRequest(values));
       setConfirmed(true);
-      const delivery = await notificarAgendamento(appointment, user.id);
+      const delivery = await notifyAppointment(appointment, user.id);
       const notificationMessage = delivery === "denied"
         ? "\nNotificações desativadas. Você pode habilitá-las nas configurações do dispositivo."
         : delivery === "unavailable" ? "\nA consulta foi salva, mas não foi possível enviar a notificação neste dispositivo." : "";
