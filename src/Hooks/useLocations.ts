@@ -33,11 +33,12 @@ export function useLocations({ allowFallback = false }: UseLocationsOptions = {}
   const isLoading = !isError && (statesQuery.isPending || citiesQuery.isPending);
   const isEmpty = !isLoading && !isError &&
     (!statesQuery.data?.length || !citiesQuery.data?.length);
+  const hasEmptyData = !statesQuery.data?.length || !citiesQuery.data?.length;
 
   // Preserva o fallback legado como um catálogo único, sem misturar IDs locais
   // com dados remotos e sem armazenar dados demonstrativos no cache da API.
   const isUsingFallback = allowFallback &&
-    (isError || (!isLoading && !statesQuery.data?.length));
+    (isError || (!isLoading && hasEmptyData));
   const hideRemoteData = isLoading || (!allowFallback && isError);
 
   return {
