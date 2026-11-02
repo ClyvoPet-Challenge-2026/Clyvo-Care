@@ -94,7 +94,7 @@ export function ConfigSection({
           <ChevronRight size={18} color={isDark ? "#99b6e6" : "#6c778c"} />
         </TouchableOpacity>
 
-        {/* Opção Excluir Conta (CRUD - Delete via TanStack Query) */}
+        {/* Account deactivation through TanStack Query. */}
         <TouchableOpacity
           onPress={onDeleteAccount}
           activeOpacity={0.7}
@@ -105,9 +105,9 @@ export function ConfigSection({
               <Trash2 size={18} color="#d32f2f" />
             </View>
             <View>
-              <Text className="text-sm font-semibold text-danger">Excluir Conta</Text>
+              <Text className="text-sm font-semibold text-danger">Desativar Conta</Text>
               <Text className={`text-xs mt-0.5 ${isDark ? "text-soft-line" : "text-mute"}`}>
-                Remover permanentemente seus dados
+                Encerrar o acesso e preservar seu histórico
               </Text>
             </View>
           </View>

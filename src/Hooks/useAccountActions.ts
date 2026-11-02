@@ -4,16 +4,12 @@ import { useAuth } from "../Context/AuthContext";
 import { useDeleteAccount } from "./useOwner";
 
 export function useAccountActions(ownerId?: number) {
-  const { logout, user } = useAuth();
+  const { logout } = useAuth();
   const deleteAccountMutation = useDeleteAccount();
   const [confirmDeleteModal, setConfirmDeleteModal] = useState(false);
 
   const handleDeleteAccount = async () => {
     if (deleteAccountMutation.isPending) return;
-    if (user?.roleName !== "ADMIN") {
-      Alert.alert("Exclusão indisponível", "A exclusão de conta ainda não está disponível para sua conta.");
-      return;
-    }
     setConfirmDeleteModal(false);
     const currentOwnerId = ownerId;
     if (!currentOwnerId) {
@@ -24,29 +20,23 @@ export function useAccountActions(ownerId?: number) {
     try {
       await deleteAccountMutation.mutateAsync(currentOwnerId);
     } catch (error) {
-      Alert.alert("Não foi possível excluir", error instanceof Error ? error.message : "Tente novamente. A exclusão não foi confirmada pelo servidor.");
+      Alert.alert("Não foi possível desativar", error instanceof Error ? error.message : "Tente novamente. A desativação não foi confirmada pelo servidor.");
       return;
     }
 
     try {
       await logout();
     } catch {
-      Alert.alert("Conta excluída", "O servidor confirmou a exclusão, mas não foi possível limpar a sessão salva neste dispositivo.");
+      Alert.alert("Conta desativada", "O servidor confirmou a desativação, mas não foi possível limpar a sessão salva neste dispositivo.");
       return;
     }
-    Alert.alert("Conta Excluída", "Sua conta foi excluída com sucesso.");
+    Alert.alert("Conta desativada", "Sua conta foi desativada com sucesso.");
   };
 
   return {
     logout,
     confirmDeleteModal,
-    openDeleteModal: () => {
-      if (user?.roleName !== "ADMIN") {
-        Alert.alert("Exclusão indisponível", "A exclusão de conta ainda não está disponível para sua conta.");
-        return;
-      }
-      setConfirmDeleteModal(true);
-    },
+    openDeleteModal: () => setConfirmDeleteModal(true),
     closeDeleteModal: () => setConfirmDeleteModal(false),
     handleDeleteAccount,
     isDeleting: deleteAccountMutation.isPending,

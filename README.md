@@ -6,6 +6,7 @@
 
 
 ## Sumário
+- [Execução com as APIs publicadas na Azure](#execução-com-as-apis-publicadas-na-azure)
 - [Vídeo de Demonstração](#-vídeo-de-demonstração)
 - [Repositório do Backend (API Java Spring Boot)](#-repositório-do-backend-api-java-spring-boot)
 - [Repositório do Backend (API .NET — Clínicas e Agendamentos)](#-repositório-do-backend-api-net--clínicas-e-agendamentos)
@@ -32,7 +33,7 @@ O **Clyvo Care** consome a API RESTful desenvolvida no repositório parceiro do 
 **Repositório da API:** [ClyvoPet-Challenge-2026/Java-Sprint-1](https://github.com/ClyvoPet-Challenge-2026/Java-Sprint-1)
 
 ### Sobre a API Java:
-- **Tecnologias:** Java 23, Spring Boot 4.0.6, Spring Data JPA / Hibernate, Spring Security, Flyway e Banco Oracle.
+- **Tecnologias:** Java 17, Spring Boot 4.0.6, Spring Data JPA / Hibernate, Spring Security, Flyway e Banco Oracle.
 - **Domínio Administrativo & Contratação:** Responsável pelo gerenciamento de tutores (`TB_CAD_OWNER`), pets (`TB_CAD_PET`), planos (`TB_CAD_PLAN`), contratações/assinaturas (`TB_CAD_SUBSCRIPTION`), taxonomia de espécies e raças (`TB_CAD_SPECIES`, `TB_CAD_BREED`).
 - **Segurança:** Autenticação stateless via tokens JWT assinados com par de chaves RSA (RS256) e criptografia de senhas com `BCryptPasswordEncoder`.
 - **Porta Padrão:** Executada localmente na porta `8080` (`http://localhost:8080`).
@@ -48,6 +49,41 @@ O **Clyvo Care** consome conjuntamente a API RESTful em ASP.NET Core desenvolvid
 - **Domínio Clínico & Agendamentos:** Responsável pelo gerenciamento e busca de clínicas veterinárias credenciadas (`TB_CAD_CLINIC`), leitura de localidades compartilhadas (`TB_CAD_CITY`, `TB_CAD_STATE`) e criação/consulta de eventos clínicos e agendamentos (`TB_HEA_CLINICAL_EVENT`).
 - **Segurança e Interoperabilidade:** Validação de tokens JWT emitidos pela API Java através da chave pública RSA compartilhada (`Jwt__PublicKeyPath`), garantindo autorização stateless e integridade do tutor autenticado (`ownerId`, `sub`, `role`).
 - **Porta Padrão:** Executada localmente na porta `5067` sob HTTP (`http://localhost:5067`) ou `7197` sob HTTPS (`https://localhost:7197`).
+
+## Execução com as APIs publicadas na Azure
+
+Para testar esta branch, use as duas APIs já publicadas. Não é necessário iniciar Java, .NET, Oracle ou MongoDB no computador:
+
+```bash
+npm ci
+cp .env.example .env
+npx expo start -c
+```
+
+O `.env.example` e os endereços padrão de `src/Config/env.ts` apontam para:
+
+```env
+EXPO_PUBLIC_API_URL=https://clyvocare-java-rm561584.azurewebsites.net
+EXPO_PUBLIC_DOTNET_API_URL=https://clyvocare-dotnet-rm561584.azurewebsites.net
+```
+
+Se já houver um `.env` com IP local ou túnel antigo, atualize as duas variáveis e reinicie o Expo. A origem da .NET deve ficar sem `/api` no final. O app usa um JWT emitido pela Java nas chamadas protegidas das duas APIs; cada tutor só pode operar seus próprios registros.
+
+Oracle FIAP e MongoDB Atlas são acessados pelo backend. O aplicativo recebe somente URLs públicas e o token da sessão; não configure senha de banco, URI do Atlas ou chaves RSA em variáveis `EXPO_PUBLIC_*`. O mobile nativo Android/iOS não depende de CORS. Para executar pelo navegador, a origem web precisa estar autorizada nas duas APIs.
+
+Documentação das APIs: [Swagger Java](https://clyvocare-java-rm561584.azurewebsites.net/swagger-ui/index.html) e [Swagger .NET](https://clyvocare-dotnet-rm561584.azurewebsites.net/).
+
+### Validação da Sprint 4 antes da publicação
+
+Revise esta branch antes de incorporar as alterações à versão entregue. Teste no dispositivo: cadastro/login, restauração de sessão, cadastro/edição/exclusão de pet, contratação do plano, edição do perfil, agendamento confirmado pela .NET, notificação local e toque que abre **Meus Pets**, troca entre tema claro/escuro e desativação da própria conta. O cancelamento de assinatura é exclusivo de `ADMIN`: o tutor recebe a orientação de procurar a administração, sem botão para cancelar. A desativação encerra o acesso e preserva os registros no servidor; execute esse último teste com uma conta criada para isso.
+
+A notificação nasce após o `201` de um agendamento real. Sua recepção e navegação precisam ser demonstradas no APK final, com a permissão do dispositivo concedida. A versão web informa que notificações não estão disponíveis; ela não substitui essa demonstração nativa.
+
+A tela **Sobre o App** exibe o hash capturado por `app.config.js`. Gere o APK a partir de um commit limpo, confira esse hash no app, publique a mesma versão no **Firebase App Distribution** e adicione o professor como tester pelo e-mail institucional. O vídeo completo deve usar essa versão publicada e mostrar todas as telas e o fluxo real, preservando as funcionalidades das sprints anteriores. O link de vídeo acima ainda corresponde à Sprint 3 e deve ser substituído pelo vídeo final.
+
+O projeto Android referencia `google-services.json`, mantido fora do Git. O responsável pela publicação deve fornecer o arquivo do projeto Firebase correspondente ao package `com.ruralgiovane.ClyvoCare`, na raiz ou pelo caminho em `GOOGLE_SERVICES_JSON`, já aceito por `app.config.js`. A geração do bundle JavaScript não equivale à compilação ou publicação desse APK.
+
+As instruções seguintes descrevem alternativas de desenvolvimento local. Para a entrega e os testes remotos, use os endereços Azure desta seção.
 
 ## Inicialização Tradicional (Wi-Fi Local ou Emulador)
 
@@ -241,11 +277,11 @@ Abra o app **Expo Go** no seu smartphone (Android ou iOS) e escaneie o QR Code e
 O **Clyvo Care** é o portal do tutor dentro da plataforma Clyvo Vet. Suas principais atribuições são:
 1. **Autenticação Segura:** Login stateless com token JWT, persistência com `AsyncStorage` e interceptor de requisições.
 2. **CRUD Completo de Pets:** Cadastro de pets com seleção de espécies e raças vindas da API, listagem dinâmica filtrada por tutor, edição de dados e remoção com invalidação automática de cache.
-3. **CRUD Completo de Tutor (Perfil):** Visualização dos dados do responsável, edição de contato/endereço e exclusão definitiva de conta (`DELETE /responsaveis/{id}`).
+3. **Gestão de Tutor (Perfil):** Visualização dos dados do responsável, edição de contato/endereço e desativação da própria conta (`DELETE /responsaveis/{id}`), preservando os dados relacionados.
 4. **Contratação de Planos de Saúde Pet:** Visualização e contratação de planos veterinários categorizados por cobertura.
 5. **Agendamento de Consultas:** O Mobile consulta clínicas na API .NET e cria agendamentos autenticados em `POST /api/agendamentos`, usando pets da Java. A confirmação exibe ID e data retornados após `201`; falhas preservam o formulário. Datas são reais, convertidas do fuso do dispositivo para UTC. Os horários sugeridos não representam disponibilidade da clínica. O fluxo integrado foi confirmado no Expo Go/iOS; a versão final do APK deve ser validada sem Metro.
 
-Configure `EXPO_PUBLIC_DOTNET_API_URL` com a origem da API .NET (sem `/api`), por exemplo `http://<SEU_IP_LOCAL>:5067`, e reinicie o Expo. A Java continua usando `EXPO_PUBLIC_API_URL`. O backend .NET precisa estar acessível pela rede e usar a chave pública correspondente ao JWT Java, com a migration de agendamentos aplicada após revisão.
+Configure `EXPO_PUBLIC_DOTNET_API_URL` com a origem da API .NET publicada (sem `/api`) e reinicie o Expo. A Java continua usando `EXPO_PUBLIC_API_URL`. A configuração compartilhada de Oracle e RSA já está nos Web Apps; o mobile não recebe essas credenciais.
 6. **Preferências e Temas:** Alternância dinâmica entre modo Claro (*Light*) e Escuro (*Dark*).
 
 

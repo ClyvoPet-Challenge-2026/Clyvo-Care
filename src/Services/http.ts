@@ -60,7 +60,7 @@ for (const client of [api, dotnetApi]) {
 
       // Timeout
       if (error.code === "ECONNABORTED" || error.message?.includes("timeout")) {
-        error.message = `Tempo limite excedido ao conectar em ${error.config?.baseURL}. Verifique se o backend está acessível na mesma rede Wi-Fi.`;
+        error.message = `Tempo limite excedido ao conectar em ${error.config?.baseURL}. Verifique sua conexão e a disponibilidade do servidor.`;
         return Promise.reject(error);
       }
 

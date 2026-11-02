@@ -43,7 +43,7 @@ export function DeleteModal({
           </View>
 
           <Text className={`text-xs mb-5 leading-relaxed ${isDark ? "text-soft-line" : "text-mute"}`}>
-            Esta ação é permanente. Todos os seus dados de tutor, histórico de agendamentos e pets cadastrados serão removidos.
+            Sua conta será desativada e você perderá o acesso ao aplicativo. Os dados de tutor, pets e agendamentos serão preservados no servidor.
           </Text>
 
           <View className="flex-row gap-3">
@@ -63,7 +63,7 @@ export function DeleteModal({
               {isDeleting ? (
                 <ActivityIndicator size="small" color="#ffffff" />
               ) : (
-                <Text className="text-sm font-semibold text-paper">Deletar</Text>
+                <Text className="text-sm font-semibold text-paper">Desativar</Text>
               )}
             </TouchableOpacity>
           </View>
