@@ -5,4 +5,5 @@ export const env = {
   apiUrl: JAVA_API_BASE_URL,
   dotnetApiUrl: process.env.EXPO_PUBLIC_DOTNET_API_URL ||
     "https://clyvocare-dotnet-rm561584.azurewebsites.net",
+  chatbotApiUrl: process.env.EXPO_PUBLIC_CHATBOT_API_URL || "http://localhost:8000",
 };

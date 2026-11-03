@@ -19,7 +19,8 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.ruralgiovane.ClyvoCare",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "usesCleartextTraffic": true
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -27,7 +28,13 @@
     },
     "plugins": [
       "expo-status-bar",
-      "expo-notifications"
+      "expo-notifications",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Permita que a Clyvo acesse sua localização para encontrar clínicas próximas."
+        }
+      ]
     ],
     "extra": {
       "eas": {
