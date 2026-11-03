@@ -10,9 +10,12 @@ import { AuthProvider } from "./src/Context/AuthContext";
 import { ThemeProvider, useTheme } from "./src/Context/ThemeContext";
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './src/Lib/queryClient';
+import { ChatbotWidget } from './src/Components/ChatbotWidget';
+import { useAuth } from './src/Context/AuthContext';
 
 function AppContent() {
   const { isDark, colors } = useTheme();
+  const { loggedIn } = useAuth();
   const { consumePendingNavigation } = useNotifications();
 
   const navigationTheme = {
@@ -33,6 +36,7 @@ function AppContent() {
       <NavigationContainer ref={navigationRef} onReady={consumePendingNavigation} onStateChange={consumePendingNavigation} theme={navigationTheme}>
         <AppNavigator />
       </NavigationContainer>
+      {loggedIn && <ChatbotWidget />}
     </View>
   );
 }
