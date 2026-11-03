@@ -16,6 +16,14 @@ export const dotnetApi = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+export const chatbotApi = axios.create({
+  baseURL: env.chatbotApiUrl,
+  timeout: 120000,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
 let onUnauthorized: (() => void) | null = null;
 
 export function setUnauthorizedHandler(handler: (() => void) | null) {

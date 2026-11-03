@@ -1,11 +1,7 @@
 import * as Location from "expo-location";
+import { UserCoordinates } from "../Types/chatbot";
 
-export type UserCoordinates = {
-  latitude: number;
-  longitude: number;
-};
-
-export async function obterLocalizacaoObrigatoria(): Promise<UserCoordinates> {
+export async function obtainMandatoryLocation(): Promise<UserCoordinates> {
   const { status } = await Location.requestForegroundPermissionsAsync();
   if (status !== Location.PermissionStatus.GRANTED) {
     throw new Error(
