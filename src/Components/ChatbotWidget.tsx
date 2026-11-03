@@ -1,5 +1,3 @@
-import { useRef, useState } from "react";
-import axios from "axios";
 import {
   ActivityIndicator,
   FlatList,
@@ -7,148 +5,32 @@ import {
   Modal,
   Platform,
   Pressable,
-  SafeAreaView,
-  StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Bot, Send, X } from "lucide-react-native";
 import { useTheme } from "../Context/ThemeContext";
-import { useAuth } from "../Context/AuthContext";
-import { usePets } from "../Hooks/usePets";
-import { useMySubscriptions, usePlans } from "../Hooks/usePlans";
-import {
-  enviarMensagemChatbot,
-  type ChatbotResponse,
-} from "../Services/chatbot";
-import {
-  obterLocalizacaoObrigatoria,
-  type UserCoordinates,
-} from "../Services/location";
-
-type Message = {
-  id: string;
-  text: string;
-  author: "user" | "assistant";
-};
-
-const initialMessage: Message = {
-  id: "welcome",
-  author: "assistant",
-  text: "Olá! Sou a assistente da Clyvo. Posso ajudar a simular um plano ou encontrar uma clínica parceira.",
-};
+import { useChatbot } from "../Hooks/useChatbot";
 
 export function ChatbotWidget() {
   const { isDark, colors } = useTheme();
-  const { user } = useAuth();
-  const petsQuery = usePets(user?.id);
-  const plansQuery = usePlans();
-  const subscriptionsQuery = useMySubscriptions(user?.id);
-  const [visible, setVisible] = useState(false);
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<Message[]>([initialMessage]);
-  const [interactionId, setInteractionId] = useState<string>();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string>();
-  const [coordinates, setCoordinates] = useState<UserCoordinates>();
-  const [locationLoading, setLocationLoading] = useState(false);
-  const listRef = useRef<FlatList<Message>>(null);
-
-  const addMessage = (nextMessage: Message) => {
-    setMessages((current) => [...current, nextMessage]);
-    requestAnimationFrame(() => listRef.current?.scrollToEnd({ animated: true }));
-  };
-
-  const requestLocation = async () => {
-    setLocationLoading(true);
-    setError(undefined);
-    try {
-      const currentCoordinates = await obterLocalizacaoObrigatoria();
-      setCoordinates(currentCoordinates);
-      return currentCoordinates;
-    } catch (locationError) {
-      console.error("Erro ao obter localização do tutor:", locationError);
-      setError(
-        "Permita o acesso à localização para usar o assistente e buscar clínicas próximas.",
-      );
-      return undefined;
-    } finally {
-      setLocationLoading(false);
-    }
-  };
-
-  const open = () => {
-    setVisible(true);
-    if (!coordinates) void requestLocation();
-  };
-
-  const sendMessage = async () => {
-    const text = message.trim();
-    if (!text || loading || locationLoading) return;
-
-    setMessage("");
-    setError(undefined);
-    addMessage({
-      id: `user-${Date.now()}`,
-      author: "user",
-      text,
-    });
-    setLoading(true);
-
-    try {
-      const currentCoordinates =
-        coordinates ?? (await requestLocation());
-      if (!currentCoordinates) return;
-
-      const response: ChatbotResponse = await enviarMensagemChatbot({
-        mensagem: text,
-        ...(interactionId ? { previous_interaction_id: interactionId } : {}),
-        latitude: currentCoordinates.latitude,
-        longitude: currentCoordinates.longitude,
-        pets: (petsQuery.data ?? []).map((pet) => ({
-          id: pet.id,
-          nome: pet.name,
-          especie: pet.species?.name,
-          raca: pet.breed?.name,
-          data_nascimento: pet.birthDate,
-        })),
-        planos: (plansQuery.data ?? []).map((plan) => ({
-          id: plan.id,
-          nome: plan.name,
-          valor_mensal: plan.monthlyValue,
-        })),
-        contratacoes: (subscriptionsQuery.data ?? []).map((subscription) => ({
-          id: subscription.id,
-          pet_id: subscription.pet.id,
-          plano_id: subscription.plan.id,
-          plano_nome: subscription.plan.name,
-          status: subscription.status,
-          valor_mensal: subscription.contractedValue,
-        })),
-      });
-      setInteractionId(response.interaction_id);
-      addMessage({
-        id: `assistant-${Date.now()}`,
-        author: "assistant",
-        text: response.resposta,
-      });
-    } catch (requestError) {
-      console.error("Erro ao enviar mensagem para o chatbot:", requestError);
-      const requestDetails = axios.isAxiosError(requestError)
-        ? ` [${requestError.code ?? "sem código"}: ${requestError.config?.baseURL ?? "URL desconhecida"}]`
-        : "";
-      setError(
-        axios.isAxiosError(requestError) && requestError.code === "ECONNABORTED"
-          ? "A assistente demorou para responder. Aguarde e tente novamente."
-          : `Não foi possível conectar à assistente.${requestDetails}`,
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const close = () => setVisible(false);
+  const {
+    visible,
+    open,
+    close,
+    message,
+    setMessage,
+    messages,
+    loading,
+    error,
+    coordinates,
+    locationLoading,
+    requestLocation,
+    sendMessage,
+    listRef,
+  } = useChatbot();
 
   return (
     <>
@@ -156,7 +38,14 @@ export function ChatbotWidget() {
         accessibilityLabel="Abrir assistente Clyvo"
         accessibilityRole="button"
         onPress={open}
-        style={[styles.floatingButton, { backgroundColor: colors.brand }]}
+        className="absolute right-5 bottom-6 w-[58px] h-[58px] rounded-full bg-brand items-center justify-center z-50 shadow-lg"
+        style={{
+          elevation: 8,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 3 },
+          shadowOpacity: 0.2,
+          shadowRadius: 5,
+        }}
       >
         <Bot color="#ffffff" size={24} />
       </Pressable>
@@ -168,48 +57,57 @@ export function ChatbotWidget() {
         visible={visible}
       >
         <SafeAreaView
-          style={[
-            styles.modalBackdrop,
-            { backgroundColor: isDark ? "rgba(0,0,0,0.65)" : "rgba(12,13,16,0.35)" },
-          ]}
+          edges={["top", "bottom", "left", "right"]}
+          className={`flex-1 ${isDark ? "bg-black/65" : "bg-ink/35"}`}
         >
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : undefined}
-            style={styles.keyboardView}
+            className="flex-1 justify-end"
           >
             <View
-              style={[
-                styles.chat,
-                { backgroundColor: colors.card, borderColor: colors.border },
-              ]}
+              className={`h-[78%] mx-3 bottom-3 rounded-3xl border overflow-hidden ${
+                isDark ? "bg-navy border-white/10" : "bg-paper border-rule"
+              }`}
             >
-              <View style={[styles.header, { borderBottomColor: colors.border }]}>
-                <View style={styles.titleContainer}>
-                  <View style={[styles.botIcon, { backgroundColor: colors.brand }]}>
+              {/* Header */}
+              <View
+                className={`flex-row items-center justify-between px-4 py-3.5 border-b ${
+                  isDark ? "border-white/10" : "border-rule"
+                }`}
+              >
+                <View className="flex-row items-center gap-2.5">
+                  <View className="w-9 h-9 rounded-2xl bg-brand items-center justify-center">
                     <Bot color="#ffffff" size={18} />
                   </View>
                   <View>
-                    <Text style={[styles.title, { color: colors.text }]}>
+                    <Text className={`text-base font-bold ${isDark ? "text-paper" : "text-navy"}`}>
                       Assistente Clyvo
                     </Text>
-                    <Text style={[styles.subtitle, { color: colors.textMuted }]}>
+                    <Text className={`text-[11px] mt-0.5 ${isDark ? "text-soft-line" : "text-mute"}`}>
                       Planos e clínicas parceiras
                     </Text>
                   </View>
                 </View>
                 <Pressable accessibilityLabel="Fechar assistente" onPress={close}>
-                  <X color={colors.text} size={22} />
+                  <X color={isDark ? "#ffffff" : "#0c0d10"} size={22} />
                 </Pressable>
               </View>
 
+              {/* Aviso de Localização */}
               {!coordinates && (
                 <Pressable
                   accessibilityRole="button"
                   disabled={locationLoading}
                   onPress={() => void requestLocation()}
-                  style={[styles.locationNotice, { borderColor: colors.border }]}
+                  className={`mx-4 mt-3 p-3 rounded-xl border ${
+                    isDark ? "border-white/10" : "border-rule"
+                  }`}
                 >
-                  <Text style={[styles.locationNoticeText, { color: colors.text }]}>
+                  <Text
+                    className={`text-xs text-center ${
+                      isDark ? "text-paper" : "text-navy"
+                    }`}
+                  >
                     {locationLoading
                       ? "Solicitando acesso à localização..."
                       : "Permita sua localização para usar o assistente."}
@@ -217,66 +115,72 @@ export function ChatbotWidget() {
                 </Pressable>
               )}
 
+              {/* Lista de Mensagens */}
               <FlatList
-                contentContainerStyle={styles.messages}
+                contentContainerStyle={{ gap: 10, padding: 16 }}
                 data={messages}
                 keyExtractor={(item) => item.id}
                 ref={listRef}
-                renderItem={({ item }) => (
-                  <View
-                    style={[
-                      styles.bubble,
-                      item.author === "user"
-                        ? [styles.userBubble, { backgroundColor: colors.brand }]
-                        : [
-                            styles.assistantBubble,
-                            {
-                              backgroundColor: isDark ? colors.background : "#f1f5fb",
-                              borderColor: colors.border,
-                            },
-                          ],
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.bubbleText,
-                        {
-                          color:
-                            item.author === "user" ? "#ffffff" : colors.text,
-                        },
-                      ]}
+                renderItem={({ item }) => {
+                  const isUser = item.author === "user";
+                  return (
+                    <View
+                      className={`max-w-[86%] rounded-2xl px-3.5 py-2.5 ${
+                        isUser
+                          ? "self-end bg-brand border-0"
+                          : `self-start border ${
+                              isDark
+                                ? "bg-navy-2 border-white/10"
+                                : "bg-[#f1f5fb] border-rule"
+                            }`
+                      }`}
                     >
-                      {item.text}
-                    </Text>
-                  </View>
-                )}
+                      <Text
+                        className={`text-sm leading-5 ${
+                          isUser ? "text-paper" : isDark ? "text-paper" : "text-navy"
+                        }`}
+                      >
+                        {item.text}
+                      </Text>
+                    </View>
+                  );
+                }}
               />
 
+              {/* Loading */}
               {loading && (
-                <View style={styles.loading}>
+                <View className="flex-row items-center gap-2 px-4 pb-2">
                   <ActivityIndicator color={colors.brand} size="small" />
-                  <Text style={[styles.loadingText, { color: colors.textMuted }]}>
+                  <Text className={`text-xs ${isDark ? "text-soft-line" : "text-mute"}`}>
                     Consultando a assistente...
                   </Text>
                 </View>
               )}
-              {error && <Text style={styles.error}>{error}</Text>}
 
-              <View style={[styles.composer, { borderTopColor: colors.border }]}>
+              {/* Erro */}
+              {error && (
+                <Text className="text-danger text-xs px-4 pb-2">
+                  {error}
+                </Text>
+              )}
+
+              {/* Composer */}
+              <View
+                className={`flex-row items-center gap-2 p-3 border-t ${
+                  isDark ? "border-white/10" : "border-rule"
+                }`}
+              >
                 <TextInput
                   editable={!loading}
                   onChangeText={setMessage}
                   onSubmitEditing={sendMessage}
                   placeholder="Digite sua mensagem..."
                   placeholderTextColor={colors.textMuted}
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor: isDark ? colors.background : "#f7f9fc",
-                      color: colors.text,
-                      borderColor: colors.border,
-                    },
-                  ]}
+                  className={`flex-1 text-sm min-h-[42px] px-3.5 py-2 rounded-full border ${
+                    isDark
+                      ? "bg-navy-2 text-paper border-white/10"
+                      : "bg-[#f7f9fc] text-navy border-rule"
+                  }`}
                   value={message}
                 />
                 <Pressable
@@ -284,13 +188,13 @@ export function ChatbotWidget() {
                   accessibilityRole="button"
                   disabled={!message.trim() || loading || locationLoading || !coordinates}
                   onPress={sendMessage}
-                  style={[
-                    styles.sendButton,
-                    {
-                      backgroundColor:
-                        message.trim() && !loading ? colors.brand : colors.border,
-                    },
-                  ]}
+                  className={`w-[42px] h-[42px] rounded-full items-center justify-center ${
+                    message.trim() && !loading && !locationLoading && coordinates
+                      ? "bg-brand"
+                      : isDark
+                      ? "bg-white/10"
+                      : "bg-rule"
+                  }`}
                 >
                   <Send color="#ffffff" size={18} />
                 </Pressable>
@@ -302,137 +206,3 @@ export function ChatbotWidget() {
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  floatingButton: {
-    alignItems: "center",
-    borderRadius: 30,
-    bottom: 24,
-    elevation: 8,
-    height: 58,
-    justifyContent: "center",
-    position: "absolute",
-    right: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    width: 58,
-    zIndex: 100,
-  },
-  modalBackdrop: {
-    flex: 1,
-  },
-  keyboardView: {
-    flex: 1,
-    justifyContent: "flex-end",
-  },
-  chat: {
-    borderRadius: 24,
-    borderWidth: 1,
-    bottom: 12,
-    height: "78%",
-    marginHorizontal: 12,
-    overflow: "hidden",
-  },
-  header: {
-    alignItems: "center",
-    borderBottomWidth: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 18,
-    paddingVertical: 14,
-  },
-  titleContainer: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 10,
-  },
-  botIcon: {
-    alignItems: "center",
-    borderRadius: 18,
-    height: 36,
-    justifyContent: "center",
-    width: 36,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  subtitle: {
-    fontSize: 11,
-    marginTop: 2,
-  },
-  locationNotice: {
-    borderRadius: 12,
-    borderWidth: 1,
-    marginHorizontal: 16,
-    marginTop: 12,
-    padding: 12,
-  },
-  locationNoticeText: {
-    fontSize: 12,
-    textAlign: "center",
-  },
-  messages: {
-    gap: 10,
-    padding: 16,
-  },
-  bubble: {
-    borderRadius: 16,
-    borderWidth: 1,
-    maxWidth: "86%",
-    paddingHorizontal: 13,
-    paddingVertical: 10,
-  },
-  userBubble: {
-    alignSelf: "flex-end",
-    borderWidth: 0,
-  },
-  assistantBubble: {
-    alignSelf: "flex-start",
-  },
-  bubbleText: {
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  loading: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 8,
-    paddingHorizontal: 16,
-    paddingBottom: 8,
-  },
-  loadingText: {
-    fontSize: 12,
-  },
-  error: {
-    color: "#c62828",
-    fontSize: 12,
-    paddingHorizontal: 16,
-    paddingBottom: 8,
-  },
-  composer: {
-    alignItems: "center",
-    borderTopWidth: 1,
-    flexDirection: "row",
-    gap: 8,
-    padding: 12,
-  },
-  input: {
-    borderRadius: 20,
-    borderWidth: 1,
-    flex: 1,
-    fontSize: 14,
-    minHeight: 42,
-    paddingHorizontal: 14,
-    paddingVertical: 9,
-  },
-  sendButton: {
-    alignItems: "center",
-    borderRadius: 21,
-    height: 42,
-    justifyContent: "center",
-    width: 42,
-  },
-});
