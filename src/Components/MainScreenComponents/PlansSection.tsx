@@ -108,7 +108,7 @@ export function PlansSection({ state, actions, onRegisterPet }: PlansSectionProp
               ) : (
                 <View className="flex-row items-start gap-2 mt-4">
                   <Info size={15} color={accentColor} />
-                  <Text className={`flex-1 text-xs leading-5 ${mutedClass}`}>O cancelamento pelo aplicativo ainda não está disponível para sua conta.</Text>
+                  <Text className={`flex-1 text-xs leading-5 ${mutedClass}`}>Para cancelar sua assinatura, entre em contato com a administração.</Text>
                 </View>
               )}
               </View>
