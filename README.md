@@ -14,11 +14,13 @@
 - [Integração e Repositórios dos Backends](#integração-e-repositórios-dos-backends)
   - [API Java Spring Boot (Gestão, Pets, Planos e Auth)](#1-api-java-spring-boot-gestão-pets-planos-e-auth)
   - [API .NET (Clínicas e Agendamentos)](#2-api-net-aspnet-core--clínicas-e-agendamentos)
+  - [API Python FastAPI & Gemini (Chatbot Inteligente e Geolocalização)](#3-api-python-fastapi--gemini-chatbot-inteligente-e-geolocalização)
 - [Solução do Projeto e Funcionalidades](#solução-do-projeto-e-funcionalidades)
   - [Detalhamento de Telas e Endpoints](#detalhamento-de-telas-e-endpoints)
 - [Execução em Ambiente Local (Opcional)](#execução-em-ambiente-local-opcional)
   - [Inicialização Tradicional (Wi-Fi Local ou Emulador)](#1-inicialização-tradicional-wi-fi-local-ou-emulador)
   - [Inicialização com Túneis Cloudflare (End-to-End Remoto)](#2-inicialização-com-túneis-cloudflare-end-to-end-remoto)
+  - [Inicialização da API do Chatbot (FastAPI + Google AI Studio)](#3-inicialização-da-api-do-chatbot-fastapi--google-ai-studio)
 - [Arquitetura e Estrutura de Pastas](#arquitetura-e-estrutura-de-pastas)
 - [Diagnóstico e Comandos Úteis](#diagnóstico-e-comandos-úteis)
 - [Integrantes da Equipe](#integrantes-da-equipe)
@@ -29,9 +31,10 @@
 
 O **Clyvo Care** é o portal do tutor dentro do ecossistema veterinário **Clyvo Vet**. Ele foi concebido para centralizar a gestão de saúde, acompanhamento preventivo e serviços para pets em uma experiência intuitiva, moderna e totalmente conectada.
 
-O aplicativo funciona como cliente consumidor de duas APIs independentes:
+O aplicativo funciona como cliente consumidor de três APIs independentes:
 1. **API Java (Spring Boot):** Gerencia a identidade do tutor (autenticação JWT assimétrica via RSA/RS256), catálogo de espécies, raças, pets associados e contratações de planos de saúde veterinários.
 2. **API .NET (ASP.NET Core):** Gerencia o credenciamento de clínicas veterinárias, geolocalização e agendamentos clínicos integrados com disparo de notificações locais.
+3. **API Python (FastAPI + Google Gemini):** Fornece um assistente virtual com IA generativa via Google AI Studio, integrado à geolocalização do dispositivo e com function calling para recomendação de planos e busca de clínicas parceiras mais próximas.
 
 ---
 
@@ -52,9 +55,10 @@ O aplicativo funciona como cliente consumidor de duas APIs independentes:
 - **Suporte Multiplataforma:** Android, iOS e Web ([React Native Web](https://necolas.github.io/react-native-web/))
 
 ### Ecossistema Backend & Infraestrutura
-- **Backends:** Java 17 (Spring Boot 3.x) e .NET 9 (ASP.NET Core)
-- **Bancos de Dados:** Oracle Database (Schema compartilhado) e MongoDB Atlas (Auditoria clínica)
-- **Cloud Hosting:** Microsoft Azure App Services
+- **Backends:** Java 17 (Spring Boot 3.x), .NET 9 (ASP.NET Core) e Python 3.14 (FastAPI + Google GenAI SDK)
+- **Inteligência Artificial:** Google Gemini (`gemini-3.7-flash` via Google AI Studio) com Function Calling / Tools
+- **Bancos de Dados:** Oracle Database (Schema compartilhado) e MongoDB Atlas (Auditoria clínica e fichas do assistente)
+- **Cloud Hosting:** Microsoft Azure App Services e Azure Container Instances (ACI)
 - **Túneis de Desenvolvimento:** Cloudflare Tunnel (`cloudflared`)
 
 ---
@@ -102,6 +106,7 @@ O arquivo `.env` já aponta para as APIs no Azure:
 ```env
 EXPO_PUBLIC_API_URL=https://clyvocare-java-rm561584.azurewebsites.net
 EXPO_PUBLIC_DOTNET_API_URL=https://clyvocare-dotnet-rm561584.azurewebsites.net
+EXPO_PUBLIC_CHATBOT_API_URL=http://localhost:8000
 ```
 
 ### 3. Iniciar o Aplicativo
@@ -124,6 +129,7 @@ npx expo start -c
 flowchart TD
     subgraph Mobile ["Clyvo Care (Mobile App)"]
         UI["React Native + Expo SDK 58"]
+        ChatbotWidget["Assistente Clyvo (Chatbot Widget)"]
     end
 
     subgraph JavaAPI ["API Java (Spring Boot)"]
@@ -139,9 +145,18 @@ flowchart TD
         DJwt["Validação JWT (Chave Pública RSA)"]
     end
 
+    subgraph ChatbotAPI ["API Chatbot (Python FastAPI)"]
+        Gemini["Google Gemini (AI Studio)"]
+        Tools["Tools: Clínicas & Planos"]
+        Mongo["MongoDB Atlas (Fichas de Contratação)"]
+    end
+
     UI -->|JWT Bearer Token| JavaAPI
     UI -->|JWT Bearer Token| DotnetAPI
     JavaAPI -.->|Chave Pública Compartilhada| DotnetAPI
+    ChatbotWidget -->|Contexto do Tutor + Coordenadas GPS| ChatbotAPI
+    ChatbotAPI --> Gemini
+    ChatbotAPI --> Mongo
 ```
 
 ### 1. API Java Spring Boot (Gestão, Pets, Planos e Auth)
@@ -156,6 +171,12 @@ flowchart TD
 - **Responsabilidades:** Busca e gerenciamento de clínicas credenciadas (`TB_CAD_CLINIC`), consulta de localidades compartilhadas (`TB_CAD_CITY`, `TB_CAD_STATE`) e criação de agendamentos (`TB_HEA_CLINICAL_EVENT`).
 - **Interoperabilidade:** Validação do mesmo token JWT gerado pelo Spring Boot utilizando a chave pública RSA compartilhada (`Jwt__PublicKeyPath`).
 
+### 3. API Python FastAPI & Gemini (Chatbot Inteligente e Geolocalização)
+- **Repositório:** [ClyvoPet-Challenge-2026/AI-DISRUPTIVE-ARCHITECTURES (branch `sprint4`)](https://github.com/ClyvoPet-Challenge-2026/AI-DISRUPTIVE-ARCHITECTURES/tree/sprint4)
+- **Tecnologias:** Python 3.14+, FastAPI, Google GenAI SDK (`gemini-3.7-flash`), Uvicorn, MongoDB Atlas e Docker / Azure Container Instances.
+- **Responsabilidades:** Processamento de linguagem natural do assistente Clyvo (`POST /chat`), simulação e recomendação inteligente de planos (`recomendar_plano`), busca de clínicas parceiras próximas com base na latitude/longitude do tutor (`buscar_clinicas_proximas`) e geração estruturada de propostas no MongoDB com status `aguardando_suporte`.
+- **Inteligência Artificial:** Orquestração orientada por ferramentas (*tool calling*) utilizando chave de API do **Google AI Studio**.
+
 ---
 
 ## Solução do Projeto e Funcionalidades
@@ -168,8 +189,9 @@ O **Clyvo Care** cobre de ponta a ponta a rotina do tutor veterinário:
 4. **Notificações Locais (`expo-notifications`):** Ao concluir o agendamento de uma consulta, o app agenda e emite uma notificação local no dispositivo. Ao tocar na notificação, o usuário é redirecionado automaticamente para a tela **Meus Pets**.
 5. **Contratação de Planos de Saúde Pet:** Catálogo de planos com detalhamento de coberturas, carências e contratação vinculada ao tutor. *(O cancelamento de planos é restrito a administradores, orientando o tutor a contatar o suporte).*
 6. **Gestão do Tutor & Perfil:** Edição de dados de contato e endereço. Opção de desativação da própria conta (`DELETE /responsaveis/{id}`), realizando o *soft delete* que encerra o acesso e preserva o histórico de registros.
-7. **Preferências e Temas:** Alternância dinâmica de estilos entre modo Claro (*Light*) e Escuro (*Dark*).
-8. **Sobre o App e Auditoria de Versão:** Tela dedicada exibindo os dados do projeto, equipe e o hash de commit Git capturado em tempo de build (`commitHash` via `app.config.js`).
+7. **Assistente Virtual Clyvo (Chatbot com IA & Geolocalização):** Widget flutuante integrado ao Google Gemini para auxiliar tutores. Envia as coordenadas reais do dispositivo do tutor e o catálogo de pets e planos do usuário autenticado, executando ferramentas que calculam a distância das clínicas e simulam a melhor cobertura de saúde.
+8. **Preferências e Temas:** Alternância dinâmica de estilos entre modo Claro (*Light*) e Escuro (*Dark*).
+9. **Sobre o App e Auditoria de Versão:** Tela dedicada exibindo os dados do projeto, equipe e o hash de commit Git capturado em tempo de build (`commitHash` via `app.config.js`).
 
 ### Detalhamento de Telas e Endpoints
 
@@ -184,7 +206,8 @@ Fluxo Autenticado (Protegido com sessão ativa):
 ├── MyPetScreen          -> GET /pets (Java) | DELETE /pets/{id} (Java)
 ├── MakeAppointment      -> GET /api/clinicas (.NET) | POST /api/agendamentos (.NET)
 ├── MyInformations       -> GET /responsaveis/{id} | PUT /responsaveis/{id} | DELETE /responsaveis/{id} (Java)
-└── AboutScreen          -> Exibição da versão, commit hash da build e informações da equipe
+├── AboutScreen          -> Exibição da versão, commit hash da build e informações da equipe
+└── ChatbotWidget        -> POST /chat (FastAPI / Gemini com geolocalização e contexto)
 ```
 
 ---
@@ -269,6 +292,70 @@ flowchart LR
 
 ---
 
+### 3. Inicialização da API do Chatbot (FastAPI + Google AI Studio)
+
+A API do chatbot de inteligência artificial roda em Python (FastAPI) e consome os modelos generativos da família Gemini via Google GenAI SDK.
+
+- **Repositório oficial:** [AI-DISRUPTIVE-ARCHITECTURES (branch `sprint4`)](https://github.com/ClyvoPet-Challenge-2026/AI-DISRUPTIVE-ARCHITECTURES/tree/sprint4)
+
+#### Como obter a chave de API do Google AI Studio
+1. Acesse o portal [Google AI Studio](https://aistudio.google.com/).
+2. Faça login com sua conta Google.
+3. No menu lateral esquerdo, clique no botão **"Get API key"**.
+4. Clique em **"Create API key"** (selecione um projeto existente no Google Cloud ou crie um novo automaticamente).
+5. Copie a chave gerada (`AIzaSy...`). Guarde-a em segurança.
+
+#### Passo a passo de execução local
+1. **Clonar o repositório e acessar a branch da sprint:**
+   ```bash
+   git clone -b sprint4 https://github.com/ClyvoPet-Challenge-2026/AI-DISRUPTIVE-ARCHITECTURES.git
+   cd AI-DISRUPTIVE-ARCHITECTURES/api/python
+   ```
+
+2. **Configurar o ambiente (`.env`):**
+   Crie o arquivo `.env` dentro de `api/python/`:
+   ```env
+   GEMINI_API_KEY=AIzaSySuaChaveAqui
+   GEMINI_MODEL=gemini-3.7-flash
+   MONGODB_URI=mongodb+srv://usuario:senha@cluster.mongodb.net/
+   MONGODB_DATABASE=clyvo
+   ```
+
+3. **Instalar dependências e iniciar o servidor FastAPI:**
+   O projeto utiliza o gerenciador ultrarrápido [`uv`](https://github.com/astral-sh/uv):
+   ```bash
+   # Sincronizar o ambiente virtual e pacotes
+   uv sync --locked
+
+   # Executar a API em modo de desenvolvimento na porta 8000
+   uv run uvicorn chatbot:app --reload --host 0.0.0.0 --port 8000
+   ```
+
+4. **Validar a inicialização:**
+   Abra um novo terminal e teste a rota de documentação ou o endpoint de chat:
+   ```bash
+   curl http://localhost:8000/openapi.json
+   curl -X POST http://localhost:8000/chat \
+     -H "Content-Type: application/json" \
+     -d '{"mensagem":"Quais planos vocês oferecem?"}'
+   ```
+
+5. **Conectar ao App Clyvo Care:**
+   No arquivo `.env` do aplicativo **Clyvo Care**, aponte a variável para o serviço:
+   ```env
+   # Para emulador Android:
+   EXPO_PUBLIC_CHATBOT_API_URL=http://10.0.2.2:8000
+
+   # Para dispositivo físico (mesmo Wi-Fi):
+   EXPO_PUBLIC_CHATBOT_API_URL=http://<SEU_IP_LOCAL>:8000
+
+   # Ou via túnel Cloudflare:
+   # cloudflared tunnel --url http://localhost:8000
+   # EXPO_PUBLIC_CHATBOT_API_URL=https://seu-tunel-chatbot.trycloudflare.com
+   ```
+
+---
+
 ## Arquitetura e Estrutura de Pastas
 
 O projeto adota uma arquitetura em camadas com separação clara de responsabilidades:
@@ -312,8 +399,10 @@ Clyvo-Care/
 | **Health Check API Java (Azure)** | `curl -i https://clyvocare-java-rm561584.azurewebsites.net/especies` |
 | **Health Check API .NET (Azure)** | `curl -i https://clyvocare-dotnet-rm561584.azurewebsites.net/health` |
 | **Testar listagem de clínicas (.NET)** | `curl -i https://clyvocare-dotnet-rm561584.azurewebsites.net/api/clinicas` |
+| **Health Check API Chatbot (Local)** | `curl -i http://localhost:8000/openapi.json` |
+| **Testar mensagem Chatbot (Local)** | `curl -i -X POST http://localhost:8000/chat -H "Content-Type: application/json" -d '{"mensagem":"Olá"}'` |
 | **Testar login via terminal (Java)** | `curl -i -X POST https://clyvocare-java-rm561584.azurewebsites.net/auth/login -H "Content-Type: application/json" -d '{"email":"rural@gmail.com","password":"senha123"}'` |
-| **Verificar processos locais ativos** | `ps aux \| grep -E "cloudflared\|expo\|java\|dotnet"` |
+| **Verificar processos locais ativos** | `ps aux \| grep -E "cloudflared\|expo\|java\|dotnet\|uvicorn"` |
 
 ---
 
